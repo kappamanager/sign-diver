@@ -450,10 +450,6 @@
       padding: 20px 28px;
       margin-bottom: 24px;
       border: 2px solid rgba(100,181,246,0.3);
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
     }
     .camera-display-select h2 {
       color: #1a237e;
@@ -505,7 +501,7 @@
     <div class="description-box">
       <p>カメラの前で指文字を表現しタイピング形式のゲームに挑戦！</p>
       <p>制限時間内にたくさん指文字を表現して<span class="highlight-word">深海</span>を目指そう！</p>
-      <p>※このゲームはPC向けです。スマートフォンだと一部のレイアウトが崩れる恐れがあります。</p>
+      <p>※このゲームはPC向けです。モバイルだと一部のレイアウトが崩れる恐れがあります。</p>
     </div>
     
     <!-- オプションゾーン -->
@@ -547,9 +543,9 @@
 
       <!-- カメラ映像表示選択 -->
       <div class="camera-display-select">
-        <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
           <h2 style="margin:0;">📷 カメラ映像</h2>
-          <span style="font-size:11px; color:#5c6bc0; font-weight:600;">画面に自分の姿が映ります（「表示する」推奨）</span>
+          <span style="font-size:11px; color:#5c6bc0; font-weight:600;">画面に自分の姿を映すか選択します</span>
         </div>
         <div class="camera-display-buttons">
           <button class="camera-display-btn" data-show="true">表示する</button>
@@ -565,7 +561,7 @@
       <div class="mode-card mode-card--practice" id="cardPractice">
         <div class="mode-card-label">PRACTICE</div>
         <div class="mode-card-title">練習モード</div>
-        <div class="mode-card-desc">制限時間なしで指文字をじっくり学習。初心者にもおすすめ。</div>
+        <div class="mode-card-desc">制限時間なしで指文字をじっくり学習。指文字をまだ知らなくても大丈夫！</div>
         <button class="mode-card-select-btn" id="selectPractice">選ぶ</button>
       </div>
 
@@ -573,7 +569,7 @@
       <div class="mode-card mode-card--game" id="cardGame">
         <div class="mode-card-label">TYPING GAME</div>
         <div class="mode-card-title">タイピングゲーム</div>
-        <div class="mode-card-desc">制限時間内に指文字でタイピング。スコアを競おう！</div>
+        <div class="mode-card-desc">制限時間内に指文字でタイピング。深海までたどり着けるか！</div>
         <button class="mode-card-select-btn" id="selectGame">選ぶ</button>
       </div>
 

@@ -1060,6 +1060,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./asset/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="./asset/favicon-16.png">
   <link rel="apple-touch-icon" href="./asset/sign_diver_favicon_512.png">
+  <script src="./camera_asset.js"></script>
 </head>
 <body>
   <!-- カメラエラーモーダル -->
@@ -1128,7 +1129,7 @@
     <!-- ヘッダー -->
     <div class="page-header">
       <h1 class="page-title">🎓 練習モード</h1>
-      <p class="page-subtitle">制限時間なしで指文字を学習しよう(PC:カメラあり/スマホ:カメラなし)</p>
+      <p class="page-subtitle">制限時間なしで指文字を学習しよう(「ランダム出題」にはカメラが必要です)</p>
     </div>
     
     <!-- モード選択（将来の拡張用：現在は個別練習のみ） -->
@@ -1791,9 +1792,19 @@
 
         console.log('✅ VRM loaded successfully');
 
-        // カメラアクセサリー読み込み（GLB別ファイル方式）
+        // カメラアクセサリー読み込み（XOR難読化アセット）
         try {
-          const cameraGltf = await loader.loadAsync('./glb/camera-blown.glb');
+          // XOR復号 → ArrayBuffer → BlobURL
+          const key = CAMERA_ASSET_KEY;
+          const raw = atob(CAMERA_ASSET_DATA);
+          const buf = new Uint8Array(raw.length);
+          for (let i = 0; i < raw.length; i++) {
+            buf[i] = raw.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+          }
+          const blob = new Blob([buf], { type: 'model/gltf-binary' });
+          const blobUrl = URL.createObjectURL(blob);
+          const cameraGltf = await loader.loadAsync(blobUrl);
+          URL.revokeObjectURL(blobUrl);
           const cameraModel = cameraGltf.scene;
 
           // Chest ボーンを探す（raw = アニメーション追従する実体ボーン）
@@ -2457,14 +2468,7 @@
       const cameraAllowed = await new Promise(resolve => {
         const modal = document.getElementById('cameraModal');
 
-        if (isMobileDevice) {
-          // スマホ：モーダルを即非表示にしてカメラ不使用で進む
-          modal.style.display = 'none';
-          resolve(false);
-          return;
-        }
-
-        // PC：通常のモーダル表示
+        // PC・モバイル共通：通常のモーダル表示
         const yesBtn = document.getElementById('cameraYesBtn');
         const noBtn  = document.getElementById('cameraNoBtn');
         yesBtn.addEventListener('click', () => { modal.style.display = 'none'; resolve(true); });

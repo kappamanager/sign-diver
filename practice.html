@@ -210,6 +210,19 @@
     .camera-area.hidden {
       display: none !important;
     }
+    .camera-area.reading-hidden {
+      display: none !important;
+    }
+    
+    /* 読取モード時：3DCGエリアが全幅に広がらないようにする */
+    .practice-main.reading-layout {
+      justify-content: center;
+    }
+    .practice-main.reading-layout .sample-area {
+      flex: none;
+      width: 50%;
+      max-width: 540px;
+    }
     
     .camera-wrapper {
       position: relative;
@@ -560,6 +573,162 @@
       box-shadow: 0 6px 16px rgba(76,175,80,0.4);
     }
     
+    /* 読取練習モード */
+    .reading-mode-ui {
+      background: rgba(255,255,255,0.8);
+      border: 2px solid rgba(100,181,246,0.3);
+      border-radius: 16px;
+      padding: 16px 12px;
+      margin-bottom: 12px;
+    }
+
+    .reading-question-counter {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #4a148c;
+      margin-bottom: 6px;
+    }
+
+    .reading-description {
+      text-align: center;
+      color: #4a148c;
+      padding: 4px 12px 12px;
+    }
+
+    .reading-description p {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 4px 0;
+      line-height: 1.6;
+    }
+
+    .reading-choices {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .reading-choice-btn {
+      min-width: 60px;
+      height: 60px;
+      border: 3px solid rgba(100,181,246,0.5);
+      background: rgba(255,255,255,0.95);
+      color: #1a237e;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 28px;
+      font-weight: 800;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .reading-choice-btn:hover {
+      background: rgba(100,181,246,0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(100,181,246,0.3);
+    }
+
+    .reading-choice-btn:active {
+      transform: translateY(0);
+    }
+
+    .reading-choice-btn.correct {
+      background: rgba(76,175,80,0.2);
+      border-color: #4caf50;
+      color: #2e7d32;
+      box-shadow: 0 0 12px rgba(76,175,80,0.4);
+    }
+
+    .reading-choice-btn.wrong {
+      background: rgba(239,83,80,0.15);
+      border-color: #ef5350;
+      color: #c62828;
+    }
+
+    .reading-choice-btn.disabled {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .reading-choice-btn.disabled.correct {
+      opacity: 1;
+    }
+
+    .reading-result {
+      text-align: center;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      animation: readingResultPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes readingResultPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .reading-result-icon {
+      font-size: 36px;
+      margin-bottom: 4px;
+    }
+
+    .reading-result-text {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .reading-result.correct {
+      background: rgba(76,175,80,0.12);
+    }
+
+    .reading-result.correct .reading-result-text {
+      color: #2e7d32;
+    }
+
+    .reading-result.wrong {
+      background: rgba(239,83,80,0.12);
+    }
+
+    .reading-result.wrong .reading-result-text {
+      color: #c62828;
+    }
+
+    .reading-result-hint {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6a1b9a;
+      margin-top: 6px;
+      padding: 4px 12px;
+      background: rgba(206,147,216,0.15);
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    .reading-next-wrapper {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .reading-stats {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a237e;
+    }
+
+    .reading-stat-item {
+      padding: 4px 10px;
+      background: rgba(100,181,246,0.1);
+      border-radius: 8px;
+    }
+
     /* フッター */
     .site-footer {
       text-align: center;
@@ -916,6 +1085,25 @@
       /* ── フッター ── */
       .site-footer { font-size: 11px; }
       .site-footer a { font-size: 11px; margin: 0 6px; }
+
+      /* ── 読取練習モード ── */
+      .reading-mode-ui {
+        padding: 10px 8px;
+        border-radius: 12px;
+      }
+      .reading-choice-btn {
+        min-width: 50px;
+        height: 50px;
+        font-size: 24px;
+      }
+      .reading-stats {
+        font-size: 12px;
+        gap: 8px;
+      }
+      .practice-main.reading-layout .sample-area {
+        width: 100%;
+        max-width: none;
+      }
     }
 
     /* 正解演出オーバーレイ */
@@ -1103,7 +1291,7 @@
         カメラを使用しますか？
       </h2>
       <p style="font-size:13px; color:#37474f; line-height:1.8; margin-bottom:24px;">
-        カメラを使うと手の動きをリアルタイムで認識し、<br>
+        カメラを使うと手の動きをリアルタイムで認識し、
         指文字の正誤判定ができます。<br>
         <strong style="color:#1565c0;">カメラなしでも練習ページは利用できます。</strong>
       </p>
@@ -1129,13 +1317,14 @@
     <!-- ヘッダー -->
     <div class="page-header">
       <h1 class="page-title">🎓 練習モード</h1>
-      <p class="page-subtitle">制限時間なしで指文字を学習しよう(「ランダム出題」にはカメラが必要です)</p>
+      <p class="page-subtitle">制限時間なしで指文字を学習しよう</p>
     </div>
     
-    <!-- モード選択（将来の拡張用：現在は個別練習のみ） -->
+    <!-- モード選択 -->
     <div class="mode-selector">
-      <button class="mode-btn active" id="modeIndividual">個別練習</button>
-      <button class="mode-btn" id="modeRandom">ランダム出題</button>
+      <button class="mode-btn active" id="modeGuide">ガイド</button>
+      <button class="mode-btn" id="modeExpression">表現練習</button>
+      <button class="mode-btn" id="modeReading">読取練習</button>
     </div>
     
     <!-- メインエリア -->
@@ -1240,7 +1429,44 @@
       <!-- 説明文 -->
       <div class="random-description">
         <p>ランダムに出題される指文字を作ってください。</p>
+        <p>分からなければ「再生ボタン」で動きを確認してください。</p>
         <p>正解すると自動的に次の文字に進みます。</p>
+        <p>※このモードにはカメラが必要です。</p>
+      </div>
+    </div>
+    
+    <!-- 読取練習モード用UI -->
+    <div class="reading-mode-ui" id="readingModeUI" style="display: none;">
+      <!-- 問題番号 -->
+      <div class="reading-question-counter" id="readingCounter">第 1 問</div>
+      
+      <!-- 説明文 -->
+      <div class="reading-description">
+        <p>3Dモデルが表現している指文字を当ててください。</p>
+      </div>
+      
+      <!-- 選択肢ボタン -->
+      <div class="reading-choices" id="readingChoices">
+        <!-- JSで生成 -->
+      </div>
+      
+      <!-- 結果表示 -->
+      <div class="reading-result" id="readingResult" style="display: none;">
+        <div class="reading-result-icon" id="readingResultIcon"></div>
+        <div class="reading-result-text" id="readingResultText"></div>
+        <div class="reading-result-hint" id="readingResultHint" style="display: none;"></div>
+      </div>
+      
+      <!-- 次へボタン -->
+      <div class="reading-next-wrapper" id="readingNextWrapper" style="display: none;">
+        <button class="control-btn" id="readingNextBtn">次の問題へ →</button>
+      </div>
+      
+      <!-- 統計 -->
+      <div class="reading-stats" id="readingStats">
+        <span class="reading-stat-item" id="readingStatsCorrect">⭕ 0</span>
+        <span class="reading-stat-item" id="readingStatsWrong">❌ 0</span>
+        <span class="reading-stat-item" id="readingStatsTotal">全 0 問</span>
       </div>
     </div>
     
@@ -1416,7 +1642,7 @@
     const ctx = canvas.getContext('2d');
     
     // モード管理
-    let currentMode = 'individual'; // 'individual' or 'random'
+    let currentMode = 'guide'; // 'guide', 'expression', or 'reading'
     
     // ランダム出題モード用
     let randomModeActive = false;
@@ -1424,6 +1650,12 @@
     let totalQuestions = 0;
     let correctAnswers = 0;
     let currentQuestionAnswered = false;  // 現在の問題に正解したか
+    
+    // 読取練習モード用
+    let readingTotalQuestions = 0;
+    let readingCorrectAnswers = 0;
+    let readingWrongAnswers = 0;
+    let readingCurrentAnswer = '';  // 現在の正解文字
     
     // VRM表示用
     let vrmScene, vrmCamera, vrmRenderer, vrmControls, vrm;
@@ -1532,31 +1764,54 @@
       currentMode = mode;
       
       // ボタンのアクティブ状態更新
-      document.getElementById('modeIndividual').classList.toggle('active', mode === 'individual');
-      document.getElementById('modeRandom').classList.toggle('active', mode === 'random');
+      document.getElementById('modeGuide').classList.toggle('active', mode === 'guide');
+      document.getElementById('modeExpression').classList.toggle('active', mode === 'expression');
+      document.getElementById('modeReading').classList.toggle('active', mode === 'reading');
       
-      if (mode === 'individual') {
-        // 個別練習モード
+      // 全UIセクションを一旦非表示
+      document.getElementById('characterSelector').style.display = 'none';
+      document.getElementById('randomModeUI').style.display = 'none';
+      document.getElementById('readingModeUI').style.display = 'none';
+      document.querySelector('.navigation').style.display = 'flex';
+      document.getElementById('prevBtn').style.display = 'inline-block';
+      document.getElementById('nextBtn').style.display = 'inline-block';
+      
+      // カメラエリアの表示/非表示
+      const cameraArea = document.querySelector('.camera-area');
+      const practiceMain = document.querySelector('.practice-main');
+      
+      if (mode === 'guide') {
+        // ガイドモード（旧：個別練習）
         document.getElementById('characterSelector').style.display = 'block';
-        document.getElementById('randomModeUI').style.display = 'none';
-        document.querySelector('.navigation').style.display = 'flex';
-        document.getElementById('prevBtn').style.display = 'inline-block';
-        document.getElementById('nextBtn').style.display = 'inline-block';
+        if (cameraArea) cameraArea.classList.remove('reading-hidden');
+        if (practiceMain) practiceMain.classList.remove('reading-layout');
         randomModeActive = false;
         
         // 現在の文字を再選択（UIをリセット、由来コメントも表示される）
         selectCharacter(currentCharIndex);
         
-      } else if (mode === 'random') {
-        // ランダム出題モード
-        document.getElementById('characterSelector').style.display = 'none';
+      } else if (mode === 'expression') {
+        // 表現練習モード（旧：ランダム出題）
         document.getElementById('randomModeUI').style.display = 'block';
-        document.querySelector('.navigation').style.display = 'flex';  // メニューボタンのため表示
-        document.getElementById('prevBtn').style.display = 'none';  // 前へボタン非表示
-        document.getElementById('nextBtn').style.display = 'none';  // 次へボタン非表示
+        document.getElementById('prevBtn').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'none';
+        if (cameraArea) cameraArea.classList.remove('reading-hidden');
+        if (practiceMain) practiceMain.classList.remove('reading-layout');
         
         // ランダムモード開始（完了を待つ）
         await startRandomMode();
+        
+      } else if (mode === 'reading') {
+        // 読取練習モード（NEW）
+        document.getElementById('readingModeUI').style.display = 'block';
+        document.getElementById('prevBtn').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'none';
+        if (cameraArea) cameraArea.classList.add('reading-hidden');
+        if (practiceMain) practiceMain.classList.add('reading-layout');
+        randomModeActive = false;
+        
+        // 読取練習開始
+        await startReadingMode();
       }
     }
     
@@ -1580,8 +1835,8 @@
     
     async function nextRandomCharacter() {
       if (randomCharPool.length === 0) {
-        // 全文字終了 - 個別練習モードに戻る
-        switchMode('individual');
+        // 全文字終了 - ガイドモードに戻る
+        switchMode('guide');
         return;
       }
       
@@ -1607,11 +1862,11 @@
       // animate()が最低1回実行され正しいポーズが描画されてからフリーズする
       // timeScale=0ではなく0.0001を使う（0だとThree.jsがTポーズを出す）
       await new Promise(resolve => requestAnimationFrame(() => {
-        if (action && currentMode === 'random') {
+        if (action && currentMode === 'expression') {
           action.timeScale = 0.0001;
           if (exprAction) exprAction.timeScale = 0.0001;
           isPaused = true;
-          console.log('[RANDOM] ⏸ Frozen at', action.time.toFixed(3), 's (timeScale=0.0001)');
+          console.log('[EXPRESSION] ⏸ Frozen at', action.time.toFixed(3), 's (timeScale=0.0001)');
         }
         resolve();
       }));
@@ -1630,8 +1885,198 @@
     }
     
     function endRandomMode() {
-      // 終了機能は不要になったが、関数は残しておく（エラー回避）
-      switchMode('individual');
+      switchMode('guide');
+    }
+    
+    // ==========================================
+    // 読取練習モード
+    // ==========================================
+    
+    // 似た手形のグループ（紛らわしい選択肢を生成するため）
+    const CONFUSABLE_GROUPS = [
+      ['う', 'く'],
+      ['ち', 'と'],
+      ['え', 'ん'],
+      ['き', 'ひ'],
+      ['あ', 'ま'],
+      ['け', 'は'],
+      ['お', 'そ'],
+      ['か', 'や'],
+      ['さ', 'せ'],
+      ['し', 'り'],
+      ['す', 'む'],
+      ['た', 'な'],
+      ['ぬ', 'ね', 'る'],
+      ['て', 'ほ'],
+      ['に', 'の'],
+      ['ふ', 'め'],
+      ['み', 'も'],
+      ['へ', 'ろ'],
+      ['ゆ', 'れ'],
+      ['よ', 'わ'],
+    ];
+    
+    async function startReadingMode() {
+      // 統計リセット
+      readingTotalQuestions = 0;
+      readingCorrectAnswers = 0;
+      readingWrongAnswers = 0;
+      updateReadingStats();
+      
+      // 最初の問題を出題
+      await nextReadingQuestion();
+    }
+    
+    async function nextReadingQuestion() {
+      // 出題対象：清音のみ（JUDGEABLE_CHARS）
+      const pool = [...JUDGEABLE_CHARS];
+      const answer = pool[Math.floor(Math.random() * pool.length)];
+      readingCurrentAnswer = answer;
+      readingTotalQuestions++;
+      
+      // カウンター更新
+      document.getElementById('readingCounter').textContent = `第 ${readingTotalQuestions} 問`;
+      
+      // 結果・次へを非表示
+      document.getElementById('readingResult').style.display = 'none';
+      document.getElementById('readingNextWrapper').style.display = 'none';
+      
+      // 選択肢を生成（正解1 + ダミー4 = 5択）
+      const choices = generateChoices(answer, 5);
+      
+      // 選択肢ボタンを描画
+      const container = document.getElementById('readingChoices');
+      container.innerHTML = '';
+      choices.forEach(ch => {
+        const btn = document.createElement('button');
+        btn.className = 'reading-choice-btn';
+        btn.textContent = ch;
+        btn.addEventListener('click', () => onReadingChoiceClick(btn, ch));
+        container.appendChild(btn);
+      });
+      
+      // 3DCGでモーション再生
+      currentChar = answer;
+      await switchVRMMotion(answer);
+      
+      // 再生状態にする（ガイドモードと同じく再生）
+      if (action) {
+        isPaused = false;
+        action.timeScale = 1;
+        if (exprAction) exprAction.timeScale = 1;
+      }
+      
+      // ヒントを非表示（答えがバレるので）
+      const hintElement = document.getElementById('charHint');
+      if (hintElement) hintElement.style.display = 'none';
+      
+      updateReadingStats();
+    }
+    
+    function generateChoices(answer, count) {
+      const choices = new Set([answer]);
+      
+      // まず似た手形の文字を優先的に追加
+      for (const group of CONFUSABLE_GROUPS) {
+        if (group.includes(answer)) {
+          for (const ch of group) {
+            if (ch !== answer && choices.size < count) {
+              choices.add(ch);
+            }
+          }
+        }
+      }
+      
+      // 残りをランダムに追加
+      const pool = JUDGEABLE_CHARS.filter(ch => !choices.has(ch));
+      while (choices.size < count && pool.length > 0) {
+        const idx = Math.floor(Math.random() * pool.length);
+        choices.add(pool.splice(idx, 1)[0]);
+      }
+      
+      // シャッフル
+      const arr = [...choices];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+    
+    function onReadingChoiceClick(clickedBtn, chosen) {
+      const isCorrect = (chosen === readingCurrentAnswer);
+      
+      // 全ボタンを無効化
+      document.querySelectorAll('.reading-choice-btn').forEach(btn => {
+        btn.classList.add('disabled');
+        // 正解ボタンにハイライト
+        if (btn.textContent === readingCurrentAnswer) {
+          btn.classList.add('correct');
+        }
+      });
+      
+      // 押したボタンが不正解ならマーク
+      if (!isCorrect) {
+        clickedBtn.classList.add('wrong');
+        readingWrongAnswers++;
+      } else {
+        readingCorrectAnswers++;
+      }
+      
+      // 結果表示
+      const resultEl = document.getElementById('readingResult');
+      const iconEl = document.getElementById('readingResultIcon');
+      const textEl = document.getElementById('readingResultText');
+      
+      resultEl.style.display = 'block';
+      resultEl.className = 'reading-result ' + (isCorrect ? 'correct' : 'wrong');
+      
+      if (isCorrect) {
+        iconEl.textContent = '⭕';
+        textEl.textContent = `正解！ 「${readingCurrentAnswer}」`;
+      } else {
+        iconEl.textContent = '❌';
+        textEl.textContent = `不正解… 正解は「${readingCurrentAnswer}」`;
+      }
+      
+      // ヒントテキスト（覚え方）を表示
+      const hint = CHARACTER_HINTS[readingCurrentAnswer] || '';
+      const hintLine = document.getElementById('readingResultHint');
+      if (hintLine) {
+        if (hint) {
+          hintLine.textContent = `💡 ${hint}`;
+          hintLine.style.display = 'block';
+        } else {
+          hintLine.style.display = 'none';
+        }
+      }
+      
+      // 正解演出（正解時のみ）
+      if (isCorrect) {
+        showCorrectOverlay();
+      }
+      
+      // 次へボタン表示
+      document.getElementById('readingNextWrapper').style.display = 'block';
+      
+      updateReadingStats();
+    }
+    
+    function updateReadingStats() {
+      document.getElementById('readingStatsCorrect').textContent = `⭕ ${readingCorrectAnswers}`;
+      document.getElementById('readingStatsWrong').textContent = `❌ ${readingWrongAnswers}`;
+      document.getElementById('readingStatsTotal').textContent = `全 ${readingTotalQuestions} 問`;
+    }
+    
+    // 正解演出（既存のcorrectOverlayを再利用）
+    function showCorrectOverlay() {
+      const overlay = document.getElementById('correctOverlay');
+      overlay.classList.remove('hide');
+      overlay.classList.add('show');
+      setTimeout(() => {
+        overlay.classList.remove('show');
+        overlay.classList.add('hide');
+      }, 700);
     }
     
     // ==========================================
@@ -2125,13 +2570,13 @@
           }
           
           // モードに応じて停止/再生
-          if (currentMode === 'random') {
+          if (currentMode === 'expression') {
             isPaused = true;
-            console.log('[LOAD] ⏸ Setting isPaused = TRUE (random mode)');
+            console.log('[LOAD] ⏸ Setting isPaused = TRUE (expression mode)');
             console.log('[LOAD] Paused at', newAction.time.toFixed(3), 's');
           } else {
             isPaused = false;
-            console.log('[LOAD] ▶ Setting isPaused = FALSE (normal mode)');
+            console.log('[LOAD] ▶ Setting isPaused = FALSE (normal/reading mode)');
             console.log('[LOAD] Playing from', newAction.time.toFixed(3), 's');
           }
           
@@ -3033,8 +3478,12 @@
     initCharacterButtons();
     
     // モード切り替えイベント
-    document.getElementById('modeIndividual').addEventListener('click', () => switchMode('individual'));
-    document.getElementById('modeRandom').addEventListener('click', () => switchMode('random'));
+    document.getElementById('modeGuide').addEventListener('click', () => switchMode('guide'));
+    document.getElementById('modeExpression').addEventListener('click', () => switchMode('expression'));
+    document.getElementById('modeReading').addEventListener('click', () => switchMode('reading'));
+    
+    // 読取練習「次へ」ボタン
+    document.getElementById('readingNextBtn').addEventListener('click', () => nextReadingQuestion());
     
     init();
   </script>

@@ -2514,12 +2514,12 @@
         if (cameraAllowed) {
           // モデル読み込み（カメラ使用時のみ）
           console.log('モデル読み込み中...');
-          const modelPath = '../80_siggame/03_model/tfjs_model_official/model.json';
+          const modelPath = './tfjs_model_official/model.json';
           model = await tf.loadGraphModel(modelPath);
           console.log('✅ モデル読み込み完了');
           
           // ラベルマップ読み込み
-          const labelMapPath = '../80_siggame/03_model/label_map_unified.json';
+          const labelMapPath = './tfjs_model_official/label_map_unified.json';
           const labelRes = await fetch(labelMapPath);
           labelMap = await labelRes.json();
           console.log('✅ ラベルマップ読み込み完了');

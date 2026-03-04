@@ -1,0 +1,10 @@
+# ===========================================
+# Sign Diver - robots.txt（公開版）
+# ===========================================
+User-agent: *
+Allow: /
+
+# ゲーム画面は検索結果に不要
+Disallow: /typing_game.html
+
+Sitemap: https://signdiver.com/sitemap.xml

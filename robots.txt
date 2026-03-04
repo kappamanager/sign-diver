@@ -1,8 +1,11 @@
+# ===========================================
+# Sign Diver - robots.txt（封鎖版）
+# 公開時に robots_live.txt の内容に差し替える
+# ===========================================
 User-agent: *
-Allow: /
+Disallow: /
 
-# ゲーム画面は検索結果に不要
-Disallow: /typing_game.html
-
-# サイトマップの場所
-Sitemap: https://h-takayasu.github.io/sign-diver/sitemap.xml
+# 公開後は以下に差し替え:
+# User-agent: *
+# Allow: /
+# Sitemap: https://signdiver.com/sitemap.xml

@@ -3,9 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Sign Diverのゲーム画面。カメラで指文字を認識してタイピング！深海を目指して文字数を稼ごう。">
-  <meta name="robots" content="noindex">
-  <title>ゲームプレイ - 指文字タイピングゲーム Sign Diver</title>
+  <meta name="description" content="Sign Diverのタイピングゲームモード。表示される単語を指文字で素早く入力。ゲーム感覚で指文字のスピードと正確さを鍛えよう。">
+  <meta name="keywords" content="指文字,タイピングゲーム,手話,カメラ認識,AI,Sign Diver">
+  <title>タイピングゲーム - Sign Diver｜指文字でタイピング練習</title>
+
+  <!-- ★公開時に削除★ -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <meta name="author" content="Sign Diver Project">
+  <link rel="canonical" href="https://signdiver.com/typing_game.html">
+
+  <!-- OGP -->
+  <meta property="og:title" content="タイピングゲーム - Sign Diver">
+  <meta property="og:description" content="表示される単語を指文字で素早く入力。ゲーム感覚で指文字を鍛えよう。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://signdiver.com/typing_game.html">
+  <meta property="og:site_name" content="Sign Diver">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:image" content="https://signdiver.com/asset/sign_diver_ogp.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="タイピングゲーム - Sign Diver">
+  <meta name="twitter:description" content="指文字でタイピング！ゲーム感覚で指文字のスピードと正確さを鍛えよう。">
+  <meta name="twitter:image" content="https://signdiver.com/asset/sign_diver_ogp.jpg">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="./asset/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./asset/favicon-16.png">
+  <link rel="apple-touch-icon" href="./asset/sign_diver_favicon_512.png">
   <!-- 提案3a: DNS解決＋TLS接続を事前確立 -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
@@ -1189,11 +1217,7 @@
       background: rgba(233,30,99,0.12);
       border-color: rgba(233,30,99,0.9);
     }
-  </style>
-  <link rel="icon" type="image/png" sizes="32x32" href="./asset/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="./asset/favicon-16.png">
-  <link rel="apple-touch-icon" href="./asset/sign_diver_favicon_512.png">
-</head>
+  </style></head>
 <body>
   <!-- カメラエラーモーダル -->
   <div id="cameraErrorModal">
@@ -2835,7 +2859,6 @@
           
           if (specialStageNumber > currentMax) {
             localStorage.setItem('signDiverMaxStage', specialStageNumber.toString());
-
 
             
             // アンロック通知（オプション：必要に応じてUIで表示）

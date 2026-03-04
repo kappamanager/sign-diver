@@ -3,33 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="指文字でタイピング！カメラを使って指文字を認識するゲーム「Sign Diver」。制限時間内にたくさん指文字を表現して深海を目指そう。手話学習にも最適。">
-  <meta name="keywords" content="指文字,手話,タイピングゲーム,学習,教育,AI認識,Sign Diver">
-  <title>Sign Diver - 指文字タイピングゲーム Sign Diver</title>
+  <meta name="description" content="Sign Diverは、カメラで手の形を認識して日本語指文字（JSL）を練習できる無料Webアプリ。MediaPipeとTensorFlow.jsによるリアルタイムAI認識で、ゲーム感覚で指文字を覚えよう。">
+  <meta name="keywords" content="指文字,手話,タイピング,練習,ゲーム,カメラ認識,AI,MediaPipe,日本語対応手話,JSL,Sign Diver,サインダイバー">
+  <title>Sign Diver（サインダイバー）- カメラで指文字タイピング練習｜手話の指文字をAIで学ぼう</title>
+
+  <!-- ★公開時に削除★ -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <meta name="author" content="Sign Diver Project">
+  <link rel="canonical" href="https://signdiver.com/">
+
+  <!-- OGP -->
+  <meta property="og:title" content="Sign Diver（サインダイバー）- カメラで指文字タイピング練習">
+  <meta property="og:description" content="カメラで手の形を認識して指文字を練習できる無料Webアプリ。AI認識でゲーム感覚で手話の指文字を覚えよう。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://signdiver.com/">
+  <meta property="og:site_name" content="Sign Diver">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:image" content="https://signdiver.com/asset/sign_diver_ogp.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sign Diver（サインダイバー）- カメラで指文字タイピング練習">
+  <meta name="twitter:description" content="カメラで手の形を認識して指文字を練習できる無料Webアプリ。">
+  <meta name="twitter:image" content="https://signdiver.com/asset/sign_diver_ogp.jpg">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="./asset/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./asset/favicon-16.png">
+  <link rel="apple-touch-icon" href="./asset/sign_diver_favicon_512.png">
+
+  <!-- 構造化データ JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Sign Diver（サインダイバー）",
+    "alternateName": "サインダイバー",
+    "description": "カメラで手の形をリアルタイム認識して日本語指文字（JSL）を練習できる無料Webアプリ",
+    "url": "https://signdiver.com/",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "JPY"
+    },
+    "inLanguage": "ja",
+    "browserRequirements": "Requires a modern browser with camera access",
+    "featureList": [
+      "リアルタイムカメラ認識による指文字練習",
+      "82クラスの日本語指文字対応",
+      "MediaPipe + TensorFlow.jsによるAI認識",
+      "ステージ制の学習システム",
+      "VRMキャラクターによる3D演出"
+    ],
+    "screenshot": "https://signdiver.com/asset/sign_diver_ogp.jpg"
+  }
+  </script>
 
   <!-- Umami Analytics（Cookie不使用・プライバシーフレンドリー） -->
   <script defer src="https://cloud.umami.is/script.js"
     data-website-id="627936e6-b8fd-4d77-92f5-4f2f4f357b5b">
   </script>
-
-  <!-- OGP -->
-  <meta property="og:title" content="Sign Diver - 指文字タイピングゲーム">
-  <meta property="og:description" content="指文字でタイピング！カメラを使って指文字を認識するゲーム。制限時間内にたくさん指文字を表現して深海を目指そう。">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://h-takayasu.github.io/sign-diver/">
-  <meta property="og:site_name" content="Sign Diver">
-  <meta property="og:locale" content="ja_JP">
-  <meta property="og:image" content="https://h-takayasu.github.io/sign-diver/asset/sign_diver_ogp.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <link rel="icon" type="image/png" sizes="32x32" href="./asset/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="./asset/favicon-16.png">
-  <link rel="apple-touch-icon" href="./asset/sign_diver_favicon_512.png">
-  
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Sign Diver - 指文字タイピングゲーム">
-  <meta name="twitter:description" content="指文字でタイピング！カメラを使って指文字を認識するゲーム。深海を目指そう。">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     

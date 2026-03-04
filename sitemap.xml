@@ -1,38 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://h-takayasu.github.io/sign-diver/index.html</loc>
-    <lastmod>2026-02-18</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://signdiver.com/</loc>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://h-takayasu.github.io/sign-diver/about_yubimoji.html</loc>
-    <lastmod>2026-02-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://signdiver.com/practice.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://h-takayasu.github.io/sign-diver/about_signdiver.html</loc>
-    <lastmod>2026-02-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://signdiver.com/typing_game.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://h-takayasu.github.io/sign-diver/history.html</loc>
-    <lastmod>2026-02-18</lastmod>
+    <loc>https://signdiver.com/about_signdiver.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://signdiver.com/about_yubimoji.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://signdiver.com/history.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://h-takayasu.github.io/sign-diver/terms.html</loc>
-    <lastmod>2026-02-18</lastmod>
+    <loc>https://signdiver.com/privacy.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://h-takayasu.github.io/sign-diver/privacy.html</loc>
-    <lastmod>2026-02-18</lastmod>
+    <loc>https://signdiver.com/terms.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

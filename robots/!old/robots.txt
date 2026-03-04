@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# ゲーム画面は検索結果に不要
+Disallow: /typing_game.html
+
+# サイトマップの場所
+Sitemap: https://h-takayasu.github.io/sign-diver/sitemap.xml

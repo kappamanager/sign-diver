@@ -1909,7 +1909,15 @@
         return;
       }
 
-      await new Promise(resolve => { video.onloadedmetadata = resolve; });
+      // readyState >= 1 ならloadedmetadata発火済み → awaitしない
+      if (video.readyState < 1) {
+        console.log('[PERF] loadedmetadata: waiting (readyState=' + video.readyState + ')');
+        await new Promise(resolve => {
+          video.addEventListener('loadedmetadata', resolve, { once: true });
+        });
+      } else {
+        console.log('[PERF] loadedmetadata: already fired (readyState=' + video.readyState + ') ✅ skip await');
+      }
       await video.play();
       canvas.width = video.videoWidth || 640;
       canvas.height = video.videoHeight || 480;

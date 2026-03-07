@@ -18,7 +18,7 @@
       }
     },
     {
-      "minChars": 8,
+      "minChars": 15,
       "depth": 10,
       "name": "珊瑚礁",
       "icon": "🪸",
@@ -35,7 +35,7 @@
       }
     },
     {
-      "minChars": 18,
+      "minChars": 35,
       "depth": 30,
       "name": "浅海",
       "icon": "🐠",
@@ -52,7 +52,7 @@
       }
     },
     {
-      "minChars": 32,
+      "minChars": 60,
       "depth": 80,
       "name": "潮目",
       "icon": "🌊",
@@ -69,7 +69,7 @@
       }
     },
     {
-      "minChars": 48,
+      "minChars": 90,
       "depth": 200,
       "name": "中層",
       "icon": "🐙",
@@ -86,7 +86,7 @@
       }
     },
     {
-      "minChars": 68,
+      "minChars": 130,
       "depth": 500,
       "name": "薄暮層",
       "icon": "🌑",
@@ -103,7 +103,7 @@
       }
     },
     {
-      "minChars": 92,
+      "minChars": 175,
       "depth": 1000,
       "name": "深海",
       "icon": "🦑",
@@ -120,7 +120,7 @@
       }
     },
     {
-      "minChars": 120,
+      "minChars": 230,
       "depth": 3000,
       "name": "超深海",
       "icon": "⬛",
@@ -137,7 +137,7 @@
       }
     },
     {
-      "minChars": 155,
+      "minChars": 300,
       "depth": 11000,
       "name": "???",
       "icon": "👤",

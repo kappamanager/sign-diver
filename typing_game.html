@@ -2460,6 +2460,7 @@
         }
         
         const landmarks = res.landmarks[idx];
+        trackWrist(landmarks);
         const features = toFeature63(landmarks);
         
         // 推論
@@ -2558,6 +2559,54 @@
     let frameBuffer = [];
     const TARGET_FRAMES = 15;
     
+    // ===== 動き検出後処理（混同ペア補正） =====
+    let wristBuffer = [];
+    const WRIST_BUFFER_SIZE = 20;
+    const MOTION_THRESHOLD_XY = 0.06;  // 手のxy移動量の閾値（要チューニング）
+    const PULLBACK_THRESHOLD = 0.02;   // 手前に引く動きの閾値（要チューニング）
+    const POSTPROCESS_CONF_LIMIT = 0.95; // この信頼度以上ならモデルを信頼して補正しない
+
+    function trackWrist(landmarks) {
+      const w = landmarks[0];
+      wristBuffer.push({ x: w.x, y: w.y, z: w.z });
+      if (wristBuffer.length > WRIST_BUFFER_SIZE) wristBuffer.shift();
+    }
+
+    function getWristMotion() {
+      if (wristBuffer.length < 5) return { xy: 0, z: 0 };
+      const recent = wristBuffer.slice(-15);
+      let totalXY = 0, totalZ = 0;
+      for (let i = 1; i < recent.length; i++) {
+        const dx = recent[i].x - recent[i - 1].x;
+        const dy = recent[i].y - recent[i - 1].y;
+        totalXY += Math.sqrt(dx * dx + dy * dy);
+        totalZ += (recent[i].z - recent[i - 1].z);
+      }
+      return { xy: totalXY, z: totalZ };
+    }
+
+    function postProcessSign(sign, conf) {
+      if (conf >= POSTPROCESS_CONF_LIMIT) return sign;
+      const motion = getWristMotion();
+      const hasMotionXY = motion.xy > MOTION_THRESHOLD_XY;
+      const hasPullBack = Math.abs(motion.z) > PULLBACK_THRESHOLD;
+
+      // に↔り: 「り」は空書き(motion)、「に」は静止(static)
+      if (sign === 'ni' && hasMotionXY) return 'ri';
+      if (sign === 'ri' && !hasMotionXY) return 'ni';
+
+      // ゃ↔や / ゅ↔ゆ / ょ↔よ: 小文字は手前に引く(motion)、大文字は静止(static)
+      if (sign === 'ya' && hasPullBack) return 'xya';
+      if (sign === 'xya' && !hasPullBack) return 'ya';
+      if (sign === 'yu' && hasPullBack) return 'xyu';
+      if (sign === 'xyu' && !hasPullBack) return 'yu';
+      if (sign === 'yo' && hasPullBack) return 'xyo';
+      if (sign === 'xyo' && !hasPullBack) return 'yo';
+
+      return sign;
+    }
+    // ===== 動き検出後処理ここまで =====
+    
     async function predictSign(features) {
       frameBuffer.push(features);
       if (frameBuffer.length > 20) {
@@ -2577,7 +2626,10 @@
       
       const predId = Array.from(probs).indexOf(Math.max(...probs));
       const conf = probs[predId];
-      const sign = labelMap.id_to_label[String(predId)];
+      const rawSign = labelMap.id_to_label[String(predId)];
+      
+      // 動き検出による混同ペア補正
+      const sign = postProcessSign(rawSign, conf);
       
       // 英語ラベルを日本語に変換（表示用）
       const displaySign = convertToHiragana(sign);
@@ -2926,7 +2978,7 @@
       window.location.reload();
     };
     
-    const SITE_URL = 'https://signdiver.com/';
+    const SITE_URL = 'https://h-takayasu.github.io/sign-diver/';
 
     window.shareToX = function() {
       const score = document.getElementById('finalScore').textContent;

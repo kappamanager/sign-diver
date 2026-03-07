@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -7,6 +7,8 @@
   <meta name="keywords" content="指文字,練習,手話,カメラ認識,AI,Sign Diver">
   <title>練習モード - Sign Diver｜カメラで指文字を一文字ずつ練習</title>
 
+  <!-- ★公開時に削除★ -->
+  <meta name="robots" content="noindex, nofollow">
 
   <meta name="author" content="Sign Diver Project">
   <link rel="canonical" href="https://signdiver.com/practice.html">
@@ -1659,6 +1661,52 @@
     let frameBuffer = [];
     const TARGET_FRAMES = 15;
     
+    // ===== 動き検出後処理（混同ペア補正） =====
+    let wristBuffer = [];
+    const WRIST_BUFFER_SIZE = 20;
+    const MOTION_THRESHOLD_XY = 0.06;
+    const PULLBACK_THRESHOLD = 0.02;
+    const POSTPROCESS_CONF_LIMIT = 0.95;
+
+    function trackWrist(landmarks) {
+      const w = landmarks[0];
+      wristBuffer.push({ x: w.x, y: w.y, z: w.z });
+      if (wristBuffer.length > WRIST_BUFFER_SIZE) wristBuffer.shift();
+    }
+
+    function getWristMotion() {
+      if (wristBuffer.length < 5) return { xy: 0, z: 0 };
+      const recent = wristBuffer.slice(-15);
+      let totalXY = 0, totalZ = 0;
+      for (let i = 1; i < recent.length; i++) {
+        const dx = recent[i].x - recent[i - 1].x;
+        const dy = recent[i].y - recent[i - 1].y;
+        totalXY += Math.sqrt(dx * dx + dy * dy);
+        totalZ += (recent[i].z - recent[i - 1].z);
+      }
+      return { xy: totalXY, z: totalZ };
+    }
+
+    function postProcessSign(sign, conf) {
+      if (conf >= POSTPROCESS_CONF_LIMIT) return sign;
+      const motion = getWristMotion();
+      const hasMotionXY = motion.xy > MOTION_THRESHOLD_XY;
+      const hasPullBack = Math.abs(motion.z) > PULLBACK_THRESHOLD;
+
+      if (sign === 'ni' && hasMotionXY) return 'ri';
+      if (sign === 'ri' && !hasMotionXY) return 'ni';
+
+      if (sign === 'ya' && hasPullBack) return 'xya';
+      if (sign === 'xya' && !hasPullBack) return 'ya';
+      if (sign === 'yu' && hasPullBack) return 'xyu';
+      if (sign === 'xyu' && !hasPullBack) return 'yu';
+      if (sign === 'yo' && hasPullBack) return 'xyo';
+      if (sign === 'xyo' && !hasPullBack) return 'yo';
+
+      return sign;
+    }
+    // ===== 動き検出後処理ここまで =====
+    
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -1894,7 +1942,7 @@
       }));
       
       // フレームバッファをクリア
-      frameBuffer = [];
+      frameBuffer = []; wristBuffer = [];
       
       // 認識結果リセット
       const resultArea = document.querySelector('.recognition-result');
@@ -3098,7 +3146,7 @@
         recognizeSign(landmarks);
       } else {
         // 手が検出されない - フレームバッファをクリア
-        frameBuffer = [];
+        frameBuffer = []; wristBuffer = [];
         lastRecognized = '';
         
         // 判定対象外の文字の場合は特別なメッセージを表示
@@ -3122,6 +3170,9 @@
       if (!isJudgeable(currentChar)) {
         return;
       }
+      
+      // 動き検出用にwrist位置を追跡
+      trackWrist(landmarks);
       
       try {
         // ランドマークを63次元の特徴量に変換
@@ -3153,7 +3204,10 @@
         // 最大確率のクラスを取得
         const predId = Array.from(probs).indexOf(Math.max(...probs));
         const conf = probs[predId];
-        const sign = labelMap.id_to_label[String(predId)];
+        const rawSign = labelMap.id_to_label[String(predId)];
+        
+        // 動き検出による混同ペア補正
+        const sign = postProcessSign(rawSign, conf);
         
         // 英語ラベルを日本語に変換
         const recognized = convertToHiragana(sign);
@@ -3309,7 +3363,7 @@
       initCharacterButtons();
       
       // フレームバッファをクリア
-      frameBuffer = [];
+      frameBuffer = []; wristBuffer = [];
       
       // 最初の文字を選択
       selectCharacter(0);
@@ -3408,7 +3462,7 @@
       switchVRMMotion(currentChar);
       
       // フレームバッファをクリア（新しい文字の認識を開始）
-      frameBuffer = [];
+      frameBuffer = []; wristBuffer = [];
       
       // 判定対象外の文字の場合
       const resultArea = document.querySelector('.recognition-result');

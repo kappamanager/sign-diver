@@ -5,63 +5,153 @@
       "depth": 0,
       "name": "浅瀬",
       "icon": "🏖️",
-      "comment": "これからだから！！"
+      "comment": "これからだから！！",
+      "stageClass": "stage-0",
+      "sea": {
+        "bg1": "#00bfff",
+        "bg2": "#0099cc",
+        "rays": 1.0,
+        "creatures": ["fish"],
+        "creatureCount": 4,
+        "creatureMinCount": 3,
+        "mysteryFog": false
+      }
     },
     {
       "minChars": 8,
       "depth": 10,
       "name": "珊瑚礁",
       "icon": "🪸",
-      "comment": "魚たちが泳ぐ美しいエリアだ。深海にはまだ遠そうだ。"
+      "comment": "魚たちが泳ぐ美しいエリアだ。深海にはまだ遠そうだ。",
+      "stageClass": "stage-1",
+      "sea": {
+        "bg1": "#0099cc",
+        "bg2": "#0077aa",
+        "rays": 0.85,
+        "creatures": ["katsuo", "shrimp"],
+        "creatureCount": 4,
+        "creatureMinCount": 3,
+        "mysteryFog": false
+      }
     },
     {
       "minChars": 18,
       "depth": 30,
       "name": "浅海",
       "icon": "🐠",
-      "comment": "太陽の光がまだまだ届いている…。伸びしろあります！"
+      "comment": "太陽の光がまだまだ届いている…。伸びしろあります！",
+      "stageClass": "stage-2",
+      "sea": {
+        "bg1": "#0077aa",
+        "bg2": "#005588",
+        "rays": 0.70,
+        "creatures": ["saba", "starfish"],
+        "creatureCount": 4,
+        "creatureMinCount": 3,
+        "mysteryFog": false
+      }
     },
     {
       "minChars": 32,
       "depth": 80,
       "name": "潮目",
       "icon": "🌊",
-      "comment": "前方にカツオの群れ！カツオおいしそう！"
+      "comment": "前方にカツオの群れ！カツオおいしそう！",
+      "stageClass": "stage-3",
+      "sea": {
+        "bg1": "#005588",
+        "bg2": "#003366",
+        "rays": 0.50,
+        "creatures": ["katsuo", "rakko"],
+        "creatureCount": 2,
+        "creatureMinCount": 2,
+        "mysteryFog": false
+      }
     },
     {
       "minChars": 48,
       "depth": 200,
       "name": "中層",
       "icon": "🐙",
-      "comment": "発光生物が現れ始めた。もうすぐ深海だ。"
+      "comment": "発光生物が現れ始めた。もうすぐ深海だ。",
+      "stageClass": "stage-4",
+      "sea": {
+        "bg1": "#003366",
+        "bg2": "#001f44",
+        "rays": 0.30,
+        "creatures": ["jellyfish", "seaweed"],
+        "creatureCount": 4,
+        "creatureMinCount": 3,
+        "mysteryFog": false
+      }
     },
     {
       "minChars": 68,
       "depth": 500,
       "name": "薄暮層",
       "icon": "🌑",
-      "comment": "薄暗い世界にたどり着いた。深海まであと少し。"
+      "comment": "薄暗い世界にたどり着いた。深海まであと少し。",
+      "stageClass": "stage-5",
+      "sea": {
+        "bg1": "#001f44",
+        "bg2": "#000e22",
+        "rays": 0.12,
+        "creatures": ["shark", "jellyfish"],
+        "creatureCount": 4,
+        "creatureMinCount": 3,
+        "mysteryFog": false
+      }
     },
     {
       "minChars": 92,
       "depth": 1000,
       "name": "深海",
       "icon": "🦑",
-      "comment": "遂に深海に到達！アンコウの光だけが頼り。"
+      "comment": "遂に深海に到達！アンコウの光だけが頼り。",
+      "stageClass": "stage-6",
+      "sea": {
+        "bg1": "#000e22",
+        "bg2": "#000511",
+        "rays": 0.04,
+        "creatures": ["anglerfish", "clam"],
+        "creatureCount": 2,
+        "creatureMinCount": 2,
+        "mysteryFog": false
+      }
     },
     {
       "minChars": 120,
       "depth": 3000,
       "name": "超深海",
       "icon": "⬛",
-      "comment": "何も見えない漆黒の世界…！ここまでたどり着くなんて！"
+      "comment": "何も見えない漆黒の世界…！ここまでたどり着くなんて！",
+      "stageClass": "stage-7",
+      "sea": {
+        "bg1": "#000511",
+        "bg2": "#000000",
+        "rays": 0.0,
+        "creatures": ["anglerfish", "mussel"],
+        "creatureCount": 2,
+        "creatureMinCount": 2,
+        "mysteryFog": false
+      }
     },
     {
       "minChars": 155,
       "depth": 11000,
       "name": "???",
       "icon": "👤",
-      "comment": "やっと会えたね。"
+      "comment": "やっと会えたね。",
+      "stageClass": "stage-8",
+      "sea": {
+        "bg1": "#0a0015",
+        "bg2": "#020010",
+        "rays": 0.0,
+        "creatures": ["diver2"],
+        "creatureCount": 1,
+        "creatureMinCount": 0,
+        "mysteryFog": true
+      }
     }
   ]
 }

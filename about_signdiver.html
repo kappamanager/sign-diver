@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -7,6 +7,8 @@
   <meta name="keywords" content="Sign Diver,サインダイバー,指文字,手話,ゲーム,AI認識,紹介">
   <title>Sign Diverについて｜指文字AIカメラ認識ゲームの紹介</title>
 
+  <!-- ★公開時に削除★ -->
+  <meta name="robots" content="noindex, nofollow">
 
   <meta name="author" content="Sign Diver Project">
   <link rel="canonical" href="https://signdiver.com/about_signdiver.html">
@@ -253,42 +255,8 @@
     <h2>ステージ</h2>
     <p>累計でクリアした文字数によって、到達できる深度が変化します。深海のその先もあるとか…？</p>
 
-    <div class="stage-list">
-      <div class="stage-card">
-        <div class="stage-icon">🏖️</div>
-        <div class="stage-name">浅瀬</div>
-        <div class="stage-depth">0m</div>
-      </div>
-      <div class="stage-card">
-        <div class="stage-icon">🪸</div>
-        <div class="stage-name">珊瑚礁</div>
-        <div class="stage-depth">10m</div>
-      </div>
-      <div class="stage-card">
-        <div class="stage-icon">🐠</div>
-        <div class="stage-name">浅海</div>
-        <div class="stage-depth">30m</div>
-      </div>
-      <div class="stage-card">
-        <div class="stage-icon">🌊</div>
-        <div class="stage-name">潮目</div>
-        <div class="stage-depth">80m</div>
-      </div>
-      <div class="stage-card">
-        <div class="stage-icon">🐙</div>
-        <div class="stage-name">中層</div>
-        <div class="stage-depth">200m</div>
-      </div>
-      <div class="stage-card">
-        <div class="stage-icon">🌑</div>
-        <div class="stage-name">薄暮層</div>
-        <div class="stage-depth">500m</div>
-      </div>
-      <div class="stage-card">
-        <div class="stage-icon">🦑</div>
-        <div class="stage-name">深海</div>
-        <div class="stage-depth">1,000m</div>
-      </div>
+    <div class="stage-list" id="stageList">
+      <!-- stage.json から動的生成（末尾2ステージはネタバレ防止で非表示） -->
     </div>
 
     <h2>練習モードの基本ルール</h2>
@@ -442,5 +410,31 @@
       <span>@KatsuoShuwaDoga</span>
     </a>
   </footer>
+  <script>
+    (async () => {
+      const stageList = document.getElementById('stageList');
+      try {
+        const res = await fetch(`./data/stage.json?v=${Date.now()}`);
+        const data = await res.json();
+        // 末尾2ステージはネタバレ防止で非表示
+        const visible = data.stages.slice(0, -2);
+        stageList.innerHTML = visible.map(s => `
+          <div class="stage-card">
+            <div class="stage-icon">${s.icon}</div>
+            <div class="stage-name">${s.name}</div>
+            <div class="stage-depth">${s.depth.toLocaleString()}m</div>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('stage.json 読み込みエラー:', e);
+        stageList.innerHTML = `
+          <div class="stage-card">
+            <div class="stage-icon">🏖️</div>
+            <div class="stage-name">浅瀬</div>
+            <div class="stage-depth">0m</div>
+          </div>`;
+      }
+    })();
+  </script>
 </body>
 </html>

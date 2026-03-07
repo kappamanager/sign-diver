@@ -1,0 +1,67 @@
+{
+  "stages": [
+    {
+      "minChars": 0,
+      "depth": 0,
+      "name": "浅瀬",
+      "icon": "🏖️",
+      "comment": "これからだから！！"
+    },
+    {
+      "minChars": 8,
+      "depth": 10,
+      "name": "珊瑚礁",
+      "icon": "🪸",
+      "comment": "魚たちが泳ぐ美しいエリアだ。深海にはまだ遠そうだ。"
+    },
+    {
+      "minChars": 18,
+      "depth": 30,
+      "name": "浅海",
+      "icon": "🐠",
+      "comment": "太陽の光がまだまだ届いている…。伸びしろあります！"
+    },
+    {
+      "minChars": 32,
+      "depth": 80,
+      "name": "潮目",
+      "icon": "🌊",
+      "comment": "前方にカツオの群れ！カツオおいしそう！"
+    },
+    {
+      "minChars": 48,
+      "depth": 200,
+      "name": "中層",
+      "icon": "🐙",
+      "comment": "発光生物が現れ始めた。もうすぐ深海だ。"
+    },
+    {
+      "minChars": 68,
+      "depth": 500,
+      "name": "薄暮層",
+      "icon": "🌑",
+      "comment": "薄暗い世界にたどり着いた。深海まであと少し。"
+    },
+    {
+      "minChars": 92,
+      "depth": 1000,
+      "name": "深海",
+      "icon": "🦑",
+      "comment": "遂に深海に到達！アンコウの光だけが頼り。"
+    },
+    {
+      "minChars": 120,
+      "depth": 3000,
+      "name": "超深海",
+      "icon": "⬛",
+      "comment": "何も見えない漆黒の世界…！ここまでたどり着くなんて！"
+    },
+    {
+      "minChars": 155,
+      "depth": 11000,
+      "name": "???",
+      "icon": "👤",
+      "comment": "やっと会えたね。"
+    }
+  ]
+}

@@ -48,10 +48,7 @@
   
   <!-- TensorFlow.js -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0"></script>
-  <!-- MediaPipe Hands -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1620248257/drawing_utils.js" crossorigin="anonymous"></script>
+  <!-- MediaPipe: 新 Tasks Vision API（module script 内で import） -->
   
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1466,7 +1463,7 @@
       
       <!-- 説明文 -->
       <div class="reading-description">
-        <p>3Dモデルが表現している指文字を当ててください。</p>
+        <p>ガイドが表現している指文字を選択してください。</p>
       </div>
       
       <!-- 選択肢ボタン -->
@@ -1518,6 +1515,55 @@
   </footer>
 
   <script type="module">
+    // ═══════════════════════════════════════════════
+    // MediaPipe Tasks Vision API（typing_game.html と統一）
+    // ═══════════════════════════════════════════════
+    import { HandLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs';
+
+    const WASM_BASE = "./mediapipe/wasm";
+    const MP_MODEL_URL = "./mediapipe/hand_landmarker.task";
+
+    // ═══════════════════════════════════════════════
+    // IndexedDB キャッシュヘルパー
+    // ═══════════════════════════════════════════════
+    const IDB_NAME = 'SignDiverCache';
+    const IDB_STORE = 'models';
+    const IDB_VERSION = 1;
+
+    function idbOpen() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(IDB_STORE)) {
+            db.createObjectStore(IDB_STORE);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbGet(key) {
+      const db = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, 'readonly');
+        const req = tx.objectStore(IDB_STORE).get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbSet(key, value) {
+      const db = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, 'readwrite');
+        tx.objectStore(IDB_STORE).put(value, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
     // URLパラメータ優先 → localStorage → デフォルトright
     const _params = new URLSearchParams(window.location.search);
     const selectedHand = _params.get('hand') || localStorage.getItem('signDiver_hand') || 'right';
@@ -1539,14 +1585,30 @@
       'S': { label: 'スペシャル', chars: ['1', '2', '3', '4', '5'] }
     };
     
-    // スペシャルステージ名の定義
-    const SPECIAL_STAGE_NAMES = {
+    // スペシャルステージ名の定義（stage.json から動的生成、フォールバック付き）
+    let SPECIAL_STAGE_NAMES = {
       '1': '中層',
       '2': '薄暮層',
       '3': '深海',
       '4': '超深海',
       '5': '???'
     };
+
+    async function initSpecialStageNames() {
+      try {
+        const res = await fetch(`./data/stage.json?v=${Date.now()}`);
+        const data = await res.json();
+        const stages = data.stages;
+        const specialStart = stages.length - 5;
+        const names = {};
+        for (let i = 0; i < 5; i++) {
+          names[String(i + 1)] = stages[specialStart + i].name;
+        }
+        SPECIAL_STAGE_NAMES = names;
+      } catch (e) {
+        console.error('stage.json 読み込みエラー（フォールバック使用）:', e);
+      }
+    }
     
     // ひらがな → GLBファイル名のマッピング
     const CHAR_TO_GLB = {
@@ -1650,16 +1712,18 @@
     let allCharacters = [];  // 全文字のフラットリスト
     
     let model = null;
-    let hands = null;
+    let landmarker = null;
     let camera = null;
     let labelMap = {};
     
     let lastRecognized = '';
     let lastConfidence = 0;
     
-    // フレームバッファ（15フレーム分のランドマークデータを蓄積）
-    let frameBuffer = [];
+    // フレームバッファ（時間ベースウィンドウ）
+    let frameBuffer = [];  // { features, timestamp } の配列
     const TARGET_FRAMES = 15;
+    const MIN_FRAMES_TO_START = 3;  // パディング付き早期推論（初回遅延対策）
+    const RECOGNITION_WINDOW_MS = 500;  // 訓練データと同じ500msウィンドウ
     
     // ===== 動き検出後処理（混同ペア補正） =====
     let wristBuffer = [];
@@ -2970,6 +3034,9 @@
     }
 
     async function init() {
+      // ─── ステージ名を stage.json から取得 ───────────
+      await initSpecialStageNames();
+
       // ─── カメラ使用確認 ───────────────────────────
       const isMobileDevice = window.innerWidth <= 640 ||
         /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -3043,19 +3110,38 @@
         }
         
         if (cameraAllowed) {
-          // MediaPipe Hands初期化
-          hands = new Hands({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
+          // ── MediaPipe Tasks Vision API 初期化 ──
+          console.log('MediaPipe初期化中...');
+          const fileset = await FilesetResolver.forVisionTasks(WASM_BASE);
+
+          // IndexedDB キャッシュ付きモデル取得
+          const MODEL_CACHE_KEY = 'hand_landmarker_task_v0.10.21';
+          let mpModelBuffer = null;
+          try {
+            mpModelBuffer = await idbGet(MODEL_CACHE_KEY);
+            if (mpModelBuffer) {
+              console.log(`[PERF] IndexedDB cache HIT (${(mpModelBuffer.byteLength / 1024 / 1024).toFixed(1)}MB)`);
+            }
+          } catch (e) { /* ignore */ }
+
+          if (!mpModelBuffer) {
+            const modelResponse = await fetch(MP_MODEL_URL);
+            mpModelBuffer = await modelResponse.arrayBuffer();
+            console.log(`[PERF] IndexedDB cache MISS → fetched (${(mpModelBuffer.byteLength / 1024 / 1024).toFixed(1)}MB)`);
+            idbSet(MODEL_CACHE_KEY, mpModelBuffer).catch(e =>
+              console.warn('[PERF] IndexedDB write failed:', e)
+            );
+          }
+
+          landmarker = await HandLandmarker.createFromOptions(fileset, {
+            baseOptions: {
+              modelAssetBuffer: new Uint8Array(mpModelBuffer),
+              delegate: 'GPU'
+            },
+            runningMode: "VIDEO",
+            numHands: 1
           });
-          
-          hands.setOptions({
-            maxNumHands: 1,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5
-          });
-          
-          hands.onResults(onHandsResults);
+          console.log('✅ MediaPipe Tasks Vision 初期化完了（GPU delegate）');
 
           // カメラ起動（複数カメラ対応・エラーハンドリング付き）
           const stream = await startCameraWithHandling(video);
@@ -3063,15 +3149,45 @@
           if (stream) {
             await new Promise(resolve => { video.onloadedmetadata = resolve; });
             await video.play();
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
 
-            // MediaPipeへフレームを送信するループ
-            const sendFrame = async () => {
-              if (video.readyState >= 2) {
-                await hands.send({ image: video });
+            // ── スロットリング付き認識ループ（typing_game.htmlと統一） ──
+            let practiceLoopFrame = 0;
+            let lastPracticeResult = null;
+            let pendingPracticeFeatures = null;
+
+            const practiceLoop = async () => {
+              const now = performance.now();
+              const isDetectFrame = (practiceLoopFrame % 2 === 0);
+              practiceLoopFrame++;
+
+              if (isDetectFrame) {
+                // 偶数フレーム: MediaPipe検出 + 描画 + 特徴量抽出
+                const res = landmarker.detectForVideo(video, now);
+                lastPracticeResult = res;
+                drawHandsPractice(res);
+
+                if (res?.landmarks?.length > 0) {
+                  const landmarks = res.landmarks[0];
+                  recognizeSign(landmarks);
+                } else {
+                  frameBuffer = []; wristBuffer = [];
+                  lastRecognized = '';
+                  if (!isJudgeable(currentChar)) {
+                    updateUI('-', 0, 'info', '💡 この文字は練習モードでは\n認識判定を行いません。\n形を確認してください。');
+                  } else {
+                    updateUI('-', 0, 'waiting', '手をカメラに映してください');
+                  }
+                }
+              } else {
+                // 奇数フレーム: 前回結果で再描画のみ
+                drawHandsPractice(lastPracticeResult);
               }
-              requestAnimationFrame(sendFrame);
+
+              requestAnimationFrame(practiceLoop);
             };
-            requestAnimationFrame(sendFrame);
+            requestAnimationFrame(practiceLoop);
 
             document.getElementById('cameraStatus').textContent = '認識中';
             document.getElementById('cameraStatus').className = 'camera-status ready';
@@ -3122,38 +3238,44 @@
     }
     
     // ==========================================
-    // MediaPipe結果処理
+    // 手の描画（新 Tasks Vision API 対応）
     // ==========================================
-    function onHandsResults(results) {
-      // Canvasサイズを動画に合わせる
-      canvas.width = results.image.width;
-      canvas.height = results.image.height;
+    function drawHandsPractice(res) {
+      const w = canvas.width;
+      const h = canvas.height;
       
-      // 動画を描画
       ctx.save();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(video, 0, 0, w, h);
       
-      // 手が検出された場合
-      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        const landmarks = results.multiHandLandmarks[0];
-        
-        // ランドマークを描画
-        drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
-        drawLandmarks(ctx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 3 });
-        
-        // 認識処理
-        recognizeSign(landmarks);
-      } else {
-        // 手が検出されない - フレームバッファをクリア
-        frameBuffer = []; wristBuffer = [];
-        lastRecognized = '';
-        
-        // 判定対象外の文字の場合は特別なメッセージを表示
-        if (!isJudgeable(currentChar)) {
-          updateUI('-', 0, 'info', '💡 この文字は練習モードでは\n認識判定を行いません。\n形を確認してください。');
-        } else {
-          updateUI('-', 0, 'waiting', '手をカメラに映してください');
+      if (res?.landmarks?.length > 0) {
+        for (const landmarks of res.landmarks) {
+          // 接続線
+          const connections = [
+            [0, 1], [1, 2], [2, 3], [3, 4],
+            [0, 5], [5, 6], [6, 7], [7, 8],
+            [0, 9], [9, 10], [10, 11], [11, 12],
+            [0, 13], [13, 14], [14, 15], [15, 16],
+            [0, 17], [17, 18], [18, 19], [19, 20],
+            [5, 9], [9, 13], [13, 17]
+          ];
+          
+          ctx.strokeStyle = '#00FF00';
+          ctx.lineWidth = 2;
+          for (const [a, b] of connections) {
+            ctx.beginPath();
+            ctx.moveTo(landmarks[a].x * w, landmarks[a].y * h);
+            ctx.lineTo(landmarks[b].x * w, landmarks[b].y * h);
+            ctx.stroke();
+          }
+          
+          // ランドマーク点
+          ctx.fillStyle = '#FF0000';
+          for (const lm of landmarks) {
+            ctx.beginPath();
+            ctx.arc(lm.x * w, lm.y * h, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       }
       
@@ -3178,20 +3300,28 @@
         // ランドマークを63次元の特徴量に変換
         const features = prepareInputData(landmarks);
         
-        // フレームバッファに追加
-        frameBuffer.push(features);
-        if (frameBuffer.length > 20) {
+        // フレームバッファに追加（時間ベース）
+        const now = performance.now();
+        frameBuffer.push({ features, timestamp: now });
+        
+        // 古いフレームを除去（ウィンドウ外）
+        const cutoff = now - RECOGNITION_WINDOW_MS * 2;
+        while (frameBuffer.length > 0 && frameBuffer[0].timestamp < cutoff) {
           frameBuffer.shift();
         }
         
-        // 15フレーム溜まるまで待機
-        if (frameBuffer.length < TARGET_FRAMES) {
+        // 500ms ウィンドウ内のフレームを取得
+        const windowStart = now - RECOGNITION_WINDOW_MS;
+        const recentFrames = frameBuffer.filter(f => f.timestamp >= windowStart);
+        
+        // 最低フレーム数に達するまで待機
+        if (recentFrames.length < MIN_FRAMES_TO_START) {
           updateUI('-', 0, 'waiting', '手をカメラに映してください');
           return;
         }
         
         // 15フレームにリサンプリング
-        const frames15 = resampleTo15(frameBuffer.slice(-18));
+        const frames15 = resampleTo15(recentFrames.map(f => f.features));
         const inputTensor = tf.tensor3d([frames15], [1, TARGET_FRAMES, 63]);
         
         // 推論

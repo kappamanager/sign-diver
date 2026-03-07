@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -7,6 +7,8 @@
   <meta name="keywords" content="Sign Diver,プレイ履歴,スコア,指文字,手話">
   <title>プレイ履歴 - Sign Diver｜過去のスコアと到達深度を確認</title>
 
+  <!-- ★公開時に削除★ -->
+  <meta name="robots" content="noindex, nofollow">
 
   <meta name="author" content="Sign Diver Project">
   <link rel="canonical" href="https://signdiver.com/history.html">
@@ -414,18 +416,24 @@
   </footer>
 
   <script>
-    // ステージ定義（typing_game.htmlと同じ）
-    const LEVELS = [
-      { minChars:   0, depth:     0, name: '浅瀬',     icon: '🏖️',  stageClass: 'stage-0' },
-      { minChars:   8, depth:    10, name: '珊瑚礁',   icon: '🪸',  stageClass: 'stage-1' },
-      { minChars:  18, depth:    30, name: '浅海',     icon: '🐠',  stageClass: 'stage-2' },
-      { minChars:  32, depth:    80, name: '潮目',     icon: '🌊',  stageClass: 'stage-3' },
-      { minChars:  48, depth:   200, name: '中層',     icon: '🐙',  stageClass: 'stage-4' },
-      { minChars:  68, depth:   500, name: '薄暮層',   icon: '🌑',  stageClass: 'stage-5' },
-      { minChars:  92, depth:  1000, name: '深海',     icon: '🦑',  stageClass: 'stage-6' },
-      { minChars: 120, depth:  3000, name: '超深海',   icon: '⬛',  stageClass: 'stage-7' },
-      { minChars: 155, depth: 11000, name: '謎の空間', icon: '👾',  stageClass: 'stage-8' },
+    // ステージ定義を stage.json から取得
+    let LEVELS = [];
+
+    // フォールバック用（fetch失敗時）
+    const FALLBACK_LEVELS = [
+      { minChars: 0, depth: 0, name: '浅瀬', icon: '🏖️', stageClass: 'stage-0' }
     ];
+
+    async function initStages() {
+      try {
+        const res = await fetch(`./data/stage.json?v=${Date.now()}`);
+        const data = await res.json();
+        LEVELS = data.stages;
+      } catch (e) {
+        console.error('stage.json 読み込みエラー:', e);
+        LEVELS = FALLBACK_LEVELS;
+      }
+    }
 
     function getStage(totalChars) {
       let lv = 0;
@@ -577,7 +585,7 @@
       location.reload();
     }
 
-    loadAndRender();
+    initStages().then(() => loadAndRender());
   </script>
 </body>
 </html>

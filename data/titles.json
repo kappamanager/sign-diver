@@ -3,61 +3,61 @@
     {
       "minScore": -1000,
       "maxScore": -201,
-      "title": "マイナスになっちゃった…！",
-      "emoji": "😢"
+      "title": "Lv-1. タワシ",
+      "emoji": "🧽"
     },
     {
       "minScore": -200,
       "maxScore": -1,
-      "title": "大丈夫ですか？",
+      "title": "Lv-0. 大丈夫ですか？",
       "emoji": "😢"
     },
     {
       "minScore": 0,
       "maxScore": 299,
-      "title": "メダカ級(見習い)",
+      "title": "Lv-1. メダカ級(見習い)",
       "emoji": "🌱"
     },
     {
       "minScore": 300,
       "maxScore": 599,
-      "title": "ピラニア級(初心者)",
+      "title": "Lv-2. ピラニア級(初心者)",
       "emoji": "✨"
     },
     {
       "minScore": 600,
       "maxScore": 999,
-      "title": "マダイ級(中級者)",
+      "title": "Lv-3. マダイ級(中級者)",
       "emoji": "⭐"
     },
     {
       "minScore": 1000,
       "maxScore": 1499,
-      "title": "カツオ級(上級者)",
+      "title": "Lv-4. カツオ級(上級者)",
       "emoji": "🌟"
     },
     {
       "minScore": 1500,
       "maxScore": 1999,
-      "title": "マグロ級(達人)",
+      "title": "Lv-5. マグロ級(達人)",
       "emoji": "💫"
     },
     {
       "minScore": 2000,
       "maxScore": 2999,
-      "title": "サメ級(名人)",
+      "title": "Lv-6. サメ級(名人)",
       "emoji": "👑"
     },
     {
       "minScore": 3000,
       "maxScore": 9999,
-      "title": "スーパーサメサメ級(伝説)",
+      "title": "Lv-7. スーパーサメ級(伝説)",
       "emoji": "🏆"
     },
     {
       "minScore": 10000,
       "maxScore": 999999,
-      "title": "超スーパーメカカツオ(すごい)",
+      "title": "Lv-8. 超スーパーメカカツオ(すごい)",
       "emoji": "⚡"
     }
   ]

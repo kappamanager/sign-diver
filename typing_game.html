@@ -751,6 +751,7 @@
       transition: all 0.2s;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
     }
 
@@ -1000,6 +1001,14 @@
         font-size: 12px;
         border-radius: 8px;
         line-height: 1.5;
+      }
+
+      .abort-btn {
+        flex: none;
+        width: auto;
+        padding: 10px 14px;
+        font-size: 12px;
+        writing-mode: vertical-rl;
       }
 
       /* ── 結果画面 ── */
@@ -1408,7 +1417,7 @@
   <script type="module">
     import { HandLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs';
     
-    const WASM_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm";
+    const WASM_BASE = "./mediapipe/wasm";
     const MODEL_URL = "./mediapipe/hand_landmarker.task";
 
     // ═══════════════════════════════════════════════
@@ -1428,6 +1437,47 @@
     };
 
     // ═══════════════════════════════════════════════
+    // IndexedDB キャッシュヘルパー（モデルファイル用）
+    // ═══════════════════════════════════════════════
+    const IDB_NAME = 'SignDiverCache';
+    const IDB_STORE = 'models';
+    const IDB_VERSION = 1;
+
+    function idbOpen() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(IDB_STORE)) {
+            db.createObjectStore(IDB_STORE);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbGet(key) {
+      const db = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, 'readonly');
+        const req = tx.objectStore(IDB_STORE).get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbSet(key, value) {
+      const db = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, 'readwrite');
+        tx.objectStore(IDB_STORE).put(value, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    // ═══════════════════════════════════════════════
     // ページを開いた瞬間からバックグラウンドでロード開始
     // ═══════════════════════════════════════════════
     let bgLoadPromise = null;
@@ -1435,6 +1485,34 @@
 
     (function startBackgroundLoad() {
       PERF.mark('bg_load_start');
+
+      // ═══════════════════════════════════════════════
+      // 初回 / リピーター判定（デバッグ用）
+      // ═══════════════════════════════════════════════
+      (async () => {
+        const checks = { sw: false, idb: false };
+
+        // Service Worker チェック
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+          checks.sw = !!(reg && reg.active);
+        }
+
+        // IndexedDB モデルキャッシュチェック
+        try {
+          const cached = await idbGet('hand_landmarker_task_v0.10.21');
+          checks.idb = !!cached;
+        } catch (e) { /* ignore */ }
+
+        if (checks.sw && checks.idb) {
+          console.log('%c[SESSION] 🔁 リピーター（SW: ✅ active, IndexedDB: ✅ cached）', 'color: #4CAF50; font-weight: bold; font-size: 14px');
+        } else if (checks.sw || checks.idb) {
+          console.log('%c[SESSION] 🔄 準リピーター（SW: ' + (checks.sw ? '✅' : '❌') + ', IndexedDB: ' + (checks.idb ? '✅' : '❌') + '）', 'color: #FF9800; font-weight: bold; font-size: 14px');
+        } else {
+          console.log('%c[SESSION] 🆕 初回ユーザー（SW: ❌, IndexedDB: ❌）', 'color: #F44336; font-weight: bold; font-size: 14px');
+        }
+        console.log('[SESSION] Detail:', checks);
+      })();
 
       // ══════════════════════════════════════════════════
       // 提案1: TFJSとMediaPipeを並列ロード
@@ -1472,19 +1550,49 @@
         PERF.mark('wasm_compile_done');
         PERF.elapsed('mediapipe_start', 'wasm_compile_done');
 
-        // モデルDLと初期化を分離して計測
-        PERF.mark('task_model_download_start');
-        const modelResponse = await fetch(MODEL_URL);
-        const modelBuffer = await modelResponse.arrayBuffer();
-        PERF.mark('task_model_download_done');
-        PERF.elapsed('task_model_download_start', 'task_model_download_done');
+        // ── IndexedDB キャッシュ付きモデル取得 ──
+        const MODEL_CACHE_KEY = 'hand_landmarker_task_v0.10.21';
+        let modelBuffer = null;
 
+        // キャッシュから取得を試みる
+        try {
+          PERF.mark('idb_read_start');
+          modelBuffer = await idbGet(MODEL_CACHE_KEY);
+          if (modelBuffer) {
+            PERF.mark('idb_read_done');
+            PERF.elapsed('idb_read_start', 'idb_read_done');
+            console.log(`[PERF] IndexedDB cache HIT (${(modelBuffer.byteLength / 1024 / 1024).toFixed(1)}MB)`);
+          }
+        } catch (e) {
+          console.warn('[PERF] IndexedDB read failed:', e);
+        }
+
+        // キャッシュなし → ネットワークから取得して保存
+        if (!modelBuffer) {
+          PERF.mark('task_model_download_start');
+          const modelResponse = await fetch(MODEL_URL);
+          modelBuffer = await modelResponse.arrayBuffer();
+          PERF.mark('task_model_download_done');
+          PERF.elapsed('task_model_download_start', 'task_model_download_done');
+          console.log(`[PERF] IndexedDB cache MISS → fetched (${(modelBuffer.byteLength / 1024 / 1024).toFixed(1)}MB)`);
+
+          // バックグラウンドでキャッシュ保存（失敗しても続行）
+          idbSet(MODEL_CACHE_KEY, modelBuffer).catch(e =>
+            console.warn('[PERF] IndexedDB write failed:', e)
+          );
+        }
+
+        // ── modelAssetBuffer で初期化（二重DL修正済み） ──
         PERF.mark('task_init_start');
         landmarker = await HandLandmarker.createFromOptions(fileset, {
-          baseOptions: { modelAssetPath: MODEL_URL },
+          baseOptions: {
+            modelAssetBuffer: new Uint8Array(modelBuffer),
+            delegate: 'GPU'
+          },
           runningMode: "VIDEO",
           numHands: 1
         });
+        console.log('[PERF] HandLandmarker delegate: GPU（非対応環境では自動CPU fallback）');
         PERF.mark('mediapipe_ready');
         PERF.elapsed('task_init_start', 'mediapipe_ready');
         PERF.elapsed('mediapipe_start', 'mediapipe_ready');
@@ -2009,6 +2117,7 @@
       
       // ゲーム状態をリセット
       isPlaying = true;
+      startLoopPerf();
       timeRemaining = timeLimit;
       score = 0;
       clearedCount = 0;
@@ -2437,38 +2546,72 @@
     }
     
     // 手話認識ループ
+    // ── スロットリング: detectForVideo と predictSign を交互フレームに分散 ──
+    let loopFrameCount = 0;
+    let lastDetectResult = null;  // 前回の MediaPipe 検出結果を保持
+    let pendingFeatures = null;   // 次フレームで推論する特徴量
+
+    // ── ループ内計測用 ──
+    const LOOP_PERF = { detectTimes: [], predictTimes: [], logInterval: null };
+    function startLoopPerf() {
+      LOOP_PERF.logInterval = setInterval(() => {
+        if (LOOP_PERF.detectTimes.length > 0) {
+          const avg = (LOOP_PERF.detectTimes.reduce((a,b)=>a+b,0) / LOOP_PERF.detectTimes.length).toFixed(0);
+          const max = Math.max(...LOOP_PERF.detectTimes).toFixed(0);
+          console.log(`[LOOP] detectForVideo: avg=${avg}ms, max=${max}ms (n=${LOOP_PERF.detectTimes.length})`);
+          LOOP_PERF.detectTimes = [];
+        }
+        if (LOOP_PERF.predictTimes.length > 0) {
+          const avg = (LOOP_PERF.predictTimes.reduce((a,b)=>a+b,0) / LOOP_PERF.predictTimes.length).toFixed(0);
+          const max = Math.max(...LOOP_PERF.predictTimes).toFixed(0);
+          console.log(`[LOOP] predictSign:    avg=${avg}ms, max=${max}ms (n=${LOOP_PERF.predictTimes.length})`);
+          LOOP_PERF.predictTimes = [];
+        }
+      }, 5000);
+    }
+
     async function loop() {
       if (!isPlaying) return;
       
       const now = performance.now();
       const video = document.getElementById('video');
-      const canvas = document.getElementById('canvas');
-      
-      // MediaPipe検出
-      const res = landmarker.detectForVideo(video, now);
-      drawHands(res);
-      
-      // 手の検出チェック
-      if (res?.landmarks?.length > 0) {
-        // 右手のみを使用（quiz_unified.htmlと同じ）
-        let idx = 0;
-        if (res.handednesses?.length) {
-          const iRight = res.handednesses.findIndex(h => h?.[0]?.categoryName === "Right");
-          if (iRight !== -1) {
-            idx = iRight;
+      const isDetectFrame = (loopFrameCount % 2 === 0);
+      loopFrameCount++;
+
+      if (isDetectFrame) {
+        // ── 偶数フレーム: MediaPipe 検出 + 描画 + 特徴量抽出 ──
+        const t0 = performance.now();
+        const res = landmarker.detectForVideo(video, now);
+        LOOP_PERF.detectTimes.push(performance.now() - t0);
+
+        lastDetectResult = res;
+        drawHands(res);
+
+        if (res?.landmarks?.length > 0) {
+          let idx = 0;
+          if (res.handednesses?.length) {
+            const iRight = res.handednesses.findIndex(h => h?.[0]?.categoryName === "Right");
+            if (iRight !== -1) idx = iRight;
           }
+          const landmarks = res.landmarks[idx];
+          trackWrist(landmarks);
+          pendingFeatures = toFeature63(landmarks);
+        } else {
+          pendingFeatures = null;
+          document.getElementById('recognizedChar').textContent = '-';
+          document.getElementById('confidenceDisplay').textContent = '手が見えません';
+          document.getElementById('statusBox').textContent = '手をカメラに映してください';
         }
-        
-        const landmarks = res.landmarks[idx];
-        trackWrist(landmarks);
-        const features = toFeature63(landmarks);
-        
-        // 推論
-        await predictSign(features);
       } else {
-        document.getElementById('recognizedChar').textContent = '-';
-        document.getElementById('confidenceDisplay').textContent = '手が見えません';
-        document.getElementById('statusBox').textContent = '手をカメラに映してください';
+        // ── 奇数フレーム: 前回結果で描画 + TFJS 推論 ──
+        drawHands(lastDetectResult);
+
+        if (pendingFeatures) {
+          const t0 = performance.now();
+          await predictSign(pendingFeatures);
+          LOOP_PERF.predictTimes.push(performance.now() - t0);
+          pendingFeatures = null;
+        }
       }
       
       rafId = requestAnimationFrame(loop);
@@ -2556,8 +2699,10 @@
     }
     
     // 手話認識
-    let frameBuffer = [];
+    let frameBuffer = [];  // { features, timestamp } の配列
     const TARGET_FRAMES = 15;
+    const MIN_FRAMES_TO_START = 3;  // パディング付き早期推論（初回遅延対策）
+    const RECOGNITION_WINDOW_MS = 500;  // 訓練データと同じ500msウィンドウ
     
     // ===== 動き検出後処理（混同ペア補正） =====
     let wristBuffer = [];
@@ -2608,14 +2753,22 @@
     // ===== 動き検出後処理ここまで =====
     
     async function predictSign(features) {
-      frameBuffer.push(features);
-      if (frameBuffer.length > 20) {
+      const now = performance.now();
+      frameBuffer.push({ features, timestamp: now });
+      
+      // 古いフレームを除去（ウィンドウ外）
+      const cutoff = now - RECOGNITION_WINDOW_MS * 2;  // 余裕を持って2倍まで保持
+      while (frameBuffer.length > 0 && frameBuffer[0].timestamp < cutoff) {
         frameBuffer.shift();
       }
       
-      if (frameBuffer.length < TARGET_FRAMES) return;
+      // 500ms ウィンドウ内のフレームを取得
+      const windowStart = now - RECOGNITION_WINDOW_MS;
+      const recentFrames = frameBuffer.filter(f => f.timestamp >= windowStart);
       
-      const frames15 = resampleTo15(frameBuffer.slice(-18));
+      if (recentFrames.length < MIN_FRAMES_TO_START) return;
+      
+      const frames15 = resampleTo15(recentFrames.map(f => f.features));
       const inputTensor = tf.tensor3d([frames15], [1, TARGET_FRAMES, 63]);
       
       const output = await model.executeAsync(inputTensor);
@@ -2808,6 +2961,7 @@
     function gameOver() {
       isPlaying = false;
       if (rafId) cancelAnimationFrame(rafId);
+      if (LOOP_PERF.logInterval) clearInterval(LOOP_PERF.logInterval);
       stopWordTimer();  // 単語タイマー停止
       
       // 画面上に残っているNGエフェクト・フラッシュを強制削除
@@ -2907,9 +3061,10 @@
         document.getElementById('stageResultComment').textContent = stage.comment;
         
         // スペシャルステージのアンロック処理
-        // 中層（インデックス4）以降がスペシャルステージ
-        if (currentIndex >= 4) {
-          const specialStageNumber = currentIndex - 3; // 4→1, 5→2, 6→3, 7→4, 8→5
+        // 末尾5ステージがスペシャルステージ
+        const specialStartIndex = data.stages.length - 5;
+        if (currentIndex >= specialStartIndex) {
+          const specialStageNumber = currentIndex - specialStartIndex + 1; // 1〜5
           
           // localStorageに保存（練習モードで使用）
           const currentMaxStage = localStorage.getItem('signDiverMaxStage') || '0';
@@ -2920,13 +3075,10 @@
 
             
             // アンロック通知（オプション：必要に応じてUIで表示）
-            const specialNames = {
-              1: '中層',
-              2: '薄暮層', 
-              3: '深海',
-              4: '超深海',
-              5: '???'
-            };
+            const specialNames = {};
+            for (let i = 0; i < 5; i++) {
+              specialNames[i + 1] = data.stages[specialStartIndex + i].name;
+            }
 
           }
         }
@@ -3020,18 +3172,8 @@
       H: 0,
       raf: null,
       
-      // 深度レベル定義（minChars = 累計クリア文字数）
-      LEVELS: [
-        { minChars:   0, depth:     0, name: '浅瀬',     bg1: '#00bfff', bg2: '#0099cc', rays: 1.0,  creatures: ['fish']                   },
-        { minChars:   8, depth:    10, name: '珊瑚礁',   bg1: '#0099cc', bg2: '#0077aa', rays: 0.85, creatures: ['katsuo', 'shrimp']        },
-        { minChars:  18, depth:    30, name: '浅海',     bg1: '#0077aa', bg2: '#005588', rays: 0.70, creatures: ['saba', 'starfish']        },
-        { minChars:  32, depth:    80, name: '潮目',     bg1: '#005588', bg2: '#003366', rays: 0.50, creatures: ['katsuo', 'rakko']          },
-        { minChars:  48, depth:   200, name: '中層',     bg1: '#003366', bg2: '#001f44', rays: 0.30, creatures: ['jellyfish', 'seaweed']    },
-        { minChars:  68, depth:   500, name: '薄暮層',   bg1: '#001f44', bg2: '#000e22', rays: 0.12, creatures: ['shark', 'jellyfish']      },
-        { minChars:  92, depth:  1000, name: '深海',     bg1: '#000e22', bg2: '#000511', rays: 0.04, creatures: ['anglerfish', 'clam']      },
-        { minChars: 120, depth:  3000, name: '超深海',   bg1: '#000511', bg2: '#000000', rays: 0.0,  creatures: ['anglerfish', 'mussel']    },
-        { minChars: 150, depth: 10000, name: '???', bg1: '#0a0015', bg2: '#020010', rays: 0.0,  creatures: ['diver2']                 },
-      ],
+      // 深度レベル定義（stage.json から動的読み込み）
+      LEVELS: [],
       
       currentDepth: 0,
       targetDepth: 0,
@@ -3052,12 +3194,37 @@
       diverY: 0,            // ダイバーY座標
       time: 0,
       
-      init() {
+      async init() {
         this.canvas = document.getElementById('seaCanvas');
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d');
         this.resize();
         window.addEventListener('resize', () => this.resize());
+        
+        // stage.json から深海演出データを読み込み
+        try {
+          const res = await fetch('./data/stage.json?v=' + Date.now());
+          const data = await res.json();
+          this.LEVELS = data.stages.map(s => ({
+            minChars: s.minChars,
+            depth: s.depth,
+            name: s.name,
+            ...s.sea
+          }));
+        } catch (e) {
+          console.error('stage.json 読み込みエラー（SEA演出フォールバック）:', e);
+          this.LEVELS = [
+            { minChars: 0, depth: 0, name: '浅瀬', bg1: '#00bfff', bg2: '#0099cc', rays: 1.0, creatures: ['fish'], creatureCount: 4, creatureMinCount: 3, mysteryFog: false }
+          ];
+        }
+        
+        // 初期描画色を設定
+        this.renderBg1 = this.LEVELS[0].bg1;
+        this.renderBg2 = this.LEVELS[0].bg2;
+        this.renderRays = this.LEVELS[0].rays;
+        this.fadeFrom1 = this.LEVELS[0].bg1;
+        this.fadeFrom2 = this.LEVELS[0].bg2;
+        this.fadeFromRay = this.LEVELS[0].rays;
         
         this.diverY = this.H * 0.5;
         this.spawnInitial();
@@ -3098,7 +3265,7 @@
           this.targetDepth = L.depth + (chars - L.minChars) * 15;
         }
         
-        // レベルが上がったらクリーチャーを補充＆フェード開始
+        // レベルが上がったらクリーチャーをフェード切替＆背景フェード開始
         if (lv !== this.currentLevel) {
           // フェード用：現在の色を起点として保存
           this.fadeFrom1   = this.renderBg1;
@@ -3106,8 +3273,13 @@
           this.fadeFromRay = this.renderRays;
           this.fadeProgress = 0;  // 0→1 で線形フェード
           this.currentLevel = lv;
-          this.creatures = [];
-          this.spawnCreatures();
+          
+          // 旧クリーチャーをフェードアウト対象にする
+          for (const c of this.creatures) {
+            c.fadingOut = true;
+          }
+          // 新クリーチャーをフェードインで生成
+          this.spawnCreatures(true);
         }
       },
       
@@ -3120,18 +3292,22 @@
         this.spawnCreatures();
       },
       
-      spawnCreatures() {
-        const types = this.LEVELS[this.currentLevel].creatures;
-        // diver2は画面中央に1体のみ固定配置
-        if (types.includes('diver2')) {
-          this.addCreature('diver2', true);
-          return;
-        }
-        const isSparse = types.includes('anglerfish') || types.includes('rakko');
-        const count = isSparse ? 2 : 4;
+      spawnCreatures(fadeIn = false) {
+        const lv = this.LEVELS[this.currentLevel];
+        const types = lv.creatures;
+        const count = lv.creatureCount;
         for (let i = 0; i < count; i++) {
           const type = types[Math.floor(Math.random() * types.length)];
           this.addCreature(type, true);
+        }
+        // フェードインの場合、今追加したクリーチャーの opacity を 0 に設定
+        if (fadeIn) {
+          for (const c of this.creatures) {
+            if (!c.fadingOut) {
+              c.opacity = 0;
+              c.fadingIn = true;
+            }
+          }
         }
       },
       
@@ -3157,17 +3333,17 @@
         });
       },
       
-      addCreature(type, randomPos = false) {
+      addCreature(type, randomPos = false, asGroup = true) {
         const fromRight = Math.random() > 0.5;
         const rx = randomPos ? Math.random() * this.W : (fromRight ? this.W + 80 : -80);
         const ry = this.H * (0.1 + Math.random() * 0.8);
         
         if (type === 'katsuo') {
-          // カツオ：群れで泳ぐ
+          // カツオ：群れで泳ぐ（asGroup=false なら単体補充）
           const dir = fromRight ? -1 : 1;
           const baseX = randomPos ? Math.random() * this.W : (fromRight ? this.W + 80 : -80);
           const baseY = this.H * (0.15 + Math.random() * 0.7);
-          const groupSize = 2 + Math.floor(Math.random() * 3);
+          const groupSize = asGroup ? (2 + Math.floor(Math.random() * 3)) : 1;
           for (let g = 0; g < groupSize; g++) {
             this.creatures.push({
               type: 'katsuo',
@@ -3425,7 +3601,7 @@
         ctx.globalAlpha = 1;
         
         // 謎の空間: 紫の霧 + 浮遊光点
-        if (this.currentLevel === 8) {
+        if (this.LEVELS[this.currentLevel] && this.LEVELS[this.currentLevel].mysteryFog) {
           const fogAlpha = 0.07 + Math.sin(this.time * 0.4) * 0.03;
           ctx.fillStyle = `rgba(55,0,95,${fogAlpha})`;
           ctx.fillRect(0, 0, W, H);
@@ -3453,6 +3629,9 @@
       
       drawCreature(c) {
         const { ctx, time } = this;
+        const cOpacity = (c.opacity != null) ? c.opacity : 1.0;
+        if (cOpacity <= 0) return;
+        
         if (c.type === 'fish') {
           const flip = c.vx < 0 ? -1 : 1;
           const wobble = Math.sin(time * 2 + c.phase) * 3;
@@ -3460,7 +3639,7 @@
           ctx.translate(c.x, c.y + wobble);
           ctx.scale(flip, 1);
           ctx.fillStyle = c.color;
-          ctx.globalAlpha = 0.75;
+          ctx.globalAlpha = 0.75 * cOpacity;
           // 胴体
           ctx.beginPath();
           ctx.ellipse(0, 0, c.size, c.size * 0.45, 0, 0, Math.PI * 2);
@@ -3478,13 +3657,13 @@
           ctx.arc(c.size * 0.5, -c.size * 0.1, c.size * 0.12, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'jellyfish') {
           const pulse = 0.85 + Math.sin(time * 1.2 + c.phase) * 0.15;
           ctx.save();
           ctx.translate(c.x, c.y + Math.sin(time * 0.5 + c.phase) * 8);
-          ctx.globalAlpha = 0.55;
+          ctx.globalAlpha = 0.55 * cOpacity;
           // 傘
           const jg = ctx.createRadialGradient(0, 0, 0, 0, 0, c.size * pulse);
           jg.addColorStop(0, `hsla(${c.hue},80%,75%,0.9)`);
@@ -3508,7 +3687,7 @@
             ctx.stroke();
           }
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'anglerfish') {
           // 深海魚（アンコウ風・発光）
@@ -3517,7 +3696,7 @@
           ctx.save();
           ctx.translate(c.x, c.y + Math.sin(time * 0.3 + c.phase) * 5);
           ctx.scale(flip, 1);
-          ctx.globalAlpha = 0.7;
+          ctx.globalAlpha = 0.7 * cOpacity;
           
           // グロー
           const glowG = ctx.createRadialGradient(c.size * 0.8, -c.size, 0, c.size * 0.8, -c.size, c.size * 1.2 * pulse);
@@ -3541,7 +3720,7 @@
           ctx.fill();
           
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'katsuo') {
           // カツオ（スリムな紡錘形、背が青黒、腹が銀白、縦縞）
@@ -3550,7 +3729,7 @@
           ctx.save();
           ctx.translate(c.x, c.y + Math.sin(time * 1.5 + c.phase) * 2);
           ctx.scale(flip, 1);
-          ctx.globalAlpha = 0.82;
+          ctx.globalAlpha = 0.82 * cOpacity;
           
           // 胴体（上半分：青黒）
           ctx.beginPath();
@@ -3605,7 +3784,7 @@
           ctx.fill();
           
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'diver2') {
           // 2人目のダイバー（白×ピンクスーツ）
@@ -3617,7 +3796,7 @@
           ctx.save();
           ctx.translate(c.x, c.y + floatY);
           ctx.scale(flip, 1);
-          ctx.globalAlpha = 0.85;
+          ctx.globalAlpha = 0.85 * cOpacity;
           // 泡（定期）
           c.bubTick++;
           if (c.bubTick % 55 === 0) {
@@ -3660,11 +3839,11 @@
           const glowD2 = ctx.createRadialGradient(0, 0, 4, 0, 0, 42);
           glowD2.addColorStop(0, 'rgba(210,150,255,0.10)');
           glowD2.addColorStop(1, 'rgba(210,150,255,0)');
-          ctx.globalAlpha = 0.55;
+          ctx.globalAlpha = 0.55 * cOpacity;
           ctx.fillStyle = glowD2;
           ctx.beginPath(); ctx.arc(0, 0, 42, 0, Math.PI * 2); ctx.fill();
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'saba') {
           // サバ：細長い紡錘形、背が青緑の縞模様
@@ -3673,7 +3852,7 @@
           ctx.save();
           ctx.translate(c.x, c.y + Math.sin(time * 1.2 + c.phase) * 2);
           ctx.scale(flip, 1);
-          ctx.globalAlpha = 0.8;
+          ctx.globalAlpha = 0.8 * cOpacity;
           
           // 胴体上（青緑）
           ctx.beginPath();
@@ -3710,7 +3889,7 @@
           ctx.fill();
           
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'rakko') {
           // ラッコ：丸っこい体、可愛い、茶色系
@@ -3720,7 +3899,7 @@
           ctx.save();
           ctx.translate(c.x, c.y + wobble);
           ctx.scale(flip, 1);
-          ctx.globalAlpha = 0.85;
+          ctx.globalAlpha = 0.85 * cOpacity;
           
           // 胴体（茶色の楕円）
           ctx.beginPath();
@@ -3814,7 +3993,7 @@
           ctx.fill();
           
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'shark') {
           // サメ：大きい、三角背びれ、流線型
@@ -3823,7 +4002,7 @@
           ctx.save();
           ctx.translate(c.x, c.y + Math.sin(time * 0.5 + c.phase) * 3);
           ctx.scale(flip, 1);
-          ctx.globalAlpha = 0.75;
+          ctx.globalAlpha = 0.75 * cOpacity;
           
           // 胴体
           ctx.beginPath();
@@ -3877,7 +4056,7 @@
           }
           
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'shrimp') {
           // エビ：細い体が弧を描く、触角、脚
@@ -3886,7 +4065,7 @@
           ctx.save();
           ctx.translate(c.x, c.y + bob);
           ctx.scale(flip, 1);
-          ctx.globalAlpha = 0.8;
+          ctx.globalAlpha = 0.8 * cOpacity;
           
           // 胴体（弧状の楕円を連ねる）
           ctx.fillStyle = '#e87060';
@@ -3939,7 +4118,7 @@
           ctx.fill();
           
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'starfish') {
           // ヒトデ：5本腕、ゆっくり回転
@@ -3948,7 +4127,7 @@
           ctx.save();
           ctx.translate(c.x, c.y + Math.sin(time * 0.4 + c.phase) * 3);
           ctx.rotate(rot);
-          ctx.globalAlpha = 0.82;
+          ctx.globalAlpha = 0.82 * cOpacity;
           
           // 5本腕
           ctx.fillStyle = `hsl(${c.hue},80%,55%)`;
@@ -3982,13 +4161,13 @@
           }
           
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'seaweed') {
           // わかめ：底から生え、左右にゆらゆら
           ctx.save();
           ctx.translate(c.x, c.y);
-          ctx.globalAlpha = 0.7;
+          ctx.globalAlpha = 0.7 * cOpacity;
           
           const segments = 7;
           const segH = c.size / segments;
@@ -4021,14 +4200,14 @@
           }
           
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'clam') {
           // アサリ：丸みのある三角形の二枚貝、同心円の模様
           const bob = Math.sin(time * 0.5 + c.phase) * 1;
           ctx.save();
           ctx.translate(c.x, c.y + bob);
-          ctx.globalAlpha = 0.85;
+          ctx.globalAlpha = 0.85 * cOpacity;
           
           // 下の貝殻
           ctx.beginPath();
@@ -4055,7 +4234,7 @@
           ctx.fill();
           
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
           
         } else if (c.type === 'mussel') {
           // ムール貝：縦長の楕円、紫〜黒グラデーション
@@ -4063,7 +4242,7 @@
           ctx.save();
           ctx.translate(c.x, c.y + bob);
           ctx.rotate(Math.sin(time * 0.3 + c.phase) * 0.1);
-          ctx.globalAlpha = 0.85;
+          ctx.globalAlpha = 0.85 * cOpacity;
           
           // 外側
           const musselGrad = ctx.createLinearGradient(-c.size * 0.4, -c.size, c.size * 0.4, c.size);
@@ -4091,7 +4270,7 @@
           ctx.stroke();
           
           ctx.restore();
-          ctx.globalAlpha = 1;
+          ctx.globalAlpha = 1 * cOpacity;
         }
       },
       
@@ -4178,8 +4357,29 @@
         
         // 生き物を移動
         const types = lv.creatures;
+        
+        // フェード処理（フェードアウト/フェードイン）
+        const FADE_SPEED = 0.02;  // 約50フレーム（≈1秒）でフェード完了
         for (let i = this.creatures.length - 1; i >= 0; i--) {
           const c = this.creatures[i];
+          if (c.fadingOut) {
+            c.opacity = (c.opacity || 1) - FADE_SPEED;
+            if (c.opacity <= 0) {
+              this.creatures.splice(i, 1);
+              continue;
+            }
+          } else if (c.fadingIn) {
+            c.opacity = (c.opacity || 0) + FADE_SPEED;
+            if (c.opacity >= 1) {
+              c.opacity = 1;
+              c.fadingIn = false;
+            }
+          }
+        }
+        
+        for (let i = this.creatures.length - 1; i >= 0; i--) {
+          const c = this.creatures[i];
+          if (c.fadingOut) continue;  // フェードアウト中は移動・補充対象外
           // わかめは固定、貝類はほぼ固定なので画面外判定しない
           if (c.type === 'seaweed' || c.type === 'clam' || c.type === 'mussel') continue;
           // diver2は固定位置・横移動なし
@@ -4188,17 +4388,14 @@
           if (c.x < -120 || c.x > W + 120) {
             this.creatures.splice(i, 1);
             const type = types[Math.floor(Math.random() * types.length)];
-            this.addCreature(type, false);
+            this.addCreature(type, false, false);  // 補充は単体（群れ生成しない）
           }
         }
-        // diver2ステージは1体固定・補充なし（画面外に出ないため不要）
-        if (!types.includes('diver2')) {
-          const isSparse = types.includes('anglerfish') || types.includes('rakko');
-          const minCount = isSparse ? 2 : 3;
-          if (this.creatures.length < minCount) {
-            const type = types[Math.floor(Math.random() * types.length)];
-            this.addCreature(type, false);
-          }
+        // creatureMinCount が 0 の場合は補充なし（diver2等の固定配置ステージ）
+        const minCount = lv.creatureMinCount;
+        if (minCount > 0 && this.creatures.length < minCount) {
+          const type = types[Math.floor(Math.random() * types.length)];
+          this.addCreature(type, false, false);  // 補充は単体
         }
       },
       

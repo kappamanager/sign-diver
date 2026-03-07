@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -7,6 +7,8 @@
   <meta name="keywords" content="指文字,手話,タイピング,練習,ゲーム,カメラ認識,AI,MediaPipe,日本語対応手話,JSL,Sign Diver,サインダイバー">
   <title>Sign Diver（サインダイバー）- カメラで指文字タイピング練習｜手話の指文字をAIで学ぼう</title>
 
+  <!-- ★公開時に削除★ -->
+  <meta name="robots" content="noindex, nofollow">
 
   <meta name="author" content="Sign Diver Project">
   <link rel="canonical" href="https://signdiver.com/">
@@ -32,6 +34,15 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./asset/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="./asset/favicon-16.png">
   <link rel="apple-touch-icon" href="./asset/sign_diver_favicon_512.png">
+
+  <!-- Prefetch: MediaPipe WASM + モデル（ゲーム画面遷移前に事前DL） -->
+  <link rel="prefetch" href="./mediapipe/wasm/vision_wasm_internal.js">
+  <link rel="prefetch" href="./mediapipe/wasm/vision_wasm_internal.wasm">
+  <link rel="prefetch" href="./mediapipe/wasm/vision_wasm_nosimd_internal.js">
+  <link rel="prefetch" href="./mediapipe/wasm/vision_wasm_nosimd_internal.wasm">
+  <link rel="prefetch" href="./mediapipe/hand_landmarker.task">
+  <link rel="prefetch" href="./tfjs_model_official/model.json">
+  <link rel="prefetch" href="./tfjs_model_official/group1-shard1of1.bin">
 
   <!-- 構造化データ JSON-LD -->
   <script type="application/ld+json">
@@ -677,7 +688,22 @@
 
   <script>
     // ═══════════════════════════════════════════════
-    // ページを開いた瞬間にTFJSモデルをキャッシュに先読み
+    // Service Worker 登録
+    // ═══════════════════════════════════════════════
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => {
+          if (reg.active) {
+            console.log('[SW] ✅ Active（リピーター：SWキャッシュ利用可能）');
+          } else if (reg.installing || reg.waiting) {
+            console.log('[SW] 🔄 初回インストール中（次回からSWキャッシュ有効）');
+          }
+        })
+        .catch(err => console.warn('[SW] Registration failed:', err));
+    }
+
+    // ═══════════════════════════════════════════════
+    // ページを開いた瞬間にTFJSモデル・WASMをキャッシュに先読み
     // ═══════════════════════════════════════════════
     (function prefetchResources() {
       const t0 = performance.now();
@@ -686,7 +712,12 @@
       const targets = [
         './tfjs_model_official/model.json',
         './tfjs_model_official/label_map_unified.json',
-        './mediapipe/hand_landmarker.task',  // 自サイトホスト化により確実にキャッシュされる
+        './mediapipe/hand_landmarker.task',
+        // WASM ファイル（タスク1: ローカル化対応）
+        './mediapipe/wasm/vision_wasm_internal.js',
+        './mediapipe/wasm/vision_wasm_internal.wasm',
+        './mediapipe/wasm/vision_wasm_nosimd_internal.js',
+        './mediapipe/wasm/vision_wasm_nosimd_internal.wasm',
       ];
 
       targets.forEach(url => {

@@ -2029,6 +2029,23 @@
       await video.play();
       canvas.width = video.videoWidth || 640;
       canvas.height = video.videoHeight || 480;
+
+      // ── MediaPipe ウォームアップ（初回推論ラグ解消） ──
+      // GPU delegate の場合、最初の detectForVideo でシェーダーコンパイルが走る。
+      // ゲームループ開始前にダミー推論を3回走らせてパイプラインを温めておく。
+      if (landmarker) {
+        PERF.mark('mediapipe_warmup_start');
+        updateLoadingProgress('認識エンジンをウォームアップ中...');
+        for (let i = 0; i < 3; i++) {
+          try {
+            landmarker.detectForVideo(video, performance.now());
+          } catch (e) { /* 初回フレームエラーは無視 */ }
+          await new Promise(r => requestAnimationFrame(r));
+        }
+        PERF.mark('mediapipe_warmup_done');
+        PERF.elapsed('mediapipe_warmup_start', 'mediapipe_warmup_done');
+      }
+
       PERF.mark('bg_load_awaited');
       PERF.elapsed('init_heavy_start', 'bg_load_awaited');
     }
@@ -2063,6 +2080,7 @@
     // カウントダウン表示（seconds: カウント開始秒数、デフォルト3）
     async function showCountdown(seconds = 3) {
       const overlay = document.getElementById('countdownOverlay');
+      const video = document.getElementById('video');
       
       // オーバーレイを最初に1回だけ表示（以降は消さない）
       overlay.style.display = 'flex';
@@ -2095,7 +2113,31 @@
           overlay.appendChild(guide);
         }
         
-        await new Promise(resolve => setTimeout(resolve, i === 3 ? 600 : 900));
+        // ── 待機中にMediaPipe + TFJSウォームアップ ──
+        const waitMs = i === 3 ? 600 : 900;
+        const warmupEnd = performance.now() + waitMs;
+        let warmupCount = 0, warmupMpCount = 0, warmupTfCount = 0;
+        while (performance.now() < warmupEnd) {
+          try {
+            if (landmarker && video.readyState >= 2) {
+              const res = landmarker.detectForVideo(video, performance.now());
+              warmupMpCount++;
+              if (res?.landmarks?.length > 0 && model) {
+                const lm = res.landmarks[0];
+                const features = toFeature63(lm);
+                const input = tf.tensor3d([Array(15).fill(features)]);
+                const output = await model.executeAsync(input);
+                if (Array.isArray(output)) output.forEach(t => t.dispose());
+                else output.dispose();
+                input.dispose();
+                warmupTfCount++;
+              }
+            }
+          } catch (e) { /* ウォームアップエラーは無視 */ }
+          warmupCount++;
+          await new Promise(r => requestAnimationFrame(r));
+        }
+        console.log(`[WARMUP] "${counts[i]}" → loops=${warmupCount}, MP=${warmupMpCount}, TFJS=${warmupTfCount}`);
       }
       
       // フェードアウト
@@ -2118,6 +2160,8 @@
       // ゲーム状態をリセット
       isPlaying = true;
       startLoopPerf();
+      loopFrameCount = 0;
+      frameBuffer = [];
       timeRemaining = timeLimit;
       score = 0;
       clearedCount = 0;
@@ -2164,11 +2208,17 @@
     }
 
     async function startGame(isFirst = false) {
+      console.log(`%c[STARTUP] showCountdown開始`, 'color:#FF9800;font-weight:bold');
+      const cdStart = performance.now();
       // カウントダウン表示（初回は5秒・2回目以降は3秒）
       await showCountdown(isFirst ? 5 : 3);
+      console.log(`[STARTUP] showCountdown完了: ${(performance.now()-cdStart).toFixed(0)}ms`);
       
+      const t0 = performance.now();
       // ゲーム状態リセット
       resetGameState();
+      console.log(`[STARTUP] resetGameState: ${(performance.now()-t0).toFixed(1)}ms`);
+      
       SEA.renderBg1 = SEA.LEVELS[0].bg1;
       SEA.renderBg2 = SEA.LEVELS[0].bg2;
       SEA.renderRays = SEA.LEVELS[0].rays;
@@ -2176,6 +2226,7 @@
       
       nextWord();
       startTimer();
+      console.log(`%c[STARTUP] 合計 startGame内処理: ${(performance.now()-t0).toFixed(0)}ms → loop開始`, 'color:#4CAF50;font-weight:bold');
       rafId = requestAnimationFrame(loop);
     }
     

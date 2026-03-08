@@ -1684,6 +1684,7 @@
     let remainingWords = [];
     let currentWord = null;
     let currentIndex = 0;
+    let currentWordId = 0;  // 単語遷移ごとにインクリメント（タイムアウト競合防止）
     
     let isPlaying = false;
     let timeRemaining = timeLimit;
@@ -2030,6 +2031,9 @@
       canvas.width = video.videoWidth || 640;
       canvas.height = video.videoHeight || 480;
 
+      // ループ中に使うDOM要素をキャッシュ
+      cacheLoopElements();
+
       // ── MediaPipe ウォームアップ（初回推論ラグ解消） ──
       // GPU delegate の場合、最初の detectForVideo でシェーダーコンパイルが走る。
       // ゲームループ開始前にダミー推論を3回走らせてパイプラインを温めておく。
@@ -2268,7 +2272,11 @@
       
       currentWord = selectedWord;
       currentIndex = 0;
+      currentWordId++;  // 単語遷移（タイムアウト競合防止）
       charStartTime = performance.now();
+      
+      // 前の単語の認識データをリセット（誤認識防止）
+      frameBuffer = [];
       
       updateWordDisplay();
 
@@ -2368,7 +2376,9 @@
           clearInterval(wordTimerInterval);  // タイマー停止（重複実行防止）
           wordTimerInterval = null;
           // 表示更新が完了するまで少し待つ（200ms）
+          const timeoutWordId = currentWordId;  // この時点の単語IDを記録
           setTimeout(() => {
+            if (currentWordId !== timeoutWordId) return;  // 単語が変わっていたら無視
             onWordTimeout();
           }, 200);
         }
@@ -2554,9 +2564,11 @@
       // NGエフェクト表示
       showNGEffect(currentWord.display);
       
-      // 0.7秒後に次の単語へ（ゲーム終了済みなら何もしない）
+      // 0.7秒後に次の単語へ（ゲーム終了済み or 単語が変わっていたら何もしない）
+      const timeoutWordId = currentWordId;
       setTimeout(() => {
         if (!isPlaying) return;
+        if (currentWordId !== timeoutWordId) return;  // 既に別の単語に遷移済み
         document.getElementById('statusBox').textContent = '手をカメラに映してください';
         document.getElementById('statusBox').style.background = '#e3f2fd';
         nextWord();
@@ -2625,14 +2637,13 @@
       if (!isPlaying) return;
       
       const now = performance.now();
-      const video = document.getElementById('video');
       const isDetectFrame = (loopFrameCount % 2 === 0);
       loopFrameCount++;
 
       if (isDetectFrame) {
         // ── 偶数フレーム: MediaPipe 検出 + 描画 + 特徴量抽出 ──
         const t0 = performance.now();
-        const res = landmarker.detectForVideo(video, now);
+        const res = landmarker.detectForVideo(_video, now);
         LOOP_PERF.detectTimes.push(performance.now() - t0);
 
         lastDetectResult = res;
@@ -2649,9 +2660,9 @@
           pendingFeatures = toFeature63(landmarks);
         } else {
           pendingFeatures = null;
-          document.getElementById('recognizedChar').textContent = '-';
-          document.getElementById('confidenceDisplay').textContent = '手が見えません';
-          document.getElementById('statusBox').textContent = '手をカメラに映してください';
+          _elRecognizedChar.textContent = '-';
+          _elConfidence.textContent = '手が見えません';
+          _elStatusBox.textContent = '手をカメラに映してください';
         }
       } else {
         // ── 奇数フレーム: 前回結果で描画 + TFJS 推論 ──
@@ -2668,56 +2679,57 @@
       rafId = requestAnimationFrame(loop);
     }
     
-    // 手の描画
+    // 手の描画（定数・キャッシュ）
+    const HAND_CONNS = [
+      [0, 1], [1, 2], [2, 3], [3, 4],
+      [0, 5], [5, 6], [6, 7], [7, 8],
+      [0, 9], [9, 10], [10, 11], [11, 12],
+      [0, 13], [13, 14], [14, 15], [15, 16],
+      [0, 17], [17, 18], [18, 19], [19, 20],
+      [5, 9], [9, 13], [13, 17]
+    ];
+    // DOM要素キャッシュ（ゲーム中に頻繁に参照するもの）
+    let _video, _canvas, _ctx, _elRecognizedChar, _elConfidence, _elStatusBox;
+    function cacheLoopElements() {
+      _video = document.getElementById('video');
+      _canvas = document.getElementById('canvas');
+      _ctx = _canvas.getContext('2d');
+      _elRecognizedChar = document.getElementById('recognizedChar');
+      _elConfidence = document.getElementById('confidenceDisplay');
+      _elStatusBox = document.getElementById('statusBox');
+    }
+
     function drawHands(res) {
-      const canvas = document.getElementById('canvas');
-      const video = document.getElementById('video');
-      const ctx = canvas.getContext('2d');
-      const w = canvas.width;
-      const h = canvas.height;
+      const w = _canvas.width;
+      const h = _canvas.height;
       
-      ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(video, 0, 0, w, h);
+      _ctx.clearRect(0, 0, w, h);
+      _ctx.drawImage(_video, 0, 0, w, h);
       
       if (res?.landmarks?.length > 0) {
         for (const landmarks of res.landmarks) {
-          // 接続線
-          const connections = [
-            [0, 1], [1, 2], [2, 3], [3, 4],
-            [0, 5], [5, 6], [6, 7], [7, 8],
-            [0, 9], [9, 10], [10, 11], [11, 12],
-            [0, 13], [13, 14], [14, 15], [15, 16],
-            [0, 17], [17, 18], [18, 19], [19, 20],
-            [5, 9], [9, 13], [13, 17]
-          ];
-          
-          // 深海テーマ: コネクション
-          ctx.shadowBlur = 6;
-          ctx.shadowColor = "rgba(100, 220, 255, 0.8)";
-          ctx.strokeStyle = "rgba(100, 220, 255, 0.55)";
-          ctx.lineWidth = 1.5;
+          // 深海テーマ: コネクション（shadowBlur除去、色と太さで表現）
+          _ctx.strokeStyle = "rgba(100, 220, 255, 0.7)";
+          _ctx.lineWidth = 2;
 
-          for (const [start, end] of connections) {
+          for (const [start, end] of HAND_CONNS) {
             const p1 = landmarks[start];
             const p2 = landmarks[end];
             if (p1 && p2) {
-              ctx.beginPath();
-              ctx.moveTo(p1.x * w, p1.y * h);
-              ctx.lineTo(p2.x * w, p2.y * h);
-              ctx.stroke();
+              _ctx.beginPath();
+              _ctx.moveTo(p1.x * w, p1.y * h);
+              _ctx.lineTo(p2.x * w, p2.y * h);
+              _ctx.stroke();
             }
           }
 
-          // ランドマーク点
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = "rgba(50, 150, 255, 0.9)";
-          ctx.fillStyle = "rgba(80, 180, 255, 0.9)";
+          // ランドマーク点（shadowBlur除去、色を明るく）
+          _ctx.fillStyle = "rgba(80, 200, 255, 0.95)";
           for (const p of landmarks) {
-            ctx.beginPath();
-            ctx.arc(p.x * w, p.y * h, 3, 0, Math.PI * 2);
-            ctx.fill();
+            _ctx.beginPath();
+            _ctx.arc(p.x * w, p.y * h, 3, 0, Math.PI * 2);
+            _ctx.fill();
           }
-          ctx.shadowBlur = 0;
         }
       }
     }
@@ -2839,8 +2851,8 @@
       const displaySign = convertToHiragana(sign);
       
       // UI更新
-      document.getElementById('recognizedChar').textContent = displaySign;
-      document.getElementById('confidenceDisplay').textContent = `${(conf * 100).toFixed(1)}%`;
+      _elRecognizedChar.textContent = displaySign;
+      _elConfidence.textContent = `${(conf * 100).toFixed(1)}%`;
       
       // 判定
       if (conf >= 0.80) {
@@ -3249,6 +3261,7 @@
         this.canvas = document.getElementById('seaCanvas');
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d');
+        this._depthMeter = document.getElementById('depthMeter');
         this.resize();
         window.addEventListener('resize', () => this.resize());
         
@@ -3586,8 +3599,7 @@
           }
           
           // 深度メーター更新
-          const dm = document.getElementById('depthMeter');
-          if (dm) dm.textContent = '▼ ' + Math.round(this.currentDepth) + ' m';
+          if (this._depthMeter) this._depthMeter.textContent = '▼ ' + Math.round(this.currentDepth) + ' m';
           
           this.draw();
           this.update();

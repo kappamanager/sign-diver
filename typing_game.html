@@ -1483,6 +1483,11 @@
     let bgLoadPromise = null;
     let model = null, labelMap = null, landmarker = null, stream = null;
 
+    // ── 性能ティア（#12: デバイス性能自動検出） ──
+    let perfTier = 'high';    // 'high' | 'mid' | 'low'
+    let detectInterval = 2;   // 何フレームに1回detectForVideoを実行するか
+    let selectedDeviceId = null; // 選択済みカメラのdeviceId（再起動時に再利用）
+
     (function startBackgroundLoad() {
       PERF.mark('bg_load_start');
 
@@ -1952,24 +1957,29 @@
       });
     }
 
-    async function startCameraWithHandling(videoEl) {
+    async function startCameraWithHandling(videoEl, maxW = 640, maxH = 480, skipSelect = false) {
       while (true) {
         try {
-          const devices = (await navigator.mediaDevices.enumerateDevices())
-            .filter(d => d.kind === 'videoinput');
+          let deviceId = selectedDeviceId; // 前回選択済みなら再利用
 
-          let deviceId = null;
-          if (devices.length > 1 && devices[0].label) {
-            deviceId = await showCameraSelect(devices);
-            if (deviceId === null) return null;
+          if (!skipSelect && !deviceId) {
+            const devices = (await navigator.mediaDevices.enumerateDevices())
+              .filter(d => d.kind === 'videoinput');
+
+            if (devices.length > 1 && devices[0].label) {
+              deviceId = await showCameraSelect(devices);
+              if (deviceId === null) return null;
+            }
           }
 
-          const constraints = {
-            video: deviceId
-              ? { deviceId: { exact: deviceId } }
-              : { facingMode: 'user', width: 640, height: 480 },
-            audio: false,
-          };
+          // 選択結果を記憶
+          if (deviceId) selectedDeviceId = deviceId;
+
+          const videoConstraint = deviceId
+            ? { deviceId: { exact: deviceId }, width: { ideal: maxW, max: maxW }, height: { ideal: maxH, max: maxH } }
+            : { facingMode: 'user', width: { ideal: maxW, max: maxW }, height: { ideal: maxH, max: maxH } };
+          const constraints = { video: videoConstraint, audio: false };
+          console.log(`[PERF] Camera requesting: ${maxW}x${maxH}${skipSelect ? ' (reuse device)' : ''}`);
           const stream = await navigator.mediaDevices.getUserMedia(constraints);
           videoEl.srcObject = stream;
           return stream;
@@ -2034,9 +2044,8 @@
       // ループ中に使うDOM要素をキャッシュ
       cacheLoopElements();
 
-      // ── MediaPipe ウォームアップ（初回推論ラグ解消） ──
-      // GPU delegate の場合、最初の detectForVideo でシェーダーコンパイルが走る。
-      // ゲームループ開始前にダミー推論を3回走らせてパイプラインを温めておく。
+      // ── MediaPipe 最低限ウォームアップ（シェーダーコンパイルのみ） ──
+      // 性能計測とティア判定はカウントダウン中に行う（GPUが十分温まった状態で計測するため）
       if (landmarker) {
         PERF.mark('mediapipe_warmup_start');
         updateLoadingProgress('認識エンジンをウォームアップ中...');
@@ -2082,9 +2091,11 @@
     }
     
     // カウントダウン表示（seconds: カウント開始秒数、デフォルト3）
+    // 初回ゲーム（5秒）時はカウントダウン前半でGPU性能計測→ティア判定→必要ならカメラ再起動
+    let tierDetermined = false; // 初回のみ判定
     async function showCountdown(seconds = 3) {
       const overlay = document.getElementById('countdownOverlay');
-      const video = document.getElementById('video');
+      const video = _video || document.getElementById('video');
       
       // オーバーレイを最初に1回だけ表示（以降は消さない）
       overlay.style.display = 'flex';
@@ -2095,6 +2106,10 @@
       const counts = [];
       for (let i = seconds; i >= 1; i--) counts.push(String(i));
       counts.push('Start!');
+
+      // 性能計測用（初回のみ）
+      const needsTierCheck = !tierDetermined && seconds >= 5;
+      const tierDetectTimes = [];
       
       for (let i = 0; i < counts.length; i++) {
         // 古い内容を削除
@@ -2124,8 +2139,16 @@
         while (performance.now() < warmupEnd) {
           try {
             if (landmarker && video.readyState >= 2) {
+              const t0 = performance.now();
               const res = landmarker.detectForVideo(video, performance.now());
+              const elapsed = performance.now() - t0;
               warmupMpCount++;
+
+              // 初回判定時：最初の2ステップで計測（GPUが温まった状態）
+              if (needsTierCheck && i < 2) {
+                tierDetectTimes.push(elapsed);
+              }
+
               if (res?.landmarks?.length > 0 && model) {
                 const lm = res.landmarks[0];
                 const features = toFeature63(lm);
@@ -2142,6 +2165,46 @@
           await new Promise(r => requestAnimationFrame(r));
         }
         console.log(`[WARMUP] "${counts[i]}" → loops=${warmupCount}, MP=${warmupMpCount}, TFJS=${warmupTfCount}`);
+
+        // ── ティア判定（最初の2ステップ完了後に1回だけ） ──
+        if (needsTierCheck && i === 1) {
+          const avgDetect = tierDetectTimes.length > 0
+            ? tierDetectTimes.reduce((a,b) => a+b, 0) / tierDetectTimes.length : 30;
+          console.log(`[PERF] Countdown detect avg: ${avgDetect.toFixed(1)}ms (n=${tierDetectTimes.length}, samples: ${tierDetectTimes.slice(-6).map(t=>t.toFixed(0)).join(',')})`);
+
+          if (avgDetect < 35) {
+            perfTier = 'high'; detectInterval = 2;
+            console.log(`[PERF] Tier: HIGH (avg ${avgDetect.toFixed(0)}ms < 35ms) → 640x480, detect every 2 frames`);
+          } else if (avgDetect < 60) {
+            perfTier = 'mid'; detectInterval = 2;
+            console.log(`[PERF] Tier: MID (avg ${avgDetect.toFixed(0)}ms < 60ms) → 480x360, detect every 2 frames`);
+          } else {
+            perfTier = 'low'; detectInterval = 3;
+            console.log(`[PERF] Tier: LOW (avg ${avgDetect.toFixed(0)}ms >= 60ms) → 320x240, detect every 3 frames`);
+          }
+          tierDetermined = true;
+
+          // MID/LOW: カメラを低解像度で再起動（カウントダウン中なのでプレイヤーに見えない）
+          if (perfTier !== 'high') {
+            const newW = perfTier === 'mid' ? 480 : 320;
+            const newH = perfTier === 'mid' ? 360 : 240;
+            console.log(`[PERF] Restarting camera at ${newW}x${newH}...`);
+            if (stream) { stream.getTracks().forEach(t => t.stop()); }
+            video.srcObject = null;
+            stream = await startCameraWithHandling(video, newW, newH, true); // skipSelect=true
+            if (stream) {
+              if (video.readyState < 1) {
+                await new Promise(r => { video.onloadedmetadata = r; });
+              }
+              await video.play();
+              const canvas = document.getElementById('canvas');
+              canvas.width = video.videoWidth || newW;
+              canvas.height = video.videoHeight || newH;
+              cacheLoopElements();
+              console.log(`[PERF] Camera restarted: ${video.videoWidth}x${video.videoHeight}`);
+            }
+          }
+        }
       }
       
       // フェードアウト
@@ -2230,7 +2293,7 @@
       
       nextWord();
       startTimer();
-      console.log(`%c[STARTUP] 合計 startGame内処理: ${(performance.now()-t0).toFixed(0)}ms → loop開始`, 'color:#4CAF50;font-weight:bold');
+      console.log(`%c[STARTUP] 合計 startGame内処理: ${(performance.now()-t0).toFixed(0)}ms → loop開始 (tier=${perfTier}, detectInterval=${detectInterval})`, 'color:#4CAF50;font-weight:bold');
       rafId = requestAnimationFrame(loop);
     }
     
@@ -2609,7 +2672,8 @@
     }
     
     // 手話認識ループ
-    // ── スロットリング: detectForVideo と predictSign を交互フレームに分散 ──
+    // ── スロットリング: detectForVideo と predictSign をフレーム分散 ──
+    // detectInterval はウォームアップ時の性能計測で自動決定（high=2, low=3）
     let loopFrameCount = 0;
     let lastDetectResult = null;  // 前回の MediaPipe 検出結果を保持
     let pendingFeatures = null;   // 次フレームで推論する特徴量
@@ -2637,7 +2701,7 @@
       if (!isPlaying) return;
       
       const now = performance.now();
-      const isDetectFrame = (loopFrameCount % 2 === 0);
+      const isDetectFrame = (loopFrameCount % detectInterval === 0);
       loopFrameCount++;
 
       if (isDetectFrame) {

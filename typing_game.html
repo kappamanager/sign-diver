@@ -2835,8 +2835,12 @@
     let wristBuffer = [];
     const WRIST_BUFFER_SIZE = 20;
     const MOTION_THRESHOLD_XY = 0.06;  // 手のxy移動量の閾値（要チューニング）
-    const PULLBACK_THRESHOLD = 0.02;   // 手前に引く動きの閾値（要チューニング）
-    const POSTPROCESS_CONF_LIMIT = 0.95; // この信頼度以上ならモデルを信頼して補正しない
+    // [2026-03-09] PULLBACK_THRESHOLD: 0.02→0.012 に引き下げ
+    //   小文字（ゃゅょっ等）の手前引き動作が微妙なテスターで検出漏れが発生していたため
+    const PULLBACK_THRESHOLD = 0.012;
+    // [2026-03-09] POSTPROCESS_CONF_LIMIT: 0.95→0.98 に引き上げ
+    //   モデルが高確信度で清音を出しても、動き検出による補正を試みる範囲を広げるため
+    const POSTPROCESS_CONF_LIMIT = 0.98;
 
     function trackWrist(landmarks) {
       const w = landmarks[0];
@@ -2857,7 +2861,7 @@
       return { xy: totalXY, z: totalZ };
     }
 
-    function postProcessSign(sign, conf) {
+    function postProcessSign(sign, conf, probs) {
       if (conf >= POSTPROCESS_CONF_LIMIT) return sign;
       const motion = getWristMotion();
       const hasMotionXY = motion.xy > MOTION_THRESHOLD_XY;
@@ -2867,6 +2871,27 @@
       if (sign === 'ni' && hasMotionXY) return 'ri';
       if (sign === 'ri' && !hasMotionXY) return 'ni';
 
+      // ── [2026-03-09] そ↔の/ん/ー 補正追加 ──
+      // テスターの「の」「ん」「ー」が「そ」と誤認される問題への対策
+      // 全て人差し指1本の形だが、「そ」は静止、「の」「ん」「ー」は動きがある
+      // モデルが「そ」と予測したがXY動きがある → no/n/bar の中で最も確率が高いものに補正
+      if (sign === 'so' && hasMotionXY && probs && labelMap) {
+        const candidates = ['no', 'n', 'bar'];
+        let bestLabel = sign, bestProb = -1;
+        for (const c of candidates) {
+          const cId = labelMap.label_to_id?.[c];
+          if (cId !== undefined && probs[cId] > bestProb) {
+            bestProb = probs[cId];
+            bestLabel = c;
+          }
+        }
+        if (bestProb > 0.01) return bestLabel; // 最低限の確率がある候補に補正
+      }
+
+      // ── [2026-03-09] 小文字全般の引き検出補正を追加 ──
+      // テスターの手前引き動作が小さく、清音として認識される問題への対策
+      // 清音の形 + 手前に引く → 小文字・促音・を
+
       // ゃ↔や / ゅ↔ゆ / ょ↔よ: 小文字は手前に引く(motion)、大文字は静止(static)
       if (sign === 'ya' && hasPullBack) return 'xya';
       if (sign === 'xya' && !hasPullBack) return 'ya';
@@ -2874,6 +2899,24 @@
       if (sign === 'xyu' && !hasPullBack) return 'yu';
       if (sign === 'yo' && hasPullBack) return 'xyo';
       if (sign === 'xyo' && !hasPullBack) return 'yo';
+
+      // [2026-03-09] っ↔つ: 促音は手前に引く
+      if (sign === 'tsu' && hasPullBack) return 'xtsu';
+      if (sign === 'xtsu' && !hasPullBack) return 'tsu';
+
+      // [2026-03-09] 小文字母音: ぁ↔あ, ぃ↔い, ぅ↔う, ぇ↔え
+      if (sign === 'a' && hasPullBack) return 'xa';
+      if (sign === 'xa' && !hasPullBack) return 'a';
+      if (sign === 'i' && hasPullBack) return 'xi';
+      if (sign === 'xi' && !hasPullBack) return 'i';
+      if (sign === 'u' && hasPullBack) return 'xu';
+      if (sign === 'xu' && !hasPullBack) return 'u';
+      if (sign === 'e' && hasPullBack) return 'xe';
+      if (sign === 'xe' && !hasPullBack) return 'e';
+
+      // [2026-03-09] を↔お: 「を」は「お」の形で手前に引く
+      if (sign === 'o' && hasPullBack) return 'wo';
+      if (sign === 'wo' && !hasPullBack) return 'o';
 
       return sign;
     }
@@ -2904,12 +2947,16 @@
       inputTensor.dispose();
       output.dispose();
       
-      const predId = Array.from(probs).indexOf(Math.max(...probs));
-      const conf = probs[predId];
+      // [2026-03-09] argmax最適化: 3パス→1パスのforループに変更
+      let predId = 0, maxProb = probs[0];
+      for (let pi = 1; pi < probs.length; pi++) {
+        if (probs[pi] > maxProb) { maxProb = probs[pi]; predId = pi; }
+      }
+      const conf = maxProb;
       const rawSign = labelMap.id_to_label[String(predId)];
       
       // 動き検出による混同ペア補正
-      const sign = postProcessSign(rawSign, conf);
+      const sign = postProcessSign(rawSign, conf, probs);
       
       // 英語ラベルを日本語に変換（表示用）
       const displaySign = convertToHiragana(sign);
@@ -3424,9 +3471,13 @@
         const lv = this.LEVELS[this.currentLevel];
         const types = lv.creatures;
         const count = lv.creatureCount;
-        for (let i = 0; i < count; i++) {
+        // [2026-03-09] 群れ生成（katsuo等）でcreatureCountを超えないよう残り枠を管理
+        let spawned = 0;
+        for (let i = 0; i < count && spawned < count; i++) {
           const type = types[Math.floor(Math.random() * types.length)];
-          this.addCreature(type, true);
+          const before = this.creatures.length;
+          this.addCreature(type, true, true, count - spawned);
+          spawned += this.creatures.length - before;
         }
         // フェードインの場合、今追加したクリーチャーの opacity を 0 に設定
         if (fadeIn) {
@@ -3461,7 +3512,8 @@
         });
       },
       
-      addCreature(type, randomPos = false, asGroup = true) {
+      // [2026-03-09] maxSlots: 群れ生成時に使える残り枠数（katsuoが枠を超えないよう制限）
+      addCreature(type, randomPos = false, asGroup = true, maxSlots = 99) {
         const fromRight = Math.random() > 0.5;
         const rx = randomPos ? Math.random() * this.W : (fromRight ? this.W + 80 : -80);
         const ry = this.H * (0.1 + Math.random() * 0.8);
@@ -3471,7 +3523,7 @@
           const dir = fromRight ? -1 : 1;
           const baseX = randomPos ? Math.random() * this.W : (fromRight ? this.W + 80 : -80);
           const baseY = this.H * (0.15 + Math.random() * 0.7);
-          const groupSize = asGroup ? (2 + Math.floor(Math.random() * 3)) : 1;
+          const groupSize = asGroup ? Math.min(2 + Math.floor(Math.random() * 3), maxSlots) : 1;
           for (let g = 0; g < groupSize; g++) {
             this.creatures.push({
               type: 'katsuo',

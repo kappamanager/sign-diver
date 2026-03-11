@@ -1703,6 +1703,11 @@
     
     // 単語毎のタイマー
     let wordTimeRemaining = 0;      // 現在の単語の残り時間
+
+    // ── スキップシステム（Xジェスチャー） ──
+    const SKIP_HOLD_MS = 1500;        // X を検知し続ける必要がある時間
+    const SKIP_PENALTY = -30;         // スキップ時のペナルティ
+    let skipXStartTime = null;        // X 検知開始時刻（null = 非検知中）
     let wordTimeLimit = 0;          // 現在の単語の制限時間
     let wordTimerInterval = null;   // 単語タイマーのインターバル
     let missedWords = 0;            // タイムアウトした単語数
@@ -2238,6 +2243,7 @@
       combo = 0;
       bonusCombo = 0;
       maxCombo = 0;
+      skipXStartTime = null;
       
       // 単語リストをリセット
       remainingWords = [...wordList];
@@ -2340,6 +2346,7 @@
       
       // 前の単語の認識データをリセット（誤認識防止）
       frameBuffer = [];
+      skipXStartTime = null;
       
       updateWordDisplay();
 
@@ -2601,6 +2608,62 @@
     }
     
     // 単語タイムアウト時の処理
+    // ── スキップ処理 ──
+    function onWordSkip() {
+      stopWordTimer();
+      
+      if (!isPlaying) return;
+      
+      // コンボリセット
+      combo = 0;
+      bonusCombo = 0;
+      updateComboDisplay();
+      
+      // ペナルティ（固定 -30点）
+      score += SKIP_PENALTY;
+      missedWords++;
+      
+      document.getElementById('currentScore').textContent = score;
+      document.getElementById('statusBox').textContent = `SKIP! ${SKIP_PENALTY}点`;
+      document.getElementById('statusBox').style.background = '#e8f5e9';
+      
+      // スキップ演出
+      showSkipEffect();
+      
+      // 0.5秒後に次の単語へ
+      const skipWordId = currentWordId;
+      setTimeout(() => {
+        if (!isPlaying) return;
+        if (currentWordId !== skipWordId) return;
+        document.getElementById('statusBox').textContent = '手をカメラに映してください';
+        document.getElementById('statusBox').style.background = '#e3f2fd';
+        nextWord();
+      }, 500);
+    }
+
+    function showSkipEffect() {
+      const container = document.querySelector('.game-container') || document.body;
+      const effect = document.createElement('div');
+      effect.textContent = 'SKIP';
+      effect.style.cssText = `
+        position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%, -50%) scale(0.5);
+        font-size: 64px; font-weight: bold;
+        color: #4CAF50; text-shadow: 0 0 20px rgba(76,175,80,0.5);
+        z-index: 9999; pointer-events: none;
+        opacity: 1;
+        transition: all 0.6s ease-out;
+      `;
+      container.appendChild(effect);
+      
+      requestAnimationFrame(() => {
+        effect.style.transform = 'translate(-50%, -50%) scale(1.2)';
+        effect.style.opacity = '0';
+      });
+      
+      setTimeout(() => effect.remove(), 700);
+    }
+
     function onWordTimeout() {
       stopWordTimer();
       
@@ -2714,16 +2777,28 @@
         drawHands(res);
 
         if (res?.landmarks?.length > 0) {
-          let idx = 0;
+          // 選択された利き手のみを使用（非利き手は無視）
+          const targetHand = selectedHand === 'right' ? 'Right' : 'Left';
+          let idx = -1;
           if (res.handednesses?.length) {
-            const iRight = res.handednesses.findIndex(h => h?.[0]?.categoryName === "Right");
-            if (iRight !== -1) idx = iRight;
+            idx = res.handednesses.findIndex(h => h?.[0]?.categoryName === targetHand);
           }
-          const landmarks = res.landmarks[idx];
-          trackWrist(landmarks);
-          pendingFeatures = toFeature63(landmarks);
+          
+          if (idx === -1) {
+            // 利き手が検出されなかった → 手なし扱い
+            pendingFeatures = null;
+            skipXStartTime = null;  // スキップ判定もリセット
+            _elRecognizedChar.textContent = '-';
+            _elConfidence.textContent = '手が見えません';
+            _elStatusBox.textContent = '手をカメラに映してください';
+          } else {
+            const landmarks = res.landmarks[idx];
+            trackWrist(landmarks);
+            pendingFeatures = toFeature63(landmarks);
+          }
         } else {
           pendingFeatures = null;
+          skipXStartTime = null;  // スキップ判定もリセット
           _elRecognizedChar.textContent = '-';
           _elConfidence.textContent = '手が見えません';
           _elStatusBox.textContent = '手をカメラに映してください';
@@ -2918,6 +2993,23 @@
       if (sign === 'o' && hasPullBack) return 'wo';
       if (sign === 'wo' && !hasPullBack) return 'o';
 
+      // [2026-03-11] X（スキップジェスチャー）補正
+      // Xは×ジェスチャー(静止型)。モデルがdu/ge等と誤認識することがある。
+      // 静止状態で、Xの確率がある程度あれば X に補正する。
+      if (sign !== 'X' && !hasMotionXY && probs && labelMap) {
+        const xId = labelMap.label_to_id?.['X'];
+        if (xId !== undefined) {
+          const xProb = probs[xId];
+          // Xの確率が20%以上あり、現在の予測が既知の混同ラベルに含まれる場合
+          const xConfusedLabels = ['du', 'ge', 'di', 'gu'];
+          if (xProb >= 0.20 && xConfusedLabels.includes(sign)) {
+            return 'X';
+          }
+        }
+      }
+      // 逆方向: X と判定されたが動きがある → 本来は動き型の文字
+      if (sign === 'X' && hasMotionXY) return 'du';
+
       return sign;
     }
     // ===== 動き検出後処理ここまで =====
@@ -2957,6 +3049,29 @@
       
       // 動き検出による混同ペア補正
       const sign = postProcessSign(rawSign, conf, probs);
+      
+      // ── スキップ判定（Xジェスチャー検知） ──
+      if (sign === 'X' && conf >= 0.80) {
+        const now2 = performance.now();
+        if (skipXStartTime === null) {
+          skipXStartTime = now2;
+        }
+        const held = now2 - skipXStartTime;
+        const progress = Math.min(held / SKIP_HOLD_MS, 1.0);
+        
+        // UI: スキップ進捗表示
+        _elRecognizedChar.textContent = '✕';
+        _elConfidence.textContent = `SKIP ${Math.round(progress * 100)}%`;
+        document.getElementById('statusBox').textContent = `✕ を出し続けてスキップ（${(SKIP_HOLD_MS / 1000).toFixed(1)}秒）`;
+        
+        if (held >= SKIP_HOLD_MS) {
+          skipXStartTime = null;
+          onWordSkip();
+        }
+        return;  // X 検知中は通常の文字認識を行わない
+      } else {
+        skipXStartTime = null;  // X 以外を検知したらリセット
+      }
       
       // 英語ラベルを日本語に変換（表示用）
       const displaySign = convertToHiragana(sign);

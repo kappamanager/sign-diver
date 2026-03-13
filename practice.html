@@ -255,7 +255,8 @@
       border-radius: 16px;
       overflow: hidden;
       border: 2px solid rgba(100,181,246,0.3);
-      height: 180px;
+      flex: 1;
+      min-height: 180px;
     }
     
     video {
@@ -298,7 +299,7 @@
       padding: 10px;
       text-align: center;
       transition: background 0.3s, border-color 0.3s;
-      height: 160px;
+      flex: none;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -3244,13 +3245,15 @@
       const w = canvas.width;
       const h = canvas.height;
       
-      ctx.save();
       ctx.clearRect(0, 0, w, h);
       ctx.drawImage(video, 0, 0, w, h);
       
       if (res?.landmarks?.length > 0) {
         for (const landmarks of res.landmarks) {
-          // 接続線
+          // 深海テーマ: コネクション（typing_game.htmlと統一）
+          ctx.strokeStyle = 'rgba(100, 220, 255, 0.7)';
+          ctx.lineWidth = 2;
+
           const connections = [
             [0, 1], [1, 2], [2, 3], [3, 4],
             [0, 5], [5, 6], [6, 7], [7, 8],
@@ -3259,18 +3262,20 @@
             [0, 17], [17, 18], [18, 19], [19, 20],
             [5, 9], [9, 13], [13, 17]
           ];
-          
-          ctx.strokeStyle = '#00FF00';
-          ctx.lineWidth = 2;
+
           for (const [a, b] of connections) {
-            ctx.beginPath();
-            ctx.moveTo(landmarks[a].x * w, landmarks[a].y * h);
-            ctx.lineTo(landmarks[b].x * w, landmarks[b].y * h);
-            ctx.stroke();
+            const p1 = landmarks[a];
+            const p2 = landmarks[b];
+            if (p1 && p2) {
+              ctx.beginPath();
+              ctx.moveTo(p1.x * w, p1.y * h);
+              ctx.lineTo(p2.x * w, p2.y * h);
+              ctx.stroke();
+            }
           }
           
-          // ランドマーク点
-          ctx.fillStyle = '#FF0000';
+          // ランドマーク点（深海テーマ）
+          ctx.fillStyle = 'rgba(80, 200, 255, 0.95)';
           for (const lm of landmarks) {
             ctx.beginPath();
             ctx.arc(lm.x * w, lm.y * h, 3, 0, Math.PI * 2);
@@ -3278,8 +3283,6 @@
           }
         }
       }
-      
-      ctx.restore();
     }
     
     // ==========================================
@@ -3348,7 +3351,11 @@
         
         // 正誤判定（信頼度80%以上で判定）
         if (conf >= 0.80) {
-          if (recognized === currentChar) {
+          // 小文字→大文字の互換（ぁ→あ等）
+          const komojiToOmoji = { 'ぁ':'あ', 'ぃ':'い', 'ぅ':'う', 'ぇ':'え', 'ぉ':'お' };
+          const normalized = komojiToOmoji[recognized] || recognized;
+          
+          if (normalized === currentChar) {
             updateUI(recognized, confidence, 'correct', '正解！');
             
             // ランダムモードの場合、正解カウント

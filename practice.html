@@ -1715,6 +1715,27 @@
     let model = null;
     let landmarker = null;
     let camera = null;
+
+    // ── 画面スリープ防止（Wake Lock API） ──
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('[WakeLock] ✅ 画面スリープ防止 ON');
+          wakeLock.addEventListener('release', () => {
+            console.log('[WakeLock] 解放されました');
+          });
+        }
+      } catch (e) {
+        console.warn('[WakeLock] 取得失敗:', e.message);
+      }
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && wakeLock === null) {
+        requestWakeLock();
+      }
+    });
     let labelMap = {};
     
     let lastRecognized = '';
@@ -3152,6 +3173,9 @@
             await video.play();
             canvas.width = video.videoWidth || 640;
             canvas.height = video.videoHeight || 480;
+
+            // 画面スリープ防止
+            await requestWakeLock();
 
             // ── スロットリング付き認識ループ（typing_game.htmlと統一） ──
             let practiceLoopFrame = 0;

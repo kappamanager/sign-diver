@@ -1712,6 +1712,34 @@
     let wordTimerInterval = null;   // 単語タイマーのインターバル
     let missedWords = 0;            // タイムアウトした単語数
     
+    // ── 画面スリープ防止（Wake Lock API） ──
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('[WakeLock] ✅ 画面スリープ防止 ON');
+          wakeLock.addEventListener('release', () => {
+            console.log('[WakeLock] 解放されました');
+          });
+        }
+      } catch (e) {
+        console.warn('[WakeLock] 取得失敗:', e.message);
+      }
+    }
+    function releaseWakeLock() {
+      if (wakeLock) {
+        wakeLock.release();
+        wakeLock = null;
+        console.log('[WakeLock] ✅ 画面スリープ防止 OFF');
+      }
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && isPlaying && !wakeLock) {
+        requestWakeLock();
+      }
+    });
+    
     // コンボシステム
     let combo = 0;                  // 現在のコンボ数（表示用・途切れるまで増加）
     let maxCombo = 0;               // 最大コンボ数
@@ -2045,6 +2073,9 @@
       await video.play();
       canvas.width = video.videoWidth || 640;
       canvas.height = video.videoHeight || 480;
+
+      // 画面スリープ防止
+      await requestWakeLock();
 
       // ループ中に使うDOM要素をキャッシュ
       cacheLoopElements();
@@ -2735,11 +2766,11 @@
     }
     
     // 手話認識ループ
-    // ── スロットリング: detectForVideo と predictSign をフレーム分散 ──
-    // detectInterval はウォームアップ時の性能計測で自動決定（high=2, low=3）
+    // ── 同一フレーム方式: detect + predict を同フレームで実行し遅延を最小化 ──
+    // 認識フレームは重い（~135ms）が、結果が即座に反映される
+    // 間のフレームは描画のみ（~5ms）で滑らかさを維持
     let loopFrameCount = 0;
     let lastDetectResult = null;  // 前回の MediaPipe 検出結果を保持
-    let pendingFeatures = null;   // 次フレームで推論する特徴量
 
     // ── ループ内計測用 ──
     const LOOP_PERF = { detectTimes: [], predictTimes: [], logInterval: null };
@@ -2764,11 +2795,11 @@
       if (!isPlaying) return;
       
       const now = performance.now();
-      const isDetectFrame = (loopFrameCount % detectInterval === 0);
+      const isRecognitionFrame = (loopFrameCount % detectInterval === 0);
       loopFrameCount++;
 
-      if (isDetectFrame) {
-        // ── 偶数フレーム: MediaPipe 検出 + 描画 + 特徴量抽出 ──
+      if (isRecognitionFrame) {
+        // ── 認識フレーム: detect + 描画 + 特徴量抽出 + 推論を同一フレームで実行 ──
         const t0 = performance.now();
         const res = landmarker.detectForVideo(_video, now);
         LOOP_PERF.detectTimes.push(performance.now() - t0);
@@ -2786,33 +2817,29 @@
           
           if (idx === -1) {
             // 利き手が検出されなかった → 手なし扱い
-            pendingFeatures = null;
-            skipXStartTime = null;  // スキップ判定もリセット
+            skipXStartTime = null;
             _elRecognizedChar.textContent = '-';
             _elConfidence.textContent = '手が見えません';
             _elStatusBox.textContent = '手をカメラに映してください';
           } else {
             const landmarks = res.landmarks[idx];
             trackWrist(landmarks);
-            pendingFeatures = toFeature63(landmarks);
+            const features = toFeature63(landmarks);
+            
+            // 同フレームで推論（遅延なし）
+            const t1 = performance.now();
+            await predictSign(features);
+            LOOP_PERF.predictTimes.push(performance.now() - t1);
           }
         } else {
-          pendingFeatures = null;
-          skipXStartTime = null;  // スキップ判定もリセット
+          skipXStartTime = null;
           _elRecognizedChar.textContent = '-';
           _elConfidence.textContent = '手が見えません';
           _elStatusBox.textContent = '手をカメラに映してください';
         }
       } else {
-        // ── 奇数フレーム: 前回結果で描画 + TFJS 推論 ──
+        // ── 描画のみフレーム: 前回結果で再描画（軽量） ──
         drawHands(lastDetectResult);
-
-        if (pendingFeatures) {
-          const t0 = performance.now();
-          await predictSign(pendingFeatures);
-          LOOP_PERF.predictTimes.push(performance.now() - t0);
-          pendingFeatures = null;
-        }
       }
       
       rafId = requestAnimationFrame(loop);
@@ -3251,6 +3278,7 @@
       isPlaying = false;
       if (rafId) cancelAnimationFrame(rafId);
       if (LOOP_PERF.logInterval) clearInterval(LOOP_PERF.logInterval);
+      releaseWakeLock();  // 画面スリープ防止解除
       stopWordTimer();  // 単語タイマー停止
       
       // 画面上に残っているNGエフェクト・フラッシュを強制削除

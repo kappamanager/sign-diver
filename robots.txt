@@ -6,5 +6,7 @@ Allow: /
 
 # ゲーム画面は検索結果に不要
 Disallow: /typing_game.html
+Disallow: /privacy.html
+Disallow: /terms.html
 
 Sitemap: https://signdiver.com/sitemap.xml

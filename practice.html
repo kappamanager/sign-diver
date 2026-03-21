@@ -3576,6 +3576,16 @@
       const showCamera=localStorage.getItem('signDiver_showCamera')!=='false';
       if(!showCamera)document.querySelectorAll('.camera-area').forEach(el=>el.classList.add('hidden'));
 
+      // ── カメラ確認を待たずにロードを先行開始 ──
+      ROW_ORDER.forEach(rowKey=>{allCharacters=allCharacters.concat(CHARACTER_ROWS[rowKey].chars);});
+
+      const preloadPromise=Promise.allSettled([
+        loadCharacterHints(),
+        fetch('./glb/mouth_profile.json').then(r=>r.ok?r.json():null).then(d=>{if(d){mouthProfile=d;console.log('[Data] Mouth profile loaded');}}).catch(()=>{}),
+        fetch('./glb/special_actions/manifest.json').then(r=>r.ok?r.json():null).then(d=>{if(d){SPECIAL_GLBS=d;console.log('[Data] Special actions manifest loaded:',Object.keys(SPECIAL_GLBS).length,'entries');}}).catch(()=>{}),
+        initVRM(),
+      ]);
+
       const cameraAllowed=await new Promise(resolve=>{
         const modal=document.getElementById('cameraModal');
         document.getElementById('cameraYesBtn').addEventListener('click',()=>{modal.style.display='none';resolve(true);});
@@ -3589,16 +3599,7 @@
       });
 
       try{
-        ROW_ORDER.forEach(rowKey=>{allCharacters=allCharacters.concat(CHARACTER_ROWS[rowKey].chars);});
-
-        // ── 小さいJSON/テキストを並列取得 ──
-        const [hintsOk, mouthOk, specialOk] = await Promise.allSettled([
-          loadCharacterHints(),
-          fetch('./glb/mouth_profile.json').then(r=>r.ok?r.json():null).then(d=>{if(d){mouthProfile=d;console.log('[Data] Mouth profile loaded');}}).catch(()=>{}),
-          fetch('./glb/special_actions/manifest.json').then(r=>r.ok?r.json():null).then(d=>{if(d){SPECIAL_GLBS=d;console.log('[Data] Special actions manifest loaded:',Object.keys(SPECIAL_GLBS).length,'entries');}}).catch(()=>{})
-        ]);
-
-        // ── カメラ/AI初期化とVRM初期化を並列実行 ──
+        // ── カメラ/AI初期化（カメラ許可後） ──
         const cameraInitPromise=(async()=>{
           if(!cameraAllowed)return;
           const t0=performance.now();
@@ -3628,9 +3629,8 @@
           console.log(`[Perf] Camera/AI init: ${(performance.now()-t0).toFixed(0)}ms`);
         })();
 
-        const vrmInitPromise=initVRM();
-
-        await Promise.all([cameraInitPromise, vrmInitPromise]);
+        // 先行ロード完了を待つ
+        await Promise.all([cameraInitPromise, preloadPromise]);
 
         // カメラ起動（AI+VRM両方完了後）
         if(cameraAllowed&&landmarker){

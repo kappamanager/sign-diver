@@ -1,10 +1,10 @@
 // ═══════════════════════════════════════════════
 // Sign Diver Service Worker
-// 目的: MediaPipe WASM / モデルファイルのキャッシュ
+// 目的: MediaPipe WASM / モデル / GLB / VRM / Three.js のキャッシュ
 // ═══════════════════════════════════════════════
 
 // キャッシュバージョン — ファイル更新時にここを変える
-const CACHE_VERSION = 'sd-cache-v2';
+const CACHE_VERSION = 'sd-cache-v3';
 
 // プリキャッシュ対象（初回インストール時に全てDL）
 const PRECACHE_URLS = [
@@ -26,6 +26,9 @@ const PRECACHE_URLS = [
 const CACHEABLE_PATTERNS = [
   /\/mediapipe\//,
   /\/tfjs_model_official\//,
+  /\/glb\//,              // GLBアニメーション（sign_poses, wait_actions, special_actions等）
+  /\/threejs\//,           // Three.js / three-vrm ライブラリ
+  /\.vrm(\?|$)/,          // VRMモデルファイル
 ];
 
 // ─── install: プリキャッシュ ───

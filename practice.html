@@ -1978,8 +1978,9 @@
         /J_Bip_[LR]_UpperArm$/,/J_Bip_[LR]_LowerArm$/,/J_Bip_[LR]_Shoulder$/
       ];
 
-      // ── GLBファイルを並列バッチダウンロード（同時6本） ──
-      const BATCH_SIZE=6;
+      // ── GLBファイルを並列バッチダウンロード ──
+      // SWキャッシュHIT時は即返却、MISS時もHTTP/2多重化で高速
+      const BATCH_SIZE=20;
       let loadedCount=0;
       const t0=performance.now();
 

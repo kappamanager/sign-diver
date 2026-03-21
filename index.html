@@ -781,6 +781,50 @@
           })
           .catch(e => console.warn('[PREFETCH] ⚠️ Failed:', url, e));
       });
+
+      // ─────────────────────────────────────────────
+      // GLB本体の先読み: manifest.jsonから全GLBファイルを取得してSWキャッシュに入れる
+      // ユーザーがindex.htmlで操作している間にバックグラウンドDL完了を狙う
+      // ─────────────────────────────────────────────
+      const PREFETCH_BATCH = 8; // 同時ダウンロード数
+      async function prefetchGlbsFromManifest(manifestUrl, baseDir) {
+        try {
+          const res = await fetch(manifestUrl, { cache: 'force-cache' });
+          if (!res.ok) return;
+          const manifest = await res.json();
+          // manifest形式: { "a": {"file":"a.glb",...}, ... } または [ {"file":"xxx.glb",...}, ... ]
+          let files = [];
+          if (Array.isArray(manifest)) {
+            files = manifest.map(e => e.file).filter(Boolean);
+          } else {
+            files = Object.values(manifest).map(e => e.file).filter(Boolean);
+          }
+          // GLB + _expr.json を両方先読み
+          const urls = [];
+          for (const f of files) {
+            urls.push(baseDir + f);
+            // _expr.json も先読み（存在しない場合は404で無視される）
+            const exprFile = f.replace(/\.glb$/, '_expr.json');
+            urls.push(baseDir + exprFile);
+          }
+          // バッチ処理で並列DL
+          let done = 0;
+          for (let i = 0; i < urls.length; i += PREFETCH_BATCH) {
+            const batch = urls.slice(i, i + PREFETCH_BATCH);
+            await Promise.allSettled(batch.map(u =>
+              fetch(u, { cache: 'force-cache' }).catch(() => {})
+            ));
+            done += batch.length;
+          }
+          const elapsed = (performance.now() - t0).toFixed(0);
+          console.log(`[PREFETCH] ✅ ${baseDir} GLBs: ${files.length} files prefetched in ${elapsed}ms`);
+        } catch (e) {
+          console.warn('[PREFETCH] ⚠️ GLB prefetch failed:', manifestUrl, e);
+        }
+      }
+      // sign_poses と wait_actions の GLB を並列に先読み開始
+      prefetchGlbsFromManifest('./glb/sign_poses/manifest.json', './glb/sign_poses/');
+      prefetchGlbsFromManifest('./glb/wait_actions/manifest.json', './glb/wait_actions/');
     })();
 
     let selectedDifficulty = 'easy';

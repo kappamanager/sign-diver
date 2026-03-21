@@ -1,0 +1,159 @@
+{
+  "name": "s3_sugoi",
+  "dur": 1.5595999468803403,
+  "fps": 30,
+  "frameCount": 48,
+  "frames": [
+    {
+      "Fcl_ALL_Neutral": 0.7099,
+      "Fcl_ALL_Angry": 0.0021
+    },
+    {
+      "Fcl_ALL_Neutral": 0.7123,
+      "Fcl_ALL_Angry": 0.0018
+    },
+    {
+      "Fcl_ALL_Neutral": 0.7175,
+      "Fcl_ALL_Angry": 0.001
+    },
+    {
+      "Fcl_ALL_Neutral": 0.7119
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6988
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6933
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6967
+    },
+    {
+      "Fcl_ALL_Neutral": 0.7055
+    },
+    {
+      "Fcl_ALL_Neutral": 0.7105
+    },
+    {
+      "Fcl_ALL_Neutral": 0.7104
+    },
+    {
+      "Fcl_ALL_Neutral": 0.7073
+    },
+    {
+      "Fcl_ALL_Neutral": 0.7033
+    },
+    {
+      "Fcl_ALL_Neutral": 0.7005
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6992
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6934
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6852
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6811
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6848
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6783
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6769
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6734
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6685
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6643
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6565
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6606
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6676
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6746
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6799
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6834
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6843
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6822
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6783
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6748
+    },
+    {
+      "Fcl_ALL_Neutral": 0.673
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6703
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6675
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6661
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6673
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6688
+    },
+    {
+      "Fcl_ALL_Neutral": 0.668
+    },
+    {
+      "Fcl_ALL_Neutral": 0.668
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6676
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6653
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6667
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6693,
+      "Fcl_ALL_Angry": 0.2902
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6708,
+      "Fcl_ALL_Angry": 0.5801
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6713,
+      "Fcl_ALL_Angry": 0.746
+    },
+    {
+      "Fcl_ALL_Neutral": 0.6713,
+      "Fcl_ALL_Angry": 0.746
+    }
+  ]
+}

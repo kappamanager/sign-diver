@@ -1,0 +1,366 @@
+{
+  "a": {
+    "file": "a.glb",
+    "type": "static"
+  },
+  "ba": {
+    "file": "ba.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "bar": {
+    "file": "bar.glb",
+    "type": "motion"
+  },
+  "be": {
+    "file": "be.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "bi": {
+    "file": "bi.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "bo": {
+    "file": "bo.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "bu": {
+    "file": "bu.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "chi": {
+    "file": "chi.glb",
+    "type": "static"
+  },
+  "da": {
+    "file": "da.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "de": {
+    "file": "de.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "di": {
+    "file": "di.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "do": {
+    "file": "do.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "du": {
+    "file": "du.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "e": {
+    "file": "e.glb",
+    "type": "static"
+  },
+  "fu": {
+    "file": "fu.glb",
+    "type": "static"
+  },
+  "ga": {
+    "file": "ga.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "ge": {
+    "file": "ge.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "gi": {
+    "file": "gi.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "go": {
+    "file": "go.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "gu": {
+    "file": "gu.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "ha": {
+    "file": "ha.glb",
+    "type": "static"
+  },
+  "he": {
+    "file": "he.glb",
+    "type": "static"
+  },
+  "hi": {
+    "file": "hi.glb",
+    "type": "static"
+  },
+  "ho": {
+    "file": "ho.glb",
+    "type": "static"
+  },
+  "i": {
+    "file": "i.glb",
+    "type": "static"
+  },
+  "ji": {
+    "file": "ji.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "ka": {
+    "file": "ka.glb",
+    "type": "static"
+  },
+  "ke": {
+    "file": "ke.glb",
+    "type": "static"
+  },
+  "ki": {
+    "file": "ki.glb",
+    "type": "static"
+  },
+  "ko": {
+    "file": "ko.glb",
+    "type": "static"
+  },
+  "ku": {
+    "file": "ku.glb",
+    "type": "static"
+  },
+  "ma": {
+    "file": "ma.glb",
+    "type": "static"
+  },
+  "me": {
+    "file": "me.glb",
+    "type": "static"
+  },
+  "mi": {
+    "file": "mi.glb",
+    "type": "static"
+  },
+  "mo": {
+    "file": "mo.glb",
+    "type": "motion"
+  },
+  "mu": {
+    "file": "mu.glb",
+    "type": "static"
+  },
+  "n": {
+    "file": "n.glb",
+    "type": "motion"
+  },
+  "na": {
+    "file": "na.glb",
+    "type": "static"
+  },
+  "ne": {
+    "file": "ne.glb",
+    "type": "static"
+  },
+  "ni": {
+    "file": "ni.glb",
+    "type": "static"
+  },
+  "no": {
+    "file": "no.glb",
+    "type": "motion"
+  },
+  "nu": {
+    "file": "nu.glb",
+    "type": "static"
+  },
+  "o": {
+    "file": "o.glb",
+    "type": "static"
+  },
+  "pa": {
+    "file": "pa.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "pe": {
+    "file": "pe.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "pi": {
+    "file": "pi.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "po": {
+    "file": "po.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "pu": {
+    "file": "pu.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "ra": {
+    "file": "ra.glb",
+    "type": "static"
+  },
+  "re": {
+    "file": "re.glb",
+    "type": "static"
+  },
+  "ri": {
+    "file": "ri.glb",
+    "type": "motion"
+  },
+  "ro": {
+    "file": "ro.glb",
+    "type": "static"
+  },
+  "ru": {
+    "file": "ru.glb",
+    "type": "static"
+  },
+  "sa": {
+    "file": "sa.glb",
+    "type": "static"
+  },
+  "se": {
+    "file": "se.glb",
+    "type": "static"
+  },
+  "shi": {
+    "file": "shi.glb",
+    "type": "static"
+  },
+  "so": {
+    "file": "so.glb",
+    "type": "static"
+  },
+  "su": {
+    "file": "su.glb",
+    "type": "static"
+  },
+  "ta": {
+    "file": "ta.glb",
+    "type": "static"
+  },
+  "te": {
+    "file": "te.glb",
+    "type": "static"
+  },
+  "to": {
+    "file": "to.glb",
+    "type": "static"
+  },
+  "tsu": {
+    "file": "tsu.glb",
+    "type": "static"
+  },
+  "u": {
+    "file": "u.glb",
+    "type": "static"
+  },
+  "vu": {
+    "file": "vu.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "wa": {
+    "file": "wa.glb",
+    "type": "static"
+  },
+  "wo": {
+    "file": "wo.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "xa": {
+    "file": "xa.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "xe": {
+    "file": "xe.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "xi": {
+    "file": "xi.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "xo": {
+    "file": "xo.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "xtsu": {
+    "file": "xtsu.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "xu": {
+    "file": "xu.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "xya": {
+    "file": "xya.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "xyo": {
+    "file": "xyo.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "xyu": {
+    "file": "xyu.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "ya": {
+    "file": "ya.glb",
+    "type": "static"
+  },
+  "yo": {
+    "file": "yo.glb",
+    "type": "static"
+  },
+  "yu": {
+    "file": "yu.glb",
+    "type": "static"
+  },
+  "za": {
+    "file": "za.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "ze": {
+    "file": "ze.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "zo": {
+    "file": "zo.glb",
+    "type": "motion",
+    "derived": true
+  },
+  "zu": {
+    "file": "zu.glb",
+    "type": "motion",
+    "derived": true
+  }
+}

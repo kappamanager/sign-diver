@@ -1,0 +1,472 @@
+{
+  "name": "yubimoji_く_2026-03-21",
+  "dur": 2.9727000000476838,
+  "fps": 30,
+  "frameCount": 67,
+  "frames": [
+    {
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "mouthFunnel": 0.0024,
+      "mouthPucker": 0.0023,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.0014,
+      "mouthFunnel": 0.0055,
+      "mouthPucker": 0.0052,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.0035,
+      "mouthFunnel": 0.0138,
+      "mouthPucker": 0.0129,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.0057,
+      "mouthFunnel": 0.0225,
+      "mouthPucker": 0.0209,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.0105,
+      "mouthFunnel": 0.0413,
+      "mouthPucker": 0.0385,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.0174,
+      "mouthFunnel": 0.0684,
+      "mouthPucker": 0.0638,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.0233,
+      "mouthFunnel": 0.0918,
+      "mouthPucker": 0.0856,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.0347,
+      "mouthFunnel": 0.1363,
+      "mouthPucker": 0.1271,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.044,
+      "mouthFunnel": 0.173,
+      "mouthPucker": 0.1612,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.0606,
+      "mouthFunnel": 0.2385,
+      "mouthPucker": 0.2224,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.081,
+      "mouthFunnel": 0.3185,
+      "mouthPucker": 0.2969,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.0993,
+      "mouthFunnel": 0.3907,
+      "mouthPucker": 0.3642,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.1141,
+      "mouthFunnel": 0.4487,
+      "mouthPucker": 0.4183,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.1257,
+      "mouthFunnel": 0.4942,
+      "mouthPucker": 0.4607,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.1318,
+      "mouthFunnel": 0.5186,
+      "mouthPucker": 0.4834,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.1368,
+      "mouthFunnel": 0.5382,
+      "mouthPucker": 0.5018,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.1425,
+      "mouthFunnel": 0.5603,
+      "mouthPucker": 0.5223,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.1462,
+      "mouthFunnel": 0.5751,
+      "mouthPucker": 0.5361,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.1484,
+      "mouthFunnel": 0.5839,
+      "mouthPucker": 0.5443,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.1496,
+      "mouthFunnel": 0.5883,
+      "mouthPucker": 0.5484,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.1499,
+      "mouthFunnel": 0.5895,
+      "mouthPucker": 0.5496,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "Fcl_EYE_Close": 0.4175,
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "Fcl_EYE_Close": 0.8337,
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "Fcl_EYE_Close": 0.86,
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "Fcl_EYE_Close": 0.4433,
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "Fcl_EYE_Close": 0.0267,
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "jawOpen": 0.15,
+      "mouthFunnel": 0.59,
+      "mouthPucker": 0.55,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    }
+  ]
+}

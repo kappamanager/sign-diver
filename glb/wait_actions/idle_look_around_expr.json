@@ -1,0 +1,368 @@
+{
+  "name": "idle_look_around",
+  "dur": 2.9421360617637635,
+  "fps": 30,
+  "frameCount": 90,
+  "frames": [
+    {
+      "Fcl_ALL_Fun": 0.2818,
+      "Fcl_MTH_I": 0.2393
+    },
+    {
+      "Fcl_ALL_Fun": 0.2821,
+      "Fcl_MTH_I": 0.2151
+    },
+    {
+      "Fcl_ALL_Fun": 0.2804,
+      "Fcl_MTH_I": 0.2114
+    },
+    {
+      "Fcl_ALL_Fun": 0.2771,
+      "Fcl_MTH_I": 0.2199
+    },
+    {
+      "Fcl_ALL_Fun": 0.2716,
+      "Fcl_MTH_I": 0.2187
+    },
+    {
+      "Fcl_ALL_Fun": 0.2645,
+      "Fcl_MTH_I": 0.1884
+    },
+    {
+      "Fcl_ALL_Fun": 0.2676,
+      "Fcl_MTH_I": 0.1402
+    },
+    {
+      "Fcl_ALL_Fun": 0.2689,
+      "Fcl_MTH_I": 0.1352
+    },
+    {
+      "Fcl_ALL_Fun": 0.2594,
+      "Fcl_MTH_I": 0.1565
+    },
+    {
+      "Fcl_ALL_Fun": 0.2478,
+      "Fcl_MTH_I": 0.204
+    },
+    {
+      "Fcl_ALL_Fun": 0.2413,
+      "Fcl_MTH_I": 0.2539
+    },
+    {
+      "Fcl_ALL_Fun": 0.2396,
+      "Fcl_MTH_I": 0.2748
+    },
+    {
+      "Fcl_ALL_Fun": 0.2261,
+      "Fcl_MTH_I": 0.2835
+    },
+    {
+      "Fcl_ALL_Fun": 0.207,
+      "Fcl_MTH_I": 0.3332
+    },
+    {
+      "Fcl_ALL_Fun": 0.1948,
+      "Fcl_MTH_I": 0.3429
+    },
+    {
+      "Fcl_ALL_Fun": 0.1898,
+      "Fcl_MTH_I": 0.3237
+    },
+    {
+      "Fcl_ALL_Fun": 0.1886,
+      "Fcl_MTH_I": 0.2934
+    },
+    {
+      "Fcl_ALL_Fun": 0.1863,
+      "Fcl_MTH_I": 0.2727
+    },
+    {
+      "Fcl_ALL_Fun": 0.1776,
+      "Fcl_MTH_I": 0.3155
+    },
+    {
+      "Fcl_ALL_Fun": 0.1652,
+      "Fcl_MTH_I": 0.342
+    },
+    {
+      "Fcl_ALL_Fun": 0.1624,
+      "Fcl_MTH_I": 0.3445
+    },
+    {
+      "Fcl_ALL_Fun": 0.1597,
+      "Fcl_MTH_I": 0.384
+    },
+    {
+      "Fcl_ALL_Fun": 0.1561,
+      "Fcl_MTH_I": 0.4191
+    },
+    {
+      "Fcl_ALL_Fun": 0.1576,
+      "Fcl_MTH_I": 0.3701
+    },
+    {
+      "Fcl_ALL_Fun": 0.1613,
+      "Fcl_MTH_I": 0.376
+    },
+    {
+      "Fcl_ALL_Fun": 0.1704,
+      "Fcl_MTH_I": 0.3455
+    },
+    {
+      "Fcl_ALL_Fun": 0.1753,
+      "Fcl_MTH_I": 0.3184
+    },
+    {
+      "Fcl_ALL_Fun": 0.1745,
+      "Fcl_MTH_I": 0.2888
+    },
+    {
+      "Fcl_ALL_Fun": 0.1724,
+      "Fcl_MTH_I": 0.2631
+    },
+    {
+      "Fcl_ALL_Fun": 0.175,
+      "Fcl_MTH_I": 0.2543
+    },
+    {
+      "Fcl_ALL_Fun": 0.1799,
+      "Fcl_MTH_I": 0.2448
+    },
+    {
+      "Fcl_ALL_Fun": 0.1788,
+      "Fcl_MTH_I": 0.2895
+    },
+    {
+      "Fcl_ALL_Fun": 0.1784,
+      "Fcl_MTH_I": 0.3013
+    },
+    {
+      "Fcl_ALL_Fun": 0.1768,
+      "Fcl_MTH_I": 0.3199
+    },
+    {
+      "Fcl_ALL_Fun": 0.1754,
+      "Fcl_MTH_I": 0.333
+    },
+    {
+      "Fcl_ALL_Fun": 0.1769,
+      "Fcl_MTH_I": 0.3028
+    },
+    {
+      "Fcl_ALL_Fun": 0.1763,
+      "Fcl_MTH_I": 0.3134
+    },
+    {
+      "Fcl_ALL_Fun": 0.1798,
+      "Fcl_MTH_I": 0.3112
+    },
+    {
+      "Fcl_ALL_Fun": 0.1848,
+      "Fcl_MTH_I": 0.3268
+    },
+    {
+      "Fcl_ALL_Fun": 0.1961,
+      "Fcl_MTH_I": 0.3415
+    },
+    {
+      "Fcl_ALL_Fun": 0.2117,
+      "Fcl_MTH_I": 0.3539
+    },
+    {
+      "Fcl_ALL_Fun": 0.2247,
+      "Fcl_MTH_I": 0.3731
+    },
+    {
+      "Fcl_ALL_Fun": 0.2318,
+      "Fcl_MTH_I": 0.3693
+    },
+    {
+      "Fcl_ALL_Fun": 0.232,
+      "Fcl_MTH_I": 0.3858
+    },
+    {
+      "Fcl_ALL_Fun": 0.2383,
+      "Fcl_MTH_I": 0.402
+    },
+    {
+      "Fcl_ALL_Fun": 0.2429,
+      "Fcl_MTH_I": 0.4263
+    },
+    {
+      "Fcl_ALL_Fun": 0.2417,
+      "Fcl_MTH_I": 0.4314
+    },
+    {
+      "Fcl_ALL_Fun": 0.2356,
+      "Fcl_MTH_I": 0.3873
+    },
+    {
+      "Fcl_ALL_Fun": 0.2273,
+      "Fcl_MTH_I": 0.3851
+    },
+    {
+      "Fcl_ALL_Fun": 0.2321,
+      "Fcl_MTH_I": 0.3785
+    },
+    {
+      "Fcl_ALL_Fun": 0.2447,
+      "Fcl_MTH_I": 0.34
+    },
+    {
+      "Fcl_ALL_Fun": 0.2472,
+      "Fcl_MTH_I": 0.3069
+    },
+    {
+      "Fcl_ALL_Fun": 0.2372,
+      "Fcl_MTH_I": 0.2988
+    },
+    {
+      "Fcl_ALL_Fun": 0.2269,
+      "Fcl_MTH_I": 0.3077
+    },
+    {
+      "Fcl_ALL_Fun": 0.2337,
+      "Fcl_MTH_I": 0.2974
+    },
+    {
+      "Fcl_ALL_Fun": 0.2339,
+      "Fcl_MTH_I": 0.3463
+    },
+    {
+      "Fcl_ALL_Fun": 0.2354,
+      "Fcl_MTH_I": 0.3519
+    },
+    {
+      "Fcl_ALL_Fun": 0.2314,
+      "Fcl_MTH_I": 0.3697
+    },
+    {
+      "Fcl_ALL_Fun": 0.2252,
+      "Fcl_MTH_I": 0.388
+    },
+    {
+      "Fcl_ALL_Fun": 0.2248,
+      "Fcl_MTH_I": 0.3787
+    },
+    {
+      "Fcl_ALL_Fun": 0.2165,
+      "Fcl_MTH_I": 0.5461
+    },
+    {
+      "Fcl_ALL_Fun": 0.2131,
+      "Fcl_MTH_I": 0.5767
+    },
+    {
+      "Fcl_ALL_Fun": 0.2016,
+      "Fcl_MTH_I": 0.5455
+    },
+    {
+      "Fcl_ALL_Fun": 0.1949,
+      "Fcl_MTH_I": 0.4672
+    },
+    {
+      "Fcl_ALL_Fun": 0.1958,
+      "Fcl_MTH_I": 0.3948
+    },
+    {
+      "Fcl_ALL_Fun": 0.1975,
+      "Fcl_MTH_I": 0.3919
+    },
+    {
+      "Fcl_ALL_Fun": 0.1948,
+      "Fcl_MTH_I": 0.4344
+    },
+    {
+      "Fcl_ALL_Fun": 0.1936,
+      "Fcl_MTH_I": 0.4887
+    },
+    {
+      "Fcl_ALL_Fun": 0.1936,
+      "Fcl_MTH_I": 0.4901
+    },
+    {
+      "Fcl_ALL_Fun": 0.1958,
+      "Fcl_MTH_I": 0.4744
+    },
+    {
+      "Fcl_ALL_Fun": 0.1994,
+      "Fcl_MTH_I": 0.4539
+    },
+    {
+      "Fcl_ALL_Fun": 0.2019,
+      "Fcl_MTH_I": 0.4227
+    },
+    {
+      "Fcl_ALL_Fun": 0.2014,
+      "Fcl_MTH_I": 0.4262
+    },
+    {
+      "Fcl_ALL_Fun": 0.2016,
+      "Fcl_MTH_I": 0.4163
+    },
+    {
+      "Fcl_ALL_Fun": 0.2008,
+      "Fcl_MTH_I": 0.4249
+    },
+    {
+      "Fcl_ALL_Fun": 0.2027,
+      "Fcl_MTH_I": 0.4261
+    },
+    {
+      "Fcl_ALL_Fun": 0.2065,
+      "Fcl_MTH_I": 0.3985
+    },
+    {
+      "Fcl_ALL_Fun": 0.2096,
+      "Fcl_MTH_I": 0.3419
+    },
+    {
+      "Fcl_ALL_Fun": 0.2163,
+      "Fcl_MTH_I": 0.3055
+    },
+    {
+      "Fcl_ALL_Fun": 0.2188,
+      "Fcl_MTH_I": 0.2855
+    },
+    {
+      "Fcl_ALL_Fun": 0.2255,
+      "Fcl_MTH_I": 0.2596
+    },
+    {
+      "Fcl_ALL_Fun": 0.234,
+      "Fcl_MTH_I": 0.215
+    },
+    {
+      "Fcl_ALL_Fun": 0.2421,
+      "Fcl_MTH_I": 0.1688
+    },
+    {
+      "Fcl_ALL_Fun": 0.2484,
+      "Fcl_MTH_I": 0.1483
+    },
+    {
+      "Fcl_ALL_Fun": 0.2486,
+      "Fcl_MTH_I": 0.1255
+    },
+    {
+      "Fcl_ALL_Fun": 0.2514,
+      "Fcl_MTH_I": 0.1605
+    },
+    {
+      "Fcl_ALL_Fun": 0.2487,
+      "Fcl_MTH_I": 0.1805
+    },
+    {
+      "Fcl_ALL_Fun": 0.2479,
+      "Fcl_MTH_I": 0.1731
+    },
+    {
+      "Fcl_ALL_Fun": 0.2497,
+      "Fcl_MTH_I": 0.1559
+    },
+    {
+      "Fcl_ALL_Fun": 0.2497,
+      "Fcl_MTH_I": 0.1559
+    }
+  ]
+}

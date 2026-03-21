@@ -1,0 +1,421 @@
+{
+  "name": "akubi",
+  "dur": 2.681531979703903,
+  "fps": 30,
+  "frameCount": 82,
+  "frames": [
+    {
+      "Fcl_ALL_Fun": 0.4066,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7304
+    },
+    {
+      "Fcl_ALL_Fun": 0.3965,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7253
+    },
+    {
+      "Fcl_ALL_Fun": 0.3845,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.716
+    },
+    {
+      "Fcl_ALL_Fun": 0.379,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.694
+    },
+    {
+      "Fcl_ALL_Fun": 0.3775,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.6619
+    },
+    {
+      "Fcl_ALL_Fun": 0.3618,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.6389
+    },
+    {
+      "Fcl_ALL_Fun": 0.3425,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.5611
+    },
+    {
+      "Fcl_ALL_Fun": 0.3384,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.5664
+    },
+    {
+      "Fcl_ALL_Fun": 0.3314,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.6047
+    },
+    {
+      "Fcl_ALL_Fun": 0.3133,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.6906
+    },
+    {
+      "Fcl_ALL_Fun": 0.2877,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2709,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2673,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2661,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2657,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2656,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2655,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.7925
+    },
+    {
+      "Fcl_ALL_Fun": 0.2677,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.4039
+    },
+    {
+      "Fcl_ALL_Fun": 0.2516,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.1478,
+      "Fcl_MTH_I": 0.0022
+    },
+    {
+      "Fcl_ALL_Fun": 0.2211,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.0517,
+      "Fcl_MTH_I": 0.0407
+    },
+    {
+      "Fcl_ALL_Fun": 0.1915,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.0183,
+      "Fcl_MTH_I": 0.1344
+    },
+    {
+      "Fcl_ALL_Fun": 0.1803,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.0055,
+      "Fcl_MTH_I": 0.2594
+    },
+    {
+      "Fcl_ALL_Fun": 0.1627,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_A": 0.0016,
+      "Fcl_MTH_I": 0.3323
+    },
+    {
+      "Fcl_ALL_Fun": 0.1608,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.3541
+    },
+    {
+      "Fcl_ALL_Fun": 0.1606,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.3497
+    },
+    {
+      "Fcl_ALL_Fun": 0.161,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.3294
+    },
+    {
+      "Fcl_ALL_Fun": 0.1632,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.302
+    },
+    {
+      "Fcl_ALL_Fun": 0.1663,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.279
+    },
+    {
+      "Fcl_ALL_Fun": 0.1733,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.2555
+    },
+    {
+      "Fcl_ALL_Fun": 0.18,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.2014
+    },
+    {
+      "Fcl_ALL_Fun": 0.1863,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.1535
+    },
+    {
+      "Fcl_ALL_Fun": 0.1931,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.1103
+    },
+    {
+      "Fcl_ALL_Fun": 0.2002,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.065
+    },
+    {
+      "Fcl_ALL_Fun": 0.2065,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.0221
+    },
+    {
+      "Fcl_ALL_Fun": 0.211,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.0076
+    },
+    {
+      "Fcl_ALL_Fun": 0.2145,
+      "Fcl_EYE_Close": 1,
+      "Fcl_MTH_I": 0.0021
+    },
+    {
+      "Fcl_ALL_Fun": 0.2157,
+      "Fcl_EYE_Close": 1
+    },
+    {
+      "Fcl_ALL_Fun": 0.2157,
+      "Fcl_EYE_Close": 1
+    }
+  ]
+}

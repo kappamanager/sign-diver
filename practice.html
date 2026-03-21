@@ -1269,7 +1269,6 @@
       border-color: rgba(233,30,99,0.9);
     }
   </style>  <script src="./camera_asset.js"></script>
-</head>
 <body>
   <!-- カメラエラーモーダル -->
   <div id="cameraErrorModal">
@@ -1370,25 +1369,12 @@
           
           <!-- オーバーレイUI -->
           <div class="vrm-overlay-controls">
-            <div class="vrm-control-hint">左クリック:回転 | 右クリック:移動 | ホイール:ズーム | 画面クリック:再生/停止</div>
+            <div class="vrm-control-hint">左クリック:回転 | 右クリック:移動 | ホイール:ズーム</div>
             
             <div class="vrm-animation-controls">
-              <button id="vrm-playBtn" class="vrm-control-button">▶ 再生</button>
-              <button id="vrm-pauseBtn" class="vrm-control-button">⏸ 停止</button>
               <button id="vrm-resetCameraBtn" class="vrm-control-button">📷 視点リセット</button>
             </div>
-            
-            <div class="vrm-slider-container">
-              <label for="vrm-seekSlider">再生位置:</label>
-              <input type="range" id="vrm-seekSlider" min="0" max="100" value="0" step="0.1">
-              <span id="vrm-timeDisplay">0.0s / 0.0s</span>
-            </div>
-            
-            <div class="vrm-slider-container">
-              <label for="vrm-speedSlider">速度:</label>
-              <input type="range" id="vrm-speedSlider" min="0.1" max="2" value="1" step="0.1">
-              <span id="vrm-speedDisplay">1.0x</span>
-            </div>
+
           </div>
         </div>
         <div class="placeholder-hint" id="charHint">アルファベットのa</div>
@@ -1449,7 +1435,7 @@
       <!-- 説明文 -->
       <div class="random-description">
         <p>ランダムに出題される指文字を作ってください。</p>
-        <p>分からなければ「再生ボタン」で動きを確認してください。</p>
+        <p>分からなければガイドモードでお手本を確認してください。</p>
         <p>正解すると自動的に次の文字に進みます。</p>
         <p>※このモードにはカメラが必要です。</p>
       </div>
@@ -1513,9 +1499,10 @@
     </a>
   </footer>
 
+
   <script type="module">
     // ═══════════════════════════════════════════════
-    // MediaPipe Tasks Vision API（typing_game.html と統一）
+    // MediaPipe Tasks Vision API
     // ═══════════════════════════════════════════════
     import { HandLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs';
 
@@ -1534,15 +1521,12 @@
         const req = indexedDB.open(IDB_NAME, IDB_VERSION);
         req.onupgradeneeded = () => {
           const db = req.result;
-          if (!db.objectStoreNames.contains(IDB_STORE)) {
-            db.createObjectStore(IDB_STORE);
-          }
+          if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
         };
         req.onsuccess = () => resolve(req.result);
         req.onerror = () => reject(req.error);
       });
     }
-
     async function idbGet(key) {
       const db = await idbOpen();
       return new Promise((resolve, reject) => {
@@ -1552,7 +1536,6 @@
         req.onerror = () => reject(req.error);
       });
     }
-
     async function idbSet(key, value) {
       const db = await idbOpen();
       return new Promise((resolve, reject) => {
@@ -1563,9 +1546,67 @@
       });
     }
 
-    // URLパラメータ優先 → localStorage → デフォルトright
     const _params = new URLSearchParams(window.location.search);
     const selectedHand = _params.get('hand') || localStorage.getItem('signDiver_hand') || 'right';
+
+    // ==========================================
+    // CHAR_TO_ID (from 13_yubimoji_natural.html)
+    // ==========================================
+    const CHAR_TO_ID={'あ':'a','い':'i','う':'u','え':'e','お':'o','か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko','さ':'sa','し':'shi','す':'su','せ':'se','そ':'so','た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to','な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no','は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho','ま':'ma','み':'mi','む':'mu','め':'me','も':'mo','や':'ya','ゆ':'yu','よ':'yo','ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro','わ':'wa','を':'wo','ん':'n','ー':'bar','が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go','ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo','だ':'da','ぢ':'di','づ':'du','で':'de','ど':'do','ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo','ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po','ゃ':'xya','ゅ':'xyu','ょ':'xyo','っ':'xtsu','ぁ':'xa','ぃ':'xi','ぅ':'xu','ぇ':'xe','ぉ':'xo','ヴ':'vu'};
+
+    // ==========================================
+    // Derivation system (from 13_/offset_lab)
+    // ==========================================
+    const PAIRS={
+      dakuten:[
+        {base:'ka',derived:'ga'},{base:'ki',derived:'gi'},{base:'ku',derived:'gu'},{base:'ke',derived:'ge'},{base:'ko',derived:'go'},
+        {base:'sa',derived:'za'},{base:'shi',derived:'ji'},{base:'su',derived:'zu'},{base:'se',derived:'ze'},{base:'so',derived:'zo'},
+        {base:'ta',derived:'da'},{base:'chi',derived:'di'},{base:'tsu',derived:'du'},{base:'te',derived:'de'},{base:'to',derived:'do'},
+        {base:'ha',derived:'ba'},{base:'hi',derived:'bi'},{base:'fu',derived:'bu'},{base:'he',derived:'be'},{base:'ho',derived:'bo'},
+        {base:'u',derived:'vu'},
+      ],
+      handakuten:[
+        {base:'ha',derived:'pa'},{base:'hi',derived:'pi'},{base:'fu',derived:'pu'},{base:'he',derived:'pe'},{base:'ho',derived:'po'},
+      ],
+      small:[
+        {base:'a',derived:'xa'},{base:'i',derived:'xi'},{base:'u',derived:'xu'},{base:'e',derived:'xe'},{base:'o',derived:'xo'},
+        {base:'ya',derived:'xya'},{base:'yu',derived:'xyu'},{base:'yo',derived:'xyo'},{base:'tsu',derived:'xtsu'},
+        {base:'o',derived:'wo'},
+      ],
+    };
+    const DERIVED_MAP={};
+    for(const[type,pairs]of Object.entries(PAIRS)){
+      for(const p of pairs) DERIVED_MAP[p.derived]={baseId:p.base,type};
+    }
+
+    // Fixed offset config (no sliders in practice page)
+    let SIDE='L';
+    function B(name){return name.replace('_L_','_'+SIDE+'_');}
+
+    function getOffsetConfig(){
+      const da=7, ha=9, sa=0.35;
+      const sign=SIDE==='R'?-1:1;
+      return{
+        dakuten:   {rx:0, ry:da*sign, rz:0},
+        handakuten:{rx:-ha,ry:0, rz:0},
+        small:     {rx:0, ry:0, rz:sa},
+      };
+    }
+
+    function detectHandSide(){
+      if(!handPoses||!handPoses.poses)return;
+      for(const p of Object.values(handPoses.poses)){
+        const bones=p.type==='static'?p.bones:(p.frames&&p.frames[0])||{};
+        if(bones['J_Bip_R_UpperArm']){SIDE='R';console.log('[detectHandSide] Right');return;}
+        if(bones['J_Bip_L_UpperArm']){SIDE='L';console.log('[detectHandSide] Left');return;}
+      }
+    }
+
+    // ==========================================
+    // Special stage GLBs (loaded from special_actions/manifest.json)
+    // ==========================================
+    let SPECIAL_GLBS={}; // populated at init: {'1':'s1_fight.glb', ...}
+
     // ==========================================
     // 文字データ定義
     // ==========================================
@@ -1583,2143 +1624,1996 @@
       '小': { label: '小文字', chars: ['ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'ゃ', 'ゅ', 'ょ', 'っ', 'ー'] },
       'S': { label: 'スペシャル', chars: ['1', '2', '3', '4', '5'] }
     };
-    
-    // スペシャルステージ名の定義（stage.json から動的生成、フォールバック付き）
-    let SPECIAL_STAGE_NAMES = {
-      '1': '中層',
-      '2': '薄暮層',
-      '3': '深海',
-      '4': '超深海',
-      '5': '???'
-    };
 
-    async function initSpecialStageNames() {
-      try {
-        const res = await fetch(`./data/stage.json?v=${Date.now()}`);
-        const data = await res.json();
-        const stages = data.stages;
-        const specialStart = stages.length - 5;
-        const names = {};
-        for (let i = 0; i < 5; i++) {
-          names[String(i + 1)] = stages[specialStart + i].name;
-        }
-        SPECIAL_STAGE_NAMES = names;
-      } catch (e) {
-        console.error('stage.json 読み込みエラー（フォールバック使用）:', e);
-      }
+    let SPECIAL_STAGE_NAMES={'1':'中層','2':'薄暮層','3':'深海','4':'超深海','5':'???'};
+
+    async function initSpecialStageNames(){
+      try{
+        const res=await fetch(`./data/stage.json?v=${Date.now()}`);
+        const data=await res.json();
+        const stages=data.stages;
+        const specialStart=stages.length-5;
+        const names={};
+        for(let i=0;i<5;i++) names[String(i+1)]=stages[specialStart+i].name;
+        SPECIAL_STAGE_NAMES=names;
+      }catch(e){console.error('stage.json fallback:',e);}
     }
-    
-    // ひらがな → GLBファイル名のマッピング
-    const CHAR_TO_GLB = {
-      'あ': '01_a.glb', 'い': '02_i.glb', 'う': '03_u.glb', 'え': '04_e.glb', 'お': '05_o.glb',
-      'か': '06_ka.glb', 'き': '07_ki.glb', 'く': '08_ku.glb', 'け': '09_ke.glb', 'こ': '10_ko.glb',
-      'さ': '11_sa.glb', 'し': '12_shi.glb', 'す': '13_su.glb', 'せ': '14_se.glb', 'そ': '15_so.glb',
-      'た': '16_ta.glb', 'ち': '17_chi.glb', 'つ': '18_tsu.glb', 'て': '19_te.glb', 'と': '20_to.glb',
-      'な': '21_na.glb', 'に': '22_ni.glb', 'ぬ': '23_nu.glb', 'ね': '24_ne.glb', 'の': '25_no.glb',
-      'は': '26_ha.glb', 'ひ': '27_hi.glb', 'ふ': '28_fu.glb', 'へ': '29_he.glb', 'ほ': '30_ho.glb',
-      'ま': '31_ma.glb', 'み': '32_mi.glb', 'む': '33_mu.glb', 'め': '34_me.glb', 'も': '35_mo.glb',
-      'や': '36_ya.glb', 'ゆ': '37_yu.glb', 'よ': '38_yo.glb',
-      'ら': '39_ra.glb', 'り': '40_ri.glb', 'る': '41_ru.glb', 'れ': '42_re.glb', 'ろ': '43_ro.glb',
-      'わ': '44_wa.glb', 'を': '45_wo.glb', 'ん': '46_n.glb',
-      'が': '48_ga.glb', 'ぎ': '49_gi.glb', 'ぐ': '50_gu.glb', 'げ': '51_ge.glb', 'ご': '52_go.glb',
-      'ざ': '53_za.glb', 'じ': '54_ji.glb', 'ず': '55_zu.glb', 'ぜ': '56_ze.glb', 'ぞ': '57_zo.glb',
-      'だ': '58_da.glb', 'ぢ': '59_di.glb', 'づ': '60_du.glb', 'で': '61_de.glb', 'ど': '62_do.glb',
-      'ば': '63_ba.glb', 'び': '64_bi.glb', 'ぶ': '65_bu.glb', 'べ': '66_be.glb', 'ぼ': '67_bo.glb',
-      'ぱ': '68_pa.glb', 'ぴ': '69_pi.glb', 'ぷ': '70_pu.glb', 'ぺ': '71_pe.glb', 'ぽ': '72_po.glb',
-      'ゃ': '73_xya.glb', 'ゅ': '74_xyu.glb', 'ょ': '75_xyo.glb', 'っ': '76_xtsu.glb',
-      'ぁ': '77_xa.glb', 'ぃ': '78_xi.glb', 'ぅ': '79_xu.glb', 'ぇ': '80_xe.glb', 'ぉ': '81_xo.glb',
-      'ー': '47_bar.glb',
-      '1': 's1_fight.glb', '2': 's2_otukare.glb', '3': 's3_sugoi.glb', '4': 's4_hakusyu.glb', '5': 's5_seeyou.glb'
-    };
-    
-    const ROW_ORDER = ['あ', 'か', 'さ', 'た', 'な', 'は', 'ま', 'や', 'ら', 'わ', '小', 'S'];
-    
+
+    const ROW_ORDER=['あ','か','さ','た','な','は','ま','や','ら','わ','小','S'];
+
     // ==========================================
     // ステージ到達判定
     // ==========================================
-    
-    // 到達ステージを取得（localStorageから）
-    function getMaxStageReached() {
-      try {
-        const saved = localStorage.getItem('signDiverMaxStage');
-        console.log(`[DEBUG] localStorage 'signDiverMaxStage':`, saved);
-        const result = saved ? parseInt(saved) : 0;
-        console.log(`[DEBUG] Parsed max stage:`, result);
-        return result;
-      } catch (e) {
-        console.warn('localStorage access failed:', e);
-        return 0;
-      }
+    function getMaxStageReached(){
+      try{const s=localStorage.getItem('signDiverMaxStage');return s?parseInt(s):0;}catch(e){return 0;}
     }
-    
-    // ステージ到達を保存（タイピングゲーム側から呼ばれる想定）
-    function saveMaxStageReached(stage) {
-      try {
-        const current = getMaxStageReached();
-        console.log(`[DEBUG] saveMaxStageReached called: stage=${stage}, current=${current}`);
-        if (stage > current) {
-          localStorage.setItem('signDiverMaxStage', stage.toString());
-          console.log(`✅ New stage unlocked: ${stage}`);
-          console.log(`[DEBUG] localStorage updated to:`, localStorage.getItem('signDiverMaxStage'));
-        } else {
-          console.log(`[DEBUG] Stage ${stage} already unlocked (current: ${current})`);
-        }
-      } catch (e) {
-        console.warn('localStorage save failed:', e);
-      }
+    function saveMaxStageReached(stage){
+      try{const c=getMaxStageReached();if(stage>c)localStorage.setItem('signDiverMaxStage',stage.toString());}catch(e){}
     }
-    
-    // グローバルに公開（タイピングゲームから呼び出せるように）
-    window.saveMaxStageReached = saveMaxStageReached;
-    
-    // スペシャルステージがアンロックされているか判定
-    function isStageUnlocked(stageNum) {
-      const maxStage = getMaxStageReached();
-      const unlocked = stageNum <= maxStage;
-      console.log(`[DEBUG] isStageUnlocked(${stageNum}): maxStage=${maxStage}, unlocked=${unlocked}`);
-      return unlocked;
-    }
-    
-    // 各文字の覚え方コメント（ファイルから読み込み）
-    let CHARACTER_HINTS = {};
-    
-    // 練習モードで認識判定を行う文字（清音のみ）
-    const JUDGEABLE_CHARS = [
-      'あ', 'い', 'う', 'え', 'お',
-      'か', 'き', 'く', 'け', 'こ',
-      'さ', 'し', 'す', 'せ', 'そ',
-      'た', 'ち', 'つ', 'て', 'と',
-      'な', 'に', 'ぬ', 'ね', 'の',
-      'は', 'ひ', 'ふ', 'へ', 'ほ',
-      'ま', 'み', 'む', 'め', 'も',
-      'や', 'ゆ', 'よ',
-      'ら', 'り', 'る', 'れ', 'ろ',
-      'わ', 'を', 'ん'
-    ];
-    
-    // 現在選択中の文字が判定対象かどうか
-    function isJudgeable(char) {
-      return JUDGEABLE_CHARS.includes(char);
-    }
-    
+    window.saveMaxStageReached=saveMaxStageReached;
+    function isStageUnlocked(stageNum){return stageNum<=getMaxStageReached();}
+
+    let CHARACTER_HINTS={};
+    const JUDGEABLE_CHARS=['あ','い','う','え','お','か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と','な','に','ぬ','ね','の','は','ひ','ふ','へ','ほ','ま','み','む','め','も','や','ゆ','よ','ら','り','る','れ','ろ','わ','を','ん'];
+    function isJudgeable(char){return JUDGEABLE_CHARS.includes(char);}
+
     // ==========================================
     // グローバル変数
     // ==========================================
-    let currentRow = 'あ';
-    let currentCharIndex = 0;
-    let currentChar = 'あ';
-    let allCharacters = [];  // 全文字のフラットリスト
-    
-    let model = null;
-    let landmarker = null;
-    let camera = null;
+    let currentRow='あ';
+    let currentCharIndex=0;
+    let currentChar='あ';
+    let allCharacters=[];
+    let model=null;
+    let landmarker=null;
+    let camera=null;
 
-    // ── 画面スリープ防止（Wake Lock API） ──
-    let wakeLock = null;
-    async function requestWakeLock() {
-      try {
-        if ('wakeLock' in navigator) {
-          wakeLock = await navigator.wakeLock.request('screen');
-          console.log('[WakeLock] ✅ 画面スリープ防止 ON');
-          wakeLock.addEventListener('release', () => {
-            console.log('[WakeLock] 解放されました');
-          });
-        }
-      } catch (e) {
-        console.warn('[WakeLock] 取得失敗:', e.message);
-      }
+    // Wake Lock
+    let wakeLock=null;
+    async function requestWakeLock(){
+      try{if('wakeLock' in navigator){wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{});}}catch(e){}
     }
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && wakeLock === null) {
-        requestWakeLock();
-      }
-    });
-    let labelMap = {};
-    
-    let lastRecognized = '';
-    let lastConfidence = 0;
-    
-    // フレームバッファ（時間ベースウィンドウ）
-    let frameBuffer = [];  // { features, timestamp } の配列
-    const TARGET_FRAMES = 15;
-    const MIN_FRAMES_TO_START = 3;  // パディング付き早期推論（初回遅延対策）
-    const RECOGNITION_WINDOW_MS = 500;  // 訓練データと同じ500msウィンドウ
-    
-    // ===== 動き検出後処理（混同ペア補正） =====
-    let wristBuffer = [];
-    const WRIST_BUFFER_SIZE = 20;
-    const MOTION_THRESHOLD_XY = 0.06;
-    const PULLBACK_THRESHOLD = 0.02;
-    const POSTPROCESS_CONF_LIMIT = 0.95;
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&wakeLock===null)requestWakeLock();});
 
-    function trackWrist(landmarks) {
-      const w = landmarks[0];
-      wristBuffer.push({ x: w.x, y: w.y, z: w.z });
-      if (wristBuffer.length > WRIST_BUFFER_SIZE) wristBuffer.shift();
+    let labelMap={};
+    let lastRecognized='';
+    let lastConfidence=0;
+
+    // フレームバッファ
+    let frameBuffer=[];
+    const TARGET_FRAMES=15;
+    const MIN_FRAMES_TO_START=3;
+    const RECOGNITION_WINDOW_MS=500;
+
+    // 動き検出
+    let wristBuffer=[];
+    const WRIST_BUFFER_SIZE=20;
+    const MOTION_THRESHOLD_XY=0.06;
+    const PULLBACK_THRESHOLD=0.02;
+    const POSTPROCESS_CONF_LIMIT=0.95;
+
+    function trackWrist(landmarks){
+      const w=landmarks[0];
+      wristBuffer.push({x:w.x,y:w.y,z:w.z});
+      if(wristBuffer.length>WRIST_BUFFER_SIZE)wristBuffer.shift();
     }
-
-    function getWristMotion() {
-      if (wristBuffer.length < 5) return { xy: 0, z: 0 };
-      const recent = wristBuffer.slice(-15);
-      let totalXY = 0, totalZ = 0;
-      for (let i = 1; i < recent.length; i++) {
-        const dx = recent[i].x - recent[i - 1].x;
-        const dy = recent[i].y - recent[i - 1].y;
-        totalXY += Math.sqrt(dx * dx + dy * dy);
-        totalZ += (recent[i].z - recent[i - 1].z);
+    function getWristMotion(){
+      if(wristBuffer.length<5)return{xy:0,z:0};
+      const recent=wristBuffer.slice(-15);
+      let totalXY=0,totalZ=0;
+      for(let i=1;i<recent.length;i++){
+        const dx=recent[i].x-recent[i-1].x;
+        const dy=recent[i].y-recent[i-1].y;
+        totalXY+=Math.sqrt(dx*dx+dy*dy);
+        totalZ+=(recent[i].z-recent[i-1].z);
       }
-      return { xy: totalXY, z: totalZ };
+      return{xy:totalXY,z:totalZ};
     }
-
-    function postProcessSign(sign, conf) {
-      if (conf >= POSTPROCESS_CONF_LIMIT) return sign;
-      const motion = getWristMotion();
-      const hasMotionXY = motion.xy > MOTION_THRESHOLD_XY;
-      const hasPullBack = Math.abs(motion.z) > PULLBACK_THRESHOLD;
-
-      if (sign === 'ni' && hasMotionXY) return 'ri';
-      if (sign === 'ri' && !hasMotionXY) return 'ni';
-
-      if (sign === 'ya' && hasPullBack) return 'xya';
-      if (sign === 'xya' && !hasPullBack) return 'ya';
-      if (sign === 'yu' && hasPullBack) return 'xyu';
-      if (sign === 'xyu' && !hasPullBack) return 'yu';
-      if (sign === 'yo' && hasPullBack) return 'xyo';
-      if (sign === 'xyo' && !hasPullBack) return 'yo';
-
+    function postProcessSign(sign,conf){
+      if(conf>=POSTPROCESS_CONF_LIMIT)return sign;
+      const motion=getWristMotion();
+      const hasMotionXY=motion.xy>MOTION_THRESHOLD_XY;
+      const hasPullBack=Math.abs(motion.z)>PULLBACK_THRESHOLD;
+      if(sign==='ni'&&hasMotionXY)return'ri';
+      if(sign==='ri'&&!hasMotionXY)return'ni';
+      if(sign==='ya'&&hasPullBack)return'xya';
+      if(sign==='xya'&&!hasPullBack)return'ya';
+      if(sign==='yu'&&hasPullBack)return'xyu';
+      if(sign==='xyu'&&!hasPullBack)return'yu';
+      if(sign==='yo'&&hasPullBack)return'xyo';
+      if(sign==='xyo'&&!hasPullBack)return'yo';
       return sign;
     }
-    // ===== 動き検出後処理ここまで =====
-    
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    
+
+    const video=document.getElementById('video');
+    const canvas=document.getElementById('canvas');
+    const ctx=canvas.getContext('2d');
+
     // モード管理
-    let currentMode = 'guide'; // 'guide', 'expression', or 'reading'
-    
-    // ランダム出題モード用
-    let randomModeActive = false;
-    let randomCharPool = [];  // 出題対象の文字リスト
-    let totalQuestions = 0;
-    let correctAnswers = 0;
-    let currentQuestionAnswered = false;  // 現在の問題に正解したか
-    
-    // 読取練習モード用
-    let readingTotalQuestions = 0;
-    let readingCorrectAnswers = 0;
-    let readingWrongAnswers = 0;
-    let readingCurrentAnswer = '';  // 現在の正解文字
-    
+    let currentMode='guide';
+    let randomModeActive=false;
+    let randomCharPool=[];
+    let totalQuestions=0;
+    let correctAnswers=0;
+    let currentQuestionAnswered=false;
+    let readingTotalQuestions=0;
+    let readingCorrectAnswers=0;
+    let readingWrongAnswers=0;
+    let readingCurrentAnswer='';
+
     // VRM表示用
-    let vrmScene, vrmCamera, vrmRenderer, vrmControls, vrm;
-    let mixer, action, exprAction, clock;
-    let currentGltf = null;  // 現在ロード中のGLBオブジェクト（morph index参照用）
-    let vrmInitialPosition, vrmInitialRotation;
-    let isPaused = false;
-    let initialCameraPosition, initialCameraTarget;
-    let hairBones = [];
-    let GLTFLoader, OrbitControls, VRMLoaderPlugin; // グローバルに保存
-    
-    // ==========================================
-    // 英語ラベルから日本語への変換マップ
-    // ==========================================
-    const romajiToHiragana = {
-      // 清音
-      "a": "あ", "i": "い", "u": "う", "e": "え", "o": "お",
-      "ka": "か", "ki": "き", "ku": "く", "ke": "け", "ko": "こ",
-      "sa": "さ", "si": "し", "shi": "し", "su": "す", "se": "せ", "so": "そ",
-      "ta": "た", "ti": "ち", "chi": "ち", "tu": "つ", "tsu": "つ", "te": "て", "to": "と",
-      "na": "な", "ni": "に", "nu": "ぬ", "ne": "ね", "no": "の",
-      "ha": "は", "hi": "ひ", "hu": "ふ", "fu": "ふ", "he": "へ", "ho": "ほ",
-      "ma": "ま", "mi": "み", "mu": "む", "me": "め", "mo": "も",
-      "ya": "や", "yu": "ゆ", "yo": "よ",
-      "ra": "ら", "ri": "り", "ru": "る", "re": "れ", "ro": "ろ",
-      "wa": "わ", "wo": "を", "n": "ん", "nn": "ん",
-      
-      // 濁音
-      "ga": "が", "gi": "ぎ", "gu": "ぐ", "ge": "げ", "go": "ご",
-      "za": "ざ", "zi": "じ", "ji": "じ", "zu": "ず", "ze": "ぜ", "zo": "ぞ",
-      "da": "だ", "di": "ぢ", "du": "づ", "de": "で", "do": "ど",
-      "ba": "ば", "bi": "び", "bu": "ぶ", "be": "べ", "bo": "ぼ",
-      
-      // 半濁音
-      "pa": "ぱ", "pi": "ぴ", "pu": "ぷ", "pe": "ぺ", "po": "ぽ",
-      
-      // 拗音
-      "kya": "きゃ", "kyu": "きゅ", "kyo": "きょ",
-      "sha": "しゃ", "shu": "しゅ", "sho": "しょ",
-      "cha": "ちゃ", "chu": "ちゅ", "cho": "ちょ",
-      "nya": "にゃ", "nyu": "にゅ", "nyo": "にょ",
-      "hya": "ひゃ", "hyu": "ひゅ", "hyo": "ひょ",
-      "mya": "みゃ", "myu": "みゅ", "myo": "みょ",
-      "rya": "りゃ", "ryu": "りゅ", "ryo": "りょ",
-      "gya": "ぎゃ", "gyu": "ぎゅ", "gyo": "ぎょ",
-      "ja": "じゃ", "ju": "じゅ", "jo": "じょ",
-      "bya": "びゃ", "byu": "びゅ", "byo": "びょ",
-      "pya": "ぴゃ", "pyu": "ぴゅ", "pyo": "ぴょ",
-      
-      // 小文字ひらがな単体
-      "xa": "ぁ",  "xi": "ぃ",  "xu": "ぅ",  "xe": "ぇ",  "xo": "ぉ",
-      "la": "ぁ",  "li": "ぃ",  "lu": "ぅ",  "le": "ぇ",  "lo": "ぉ",
-      "xya": "ゃ", "xyu": "ゅ", "xyo": "ょ",
-      "lya": "ゃ", "lyu": "ゅ", "lyo": "ょ",
-      "xtu": "っ", "xtsu": "っ",
-      "ltu": "っ", "ltsu": "っ",
-      "xwa": "ゎ", "lwa": "ゎ",
-      
-      // 長音記号
-      "bar": "ー"
-    };
-    
-    // ==========================================
-    // 英語ラベルをひらがなに変換
-    // ==========================================
-    function convertToHiragana(sign) {
-      // すでに日本語の場合はそのまま
-      if (romajiToHiragana[sign]) {
-        return romajiToHiragana[sign];
-      }
-      return sign;
+    let vrmScene,vrmCamera,vrmRenderer,vrmControls,vrm;
+    let clock;
+    let vrmInitialPosition,vrmInitialRotation;
+    // (isPaused removed — play/pause buttons deleted)
+    let initialCameraPosition,initialCameraTarget;
+    let hairBones=[];
+    let GLTFLoader,OrbitControls,VRMLoaderPlugin;
+
+    // JSON-based hand/mouth data
+    let handPoses=null;
+    let mouthProfile=null;
+    let cachedBoneMap=null;
+    let currentHandBones=null;
+    let eyeDefaultQuats=null;
+
+    // Hand pose transition state
+    let handTransition=null; // {from, to, startTime, duration}
+
+    // ===== Naturalness: Smile + Blink (from 13_) =====
+    const SMILE_AMOUNT=0.3;
+    let blinkState=0,blinkTimer=0,blinkPhase='idle';
+    const BLINK_CLOSE_MS=80,BLINK_OPEN_MS=120;
+    const BLINK_MIN_INTERVAL=2000,BLINK_MAX_INTERVAL=6000;
+    let blinkProgress=0;
+
+    function randomBlinkInterval(){return BLINK_MIN_INTERVAL+Math.random()*(BLINK_MAX_INTERVAL-BLINK_MIN_INTERVAL);}
+    blinkTimer=randomBlinkInterval();
+
+    function updateNatural(dtMs){
+      if(!vrm||!vrm.expressionManager)return;
+      vrm.expressionManager.setValue('MouthSmileLeft',SMILE_AMOUNT);
+      vrm.expressionManager.setValue('MouthSmileRight',SMILE_AMOUNT);
+      blinkTimer-=dtMs;
+      if(blinkPhase==='idle'&&blinkTimer<=0){blinkPhase='closing';blinkProgress=0;}
+      if(blinkPhase==='closing'){
+        blinkProgress+=dtMs/BLINK_CLOSE_MS;
+        if(blinkProgress>=1){blinkProgress=1;blinkPhase='opening';}
+        blinkState=blinkProgress;
+      }else if(blinkPhase==='opening'){
+        blinkProgress-=dtMs/BLINK_OPEN_MS;
+        if(blinkProgress<=0){blinkProgress=0;blinkPhase='idle';blinkTimer=randomBlinkInterval();}
+        blinkState=blinkProgress;
+      }else{blinkState=0;}
+      vrm.expressionManager.setValue('blink',blinkState);
     }
-    
+
+    // ===== Naturalness: Breathing (from 13_) =====
+    const swayScale=2.0;
+    let breathTime=0;
+    let breathBones={};
+
+    function multiSin(t,waves){
+      let v=0;for(const[freq,amp,phase]of waves)v+=Math.sin(t*freq+phase)*amp;
+      return v*swayScale;
+    }
+    const SPINE_X_WAVES=[[1.65,0.006,0],[0.4,0.004,1.2],[0.17,0.002,3.1]];
+    const SPINE_Z_WAVES=[[0.7,0.008,0.5],[0.23,0.005,2.8],[0.11,0.003,0.9]];
+    const SPINE_Y_WAVES=[[0.25,0.005,0.7],[0.09,0.003,2.1],[0.41,0.002,4.5]];
+    const CHEST_X_WAVES=[[1.65,0.007,0],[0.35,0.003,1.7],[0.14,0.002,2.3]];
+    const HIPS_Z_WAVES=[[0.18,0.006,0],[0.07,0.004,1.5],[0.31,0.002,3.8]];
+    const HIPS_Y_WAVES=[[0.15,0.004,1.3],[0.06,0.003,3.6],[0.28,0.002,0.4]];
+
+    function initBreathBones(){
+      breathBones={};if(!vrm)return;
+      const names=['J_Bip_C_Spine','J_Bip_C_Chest','J_Bip_C_UpperChest','J_Bip_C_Hips','J_Bip_C_Neck','J_Bip_C_Head'];
+      vrm.scene.traverse(n=>{
+        if(n.isBone&&names.includes(n.name))breathBones[n.name]={bone:n,restQ:n.quaternion.clone()};
+      });
+    }
+
+    function advanceBreathTime(dtMs){breathTime+=dtMs/1000;}
+
+    function computeBreathPose(t){
+      const THREE=window.THREE;const pose={};
+      const spine=breathBones['J_Bip_C_Spine'];
+      if(spine){const q=spine.restQ.clone();q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(multiSin(t,SPINE_X_WAVES),multiSin(t,SPINE_Y_WAVES),multiSin(t,SPINE_Z_WAVES))));pose['J_Bip_C_Spine']=[q.x,q.y,q.z,q.w];}
+      const chest=breathBones['J_Bip_C_Chest']||breathBones['J_Bip_C_UpperChest'];
+      if(chest){const bn=breathBones['J_Bip_C_Chest']?'J_Bip_C_Chest':'J_Bip_C_UpperChest';const q=chest.restQ.clone();q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(multiSin(t,CHEST_X_WAVES),0,0)));pose[bn]=[q.x,q.y,q.z,q.w];}
+      const hips=breathBones['J_Bip_C_Hips'];
+      if(hips){const q=hips.restQ.clone();q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0,multiSin(t,HIPS_Y_WAVES),multiSin(t,HIPS_Z_WAVES))));pose['J_Bip_C_Hips']=[q.x,q.y,q.z,q.w];}
+      const neck=breathBones['J_Bip_C_Neck'];if(neck)pose['J_Bip_C_Neck']=[neck.restQ.x,neck.restQ.y,neck.restQ.z,neck.restQ.w];
+      const head=breathBones['J_Bip_C_Head'];if(head)pose['J_Bip_C_Head']=[head.restQ.x,head.restQ.y,head.restQ.z,head.restQ.w];
+      return pose;
+    }
+
+    function updateBreathing(dtMs){
+      const THREE=window.THREE;if(!Object.keys(breathBones).length)return;const t=breathTime;
+      const spine=breathBones['J_Bip_C_Spine'];
+      if(spine){const q=spine.restQ.clone();q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(multiSin(t,SPINE_X_WAVES),multiSin(t,SPINE_Y_WAVES),multiSin(t,SPINE_Z_WAVES))));spine.bone.quaternion.copy(q);}
+      const chest=breathBones['J_Bip_C_Chest']||breathBones['J_Bip_C_UpperChest'];
+      if(chest){const q=chest.restQ.clone();q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(multiSin(t,CHEST_X_WAVES),0,0)));chest.bone.quaternion.copy(q);}
+      const hips=breathBones['J_Bip_C_Hips'];
+      if(hips){const q=hips.restQ.clone();q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0,multiSin(t,HIPS_Y_WAVES),multiSin(t,HIPS_Z_WAVES))));hips.bone.quaternion.copy(q);}
+      const neck=breathBones['J_Bip_C_Neck'];if(neck)neck.bone.quaternion.copy(neck.restQ);
+      const head=breathBones['J_Bip_C_Head'];if(head)head.bone.quaternion.copy(head.restQ);
+    }
+
+    // ===== Eye Micro-movement (from 13_) =====
+    const EYE_DRIFT_SPEED=0.8,EYE_DRIFT_AMOUNT=0.008;
+    const EYE_SACCADE_INTERVAL_MIN=800,EYE_SACCADE_INTERVAL_MAX=2500;
+    const EYE_SACCADE_AMOUNT=0.015,EYE_SACCADE_DURATION=60;
+    let eyeDriftX=0,eyeDriftY=0,eyeDriftTargetX=0,eyeDriftTargetY=0;
+    let eyeSaccadeTimer=0,eyeSaccadePhase='idle',eyeSaccadeProgress=0;
+    let eyeSaccadeFromX=0,eyeSaccadeFromY=0,eyeSaccadeToX=0,eyeSaccadeToY=0;
+    function randomSaccadeInterval(){return EYE_SACCADE_INTERVAL_MIN+Math.random()*(EYE_SACCADE_INTERVAL_MAX-EYE_SACCADE_INTERVAL_MIN);}
+    eyeSaccadeTimer=randomSaccadeInterval();
+
+    function updateEyeMicro(dtMs){
+      eyeDriftTargetX+=(Math.random()-0.5)*0.002;eyeDriftTargetY+=(Math.random()-0.5)*0.002;
+      const maxD=EYE_DRIFT_AMOUNT;
+      eyeDriftTargetX=Math.max(-maxD,Math.min(maxD,eyeDriftTargetX));
+      eyeDriftTargetY=Math.max(-maxD,Math.min(maxD,eyeDriftTargetY));
+      const lerpF=1-Math.exp(-EYE_DRIFT_SPEED*dtMs/1000);
+      eyeDriftX+=(eyeDriftTargetX-eyeDriftX)*lerpF;eyeDriftY+=(eyeDriftTargetY-eyeDriftY)*lerpF;
+      eyeSaccadeTimer-=dtMs;
+      if(eyeSaccadePhase==='idle'&&eyeSaccadeTimer<=0){
+        eyeSaccadePhase='saccade';eyeSaccadeProgress=0;
+        eyeSaccadeFromX=eyeDriftX;eyeSaccadeFromY=eyeDriftY;
+        const angle=Math.random()*Math.PI*2;const amp=EYE_SACCADE_AMOUNT*(0.5+Math.random()*0.5);
+        eyeSaccadeToX=Math.cos(angle)*amp;eyeSaccadeToY=Math.sin(angle)*amp;
+      }
+      if(eyeSaccadePhase==='saccade'){
+        eyeSaccadeProgress+=dtMs/EYE_SACCADE_DURATION;
+        if(eyeSaccadeProgress>=1){eyeSaccadeProgress=1;eyeSaccadePhase='idle';eyeSaccadeTimer=randomSaccadeInterval();eyeDriftTargetX=eyeSaccadeToX;eyeDriftTargetY=eyeSaccadeToY;}
+        const t=eyeSaccadeProgress;
+        eyeDriftX=eyeSaccadeFromX+(eyeSaccadeToX-eyeSaccadeFromX)*t;
+        eyeDriftY=eyeSaccadeFromY+(eyeSaccadeToY-eyeSaccadeFromY)*t;
+      }
+    }
+
+    // ===== Glance at hand (from 13_) =====
+    const GLANCE_INTERVAL_MIN=3000,GLANCE_INTERVAL_MAX=8000;
+    const GLANCE_DURATION=300,GLANCE_HOLD=200,GLANCE_RETURN=400;
+    const GLANCE_X=-0.025,GLANCE_Y=0.03;
+    let glanceTimer=0,glancePhase='idle',glanceProgress=0;
+    let glanceFromX=0,glanceFromY=0,glanceOverrideX=0,glanceOverrideY=0;
+    let isCharDemonstrating=false;
+    function randomGlanceInterval(){return GLANCE_INTERVAL_MIN+Math.random()*(GLANCE_INTERVAL_MAX-GLANCE_INTERVAL_MIN);}
+    glanceTimer=randomGlanceInterval();
+
+    function updateGlance(dtMs){
+      if(!isCharDemonstrating){glancePhase='idle';glanceTimer=randomGlanceInterval();glanceOverrideX=0;glanceOverrideY=0;return;}
+      if(glancePhase==='idle'){
+        glanceTimer-=dtMs;
+        if(glanceTimer<=0){glancePhase='move';glanceProgress=0;glanceFromX=eyeDriftX;glanceFromY=eyeDriftY;}
+        glanceOverrideX=0;glanceOverrideY=0;
+      }else if(glancePhase==='move'){
+        glanceProgress+=dtMs/GLANCE_DURATION;
+        if(glanceProgress>=1){glanceProgress=1;glancePhase='hold';glanceProgress=0;}
+        const e=1-Math.cos(glanceProgress*Math.PI/2);const handDir=SIDE==='R'?1:-1;
+        glanceOverrideX=e*GLANCE_X*handDir;glanceOverrideY=e*GLANCE_Y;
+      }else if(glancePhase==='hold'){
+        glanceProgress+=dtMs/GLANCE_HOLD;
+        if(glanceProgress>=1){glancePhase='return';glanceProgress=0;}
+        const handDir=SIDE==='R'?1:-1;glanceOverrideX=GLANCE_X*handDir;glanceOverrideY=GLANCE_Y;
+      }else if(glancePhase==='return'){
+        glanceProgress+=dtMs/GLANCE_RETURN;
+        if(glanceProgress>=1){glanceProgress=1;glancePhase='idle';glanceTimer=randomGlanceInterval();}
+        const e=1-glanceProgress;const handDir=SIDE==='R'?1:-1;
+        glanceOverrideX=e*GLANCE_X*handDir;glanceOverrideY=e*GLANCE_Y;
+      }
+    }
+
+    // ===== Idle Action System (from 13_) =====
+    let idleActions=[];
+    let idleEnabled={};
+    let idleTimer=0;
+    let idleAnimating=false;
+    let idlePhase='none';
+    let idlePhaseStart=0;
+    let idleInterruptBlendMs=0;
+    let idleBonePose=null;
+    let idleAllBones={};
+    let idleStartPose={};
+    let idleNeutralPose={};
+    let idleActiveAction=null;
+    let idlePlayTime=0;
+    const IDLE_BLEND_IN_MS=500;
+    const IDLE_BLEND_OUT_MS=800;
+    const IDLE_INTERVAL_S=8;
+    function getBlendInMs(){
+      // スペシャルアクションは指文字と同じ遷移時間（300ms）
+      if(idleActiveAction&&idleActiveAction.name&&idleActiveAction.name.startsWith('special_'))return HAND_TRANSITION_MS;
+      return IDLE_BLEND_IN_MS;
+    }
+    function getBlendOutMs(){return IDLE_BLEND_OUT_MS;}
+    function easeInOutSine(t){return-(Math.cos(Math.PI*t)-1)/2;}
+
+    function initIdleBones(){
+      idleAllBones={};if(!vrm)return;
+      vrm.scene.traverse(n=>{
+        if(!n.isBone)return;
+        if(/Hips|Root|UpperLeg|LowerLeg|Foot|Toes/.test(n.name))return;
+        idleAllBones[n.name]=n;
+      });
+    }
+
     // ==========================================
-    // 覚え方コメントを読み込み
+    // Load sign poses from sign_poses/ folder (GLB+JSON, same format as idle actions)
     // ==========================================
-    async function loadCharacterHints() {
-      try {
-        const cacheBuster = `?v=${Date.now()}`;
-        const response = await fetch(`./data/character_hints.txt${cacheBuster}`);
-        const text = await response.text();
-        
-        CHARACTER_HINTS = {};
-        text.split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0 && line.includes('|'))
-          .forEach(line => {
-            const [char, hint] = line.split('|').map(s => s.trim());
-            if (char && hint) {
-              CHARACTER_HINTS[char] = hint;
+    async function loadSignPoses(){
+      if(!vrm)return;
+      const THREE=window.THREE;
+      const SIGN_DIR='./glb/sign_poses/';
+      // Load manifest: {"a":"a.glb","i":"i.glb",...} or ["a.glb","i.glb",...]
+      let manifest=null;
+      try{
+        const mRes=await fetch(SIGN_DIR+'manifest.json');
+        if(mRes.ok)manifest=await mRes.json();
+      }catch(e){}
+      if(!manifest){console.warn('[SignPoses] manifest.json not found in glb/sign_poses/');return;}
+
+      // manifest format: {"a":{"file":"a.glb","type":"static"}, "no":{"file":"no.glb","type":"motion"}, ...}
+      // Also accepts legacy: {"a":"a.glb"} or ["a.glb"]
+      let entries=[]; // [{id, glbFile, mType}]
+      if(Array.isArray(manifest)){
+        entries=manifest.filter(f=>f.endsWith('.glb')).map(f=>({id:f.replace('.glb',''),glbFile:f,mType:null}));
+      }else{
+        entries=Object.entries(manifest).map(([id,v])=>{
+          if(typeof v==='string')return{id,glbFile:v,mType:null};
+          return{id,glbFile:v.file,mType:v.type||null,derived:!!v.derived};
+        });
+      }
+      if(entries.length===0){console.warn('[SignPoses] manifest.json is empty');return;}
+
+      handPoses={version:'glb-sampled',poses:{}};
+      const valid=new Set();vrm.scene.traverse(o=>{if(o.name)valid.add(o.name);});
+      const FPS=30;
+      const loader=new GLTFLoader();
+      // HAND_PATS: bones to sample for hand poses (hands + arms + fingers)
+      const HAND_PATS=[
+        /J_Bip_[LR]_Hand$/,/J_Bip_[LR]_Thumb\d/,/J_Bip_[LR]_Index\d/,
+        /J_Bip_[LR]_Middle\d/,/J_Bip_[LR]_Ring\d/,/J_Bip_[LR]_Little\d/,
+        /J_Bip_[LR]_UpperArm$/,/J_Bip_[LR]_LowerArm$/,/J_Bip_[LR]_Shoulder$/
+      ];
+
+      // ── GLBファイルを並列バッチダウンロード（同時6本） ──
+      const BATCH_SIZE=6;
+      let loadedCount=0;
+      const t0=performance.now();
+
+      // Phase 1: 全GLBを並列fetchでArrayBufferとして取得
+      const glbBuffers=new Map(); // id -> ArrayBuffer
+      for(let i=0;i<entries.length;i+=BATCH_SIZE){
+        const batch=entries.slice(i,i+BATCH_SIZE);
+        const results=await Promise.allSettled(
+          batch.map(async({id,glbFile})=>{
+            const res=await fetch(SIGN_DIR+glbFile);
+            if(!res.ok)throw new Error(`HTTP ${res.status}`);
+            return{id,buffer:await res.arrayBuffer()};
+          })
+        );
+        for(const r of results){
+          if(r.status==='fulfilled')glbBuffers.set(r.value.id,r.value.buffer);
+        }
+      }
+      console.log(`[SignPoses] Fetched ${glbBuffers.size}/${entries.length} GLBs in ${(performance.now()-t0).toFixed(0)}ms`);
+
+      // Phase 2: パース+サンプリング（GLTFLoaderは同期的にボーンを操作するため直列）
+      for(const{id,glbFile,mType}of entries){
+        const buf=glbBuffers.get(id);
+        if(!buf)continue;
+        try{
+          const gltf=await loader.parseAsync(buf,'');
+          if(!gltf.animations||!gltf.animations.length)continue;
+          const allRawTracks=[];let maxDur=0;
+          for(const anim of gltf.animations){
+            for(const t of anim.tracks)allRawTracks.push(t);
+            if(anim.duration>maxDur)maxDur=anim.duration;
+          }
+          const tracks=[];
+          for(const t of allRawTracks){
+            if(t.name.includes('.position'))continue;
+            if(t.name.includes('.morphTargetInfluences'))continue;
+            const bn=t.name.split('.')[0];
+            if(!valid.has(bn))continue;
+            if(!HAND_PATS.some(p=>p.test(bn)))continue;
+            tracks.push(t.clone());
+          }
+          if(tracks.length===0)continue;
+          const clip=new THREE.AnimationClip(id,maxDur,tracks);
+          const animatedBones=new Set();
+          for(const t of clip.tracks)animatedBones.add(t.name.split('.')[0]);
+
+          const tmpMixer=new THREE.AnimationMixer(vrm.scene);
+          const tmpAction=tmpMixer.clipAction(clip);
+          tmpAction.setLoop(THREE.LoopOnce);tmpAction.clampWhenFinished=true;
+          tmpAction.reset();tmpAction.play();
+
+          const frameCount=Math.max(1,Math.ceil(maxDur*FPS));
+          const frames=[];
+          for(let fi=0;fi<=frameCount;fi++){
+            const t=fi/FPS;
+            tmpAction.time=Math.min(t,maxDur);tmpMixer.update(0.001);
+            const frame={};
+            for(const bn of animatedBones){
+              const bone=cachedBoneMap[bn];if(!bone)continue;
+              const q=bone.quaternion;
+              frame[bn]=[+q.x.toFixed(6),+q.y.toFixed(6),+q.z.toFixed(6),+q.w.toFixed(6)];
             }
-          });
-        
-        console.log('✅ 覚え方コメント読み込み完了:', Object.keys(CHARACTER_HINTS).length, '文字');
-      } catch (error) {
-        console.error('覚え方コメント読み込みエラー:', error);
-        // エラーでも続行（コメントなしで動作）
-        CHARACTER_HINTS = {};
+            frames.push(frame);
+          }
+          tmpAction.stop();tmpMixer.stopAllAction();
+
+          const poseType=mType||(frames.length<=3?'static':'motion');
+          if(poseType==='static'){
+            handPoses.poses[id]={type:'static',char:id,bones:frames[frames.length-1]};
+          }else{
+            handPoses.poses[id]={type:'motion',char:id,fps:FPS,frames};
+          }
+          loadedCount++;
+        }catch(e){console.warn('[SignPoses] Failed:',glbFile,e);}
+      }
+
+      // _expr.jsonも並列バッチ取得
+      const exprBatch=entries.map(({id,glbFile})=>{
+        const exprFile=glbFile.replace('.glb','_expr.json');
+        return fetch(SIGN_DIR+exprFile).then(r=>r.ok?r.json():null).then(data=>{
+          if(data){const pose=handPoses.poses[id];if(pose)pose.exprData=data;}
+        }).catch(()=>{});
+      });
+      await Promise.allSettled(exprBatch);
+
+      detectHandSide();
+      console.log('[SignPoses] Loaded:',loadedCount+'/'+entries.length,'characters from sign_poses/');
+    }
+
+    async function loadIdleGLBs(){
+      if(!vrm)return;
+      const THREE=window.THREE;
+      const valid=new Set();vrm.scene.traverse(o=>{if(o.name)valid.add(o.name);});
+      const FPS_SAMPLE=30;
+      const WAIT_DIR='./glb/wait_actions/';
+      // Load manifest from wait_actions folder
+      let files=[];
+      try{
+        const mRes=await fetch(WAIT_DIR+'manifest.json');
+        if(mRes.ok){
+          const manifest=await mRes.json();
+          if(Array.isArray(manifest))files=manifest.filter(f=>f.endsWith('.glb'));
+          console.log('[IdleAction] manifest.json loaded:',files.length,'GLBs');
+        }
+      }catch(e){}
+      if(files.length===0){console.log('[IdleAction] No idle GLBs (manifest.json not found or empty in glb/wait_actions/)');return;}
+
+      const loader=new GLTFLoader();
+      for(const fileName of files){
+        const name=fileName.replace('.glb','');
+        if(idleActions.some(a=>a.name===name))continue;
+        try{
+          const gltf=await loader.loadAsync(WAIT_DIR+fileName);
+          if(!gltf.animations||!gltf.animations.length)continue;
+          const allRawTracks=[];let maxDur=0;
+          for(const anim of gltf.animations){
+            for(const t of anim.tracks)allRawTracks.push(t);
+            if(anim.duration>maxDur)maxDur=anim.duration;
+          }
+          const tracks=[];
+          for(const t of allRawTracks){
+            if(t.name.match(/J_Sec_Hair/))continue;
+            if(t.name.includes('.morphTargetInfluences')){tracks.push(t.clone());continue;}
+            if(t.name.includes('.position'))continue;
+            const bn=t.name.split('.')[0];
+            if(/Root|mixamorig|Hips/.test(bn))continue;
+            if(!valid.has(bn))continue;
+            tracks.push(t.clone());
+          }
+          const clip=new THREE.AnimationClip(name,maxDur,tracks);
+          const animatedBones=new Set();
+          for(const t of clip.tracks){const bn=t.name.split('.')[0];if(idleAllBones[bn])animatedBones.add(bn);}
+
+          const tmpMixer=new THREE.AnimationMixer(vrm.scene);
+          const tmpAction=tmpMixer.clipAction(clip);
+          tmpAction.setLoop(THREE.LoopOnce);tmpAction.clampWhenFinished=true;
+          tmpAction.reset();tmpAction.play();
+
+          const morphTracks=clip.tracks.filter(t=>t.name.includes('.morphTargetInfluences'));
+          const hasMorphTracks=morphTracks.length>0;
+          const exprNames=vrm.expressionManager?vrm.expressionManager.expressions.map(e=>e.expressionName):[];
+          const frameCount=Math.ceil(maxDur*FPS_SAMPLE);
+          const frames=[];
+          for(let i=0;i<=frameCount;i++){
+            const t=i/FPS_SAMPLE;
+            tmpAction.time=Math.min(t,maxDur);tmpMixer.update(0.001);
+            if(hasMorphTracks&&vrm.expressionManager)vrm.update(0);
+            const frame={};
+            for(const bn of animatedBones){
+              const bone=idleAllBones[bn];if(!bone)continue;
+              const q=bone.quaternion;
+              frame[bn]=[+q.x.toFixed(5),+q.y.toFixed(5),+q.z.toFixed(5),+q.w.toFixed(5)];
+            }
+            if(hasMorphTracks&&vrm.expressionManager){
+              const expr={};
+              for(const en of exprNames){const v=vrm.expressionManager.getValue(en);if(v!==null&&v!==undefined&&Math.abs(v)>0.001)expr[en]=+v.toFixed(4);}
+              if(Object.keys(expr).length>0)frame.__expressions=expr;
+            }
+            frames.push(frame);
+          }
+          tmpAction.stop();tmpMixer.stopAllAction();
+          idleActions.push({name,frames,dur:maxDur,fps:FPS_SAMPLE,bones:[...animatedBones],hasExpressions:hasMorphTracks,enabled:true});
+          idleEnabled[name]=true;
+          console.log('[IdleAction] Loaded:',name,maxDur.toFixed(1)+'s',frames.length,'frames');
+        }catch(e){console.warn('[IdleAction] Failed:',fileName,e);}
+      }
+      // Also try to load expr.json files from same folder
+      for(const a of idleActions){
+        try{
+          const res=await fetch(WAIT_DIR+a.name+'_expr.json');
+          if(res.ok){
+            const data=await res.json();
+            attachExpressionData(data);
+          }
+        }catch(e){}
       }
     }
-    
+
+    function attachExpressionData(exprData){
+      const baseName=exprData.name.replace(/_expr$/,'');
+      const action=idleActions.find(a=>a.name===exprData.name||a.name===baseName||a.name.includes(baseName)||baseName.includes(a.name));
+      if(!action)return;
+      const exprFps=exprData.fps;
+      for(let i=0;i<action.frames.length;i++){
+        const t=i/action.fps;
+        const ei=Math.min(Math.floor(t*exprFps),exprData.frames.length-1);
+        const ei2=Math.min(ei+1,exprData.frames.length-1);
+        const frac=t*exprFps-ei;
+        const f0=exprData.frames[ei];const f1=exprData.frames[ei2];
+        const expr={};
+        const allKeys=new Set([...Object.keys(f0),...Object.keys(f1)]);
+        for(const k of allKeys){const v0=f0[k]||0;const v1=f1[k]||0;const v=v0+(v1-v0)*frac;if(Math.abs(v)>0.001)expr[k]=+v.toFixed(4);}
+        action.frames[i].__expressions=expr;
+      }
+      action.hasExpressions=true;
+    }
+
+    function startIdleAction(a,force){
+      if(!force&&idleAnimating||!vrm||!a.frames||!a.frames.length||!a.bones||!a.bones.length)return;
+      // force時は既存アニメーションを即座にリセット
+      if(force){idleAnimating=false;idleActiveAction=null;idlePhase='none';idleInterruptBlendMs=0;}
+      idleAnimating=true;idleActiveAction=a;idlePlayTime=0;
+      idleStartPose={};
+      for(const name of a.bones){const bone=idleAllBones[name];if(!bone)continue;const q=bone.quaternion;idleStartPose[name]=[q.x,q.y,q.z,q.w];}
+      idleStartPose.__expressions={MouthSmileLeft:SMILE_AMOUNT,MouthSmileRight:SMILE_AMOUNT};
+      idleNeutralPose={};
+      for(const name of a.bones){
+        const bb=breathBones[name];
+        if(bb&&bb.restQ){const q=bb.restQ;idleNeutralPose[name]=[q.x,q.y,q.z,q.w];}
+        else if(idleStartPose[name])idleNeutralPose[name]=[...idleStartPose[name]];
+      }
+      idlePhase='blendIn';idlePhaseStart=performance.now();
+    }
+
+    function interruptIdleAction(){
+      if(idlePhase==='none')return;
+      const currentBodyPose={};
+      for(const[name,bone]of Object.entries(idleAllBones)){
+        if(!idleActiveAction||!idleActiveAction.bones||!idleActiveAction.bones.includes(name))continue;
+        const q=bone.quaternion;currentBodyPose[name]=[q.x,q.y,q.z,q.w];
+      }
+      const wasSpecial=idleActiveAction&&idleActiveAction.name&&idleActiveAction.name.startsWith('special_');
+      idleBonePose=currentBodyPose;idleActiveAction=null;
+      // Freeze current hand state
+      const handPats=[/J_Bip_[LR]_Hand$/,/J_Bip_[LR]_Thumb\d/,/J_Bip_[LR]_Index\d/,/J_Bip_[LR]_Middle\d/,/J_Bip_[LR]_Ring\d/,/J_Bip_[LR]_Little\d/,/J_Bip_[LR]_UpperArm$/,/J_Bip_[LR]_LowerArm$/];
+      if(cachedBoneMap){
+        const snap={};
+        for(const[name,bone]of Object.entries(cachedBoneMap)){if(handPats.some(p=>p.test(name))){const q=bone.quaternion;snap[name]=[q.x,q.y,q.z,q.w];}}
+        if(Object.keys(snap).length>0)currentHandBones=snap;
+      }
+      // スペシャルモーションは動きが大きいのでゆっくり遷移（700ms）
+      idlePhase='blendOut';idleInterruptBlendMs=wasSpecial?700:450;idlePhaseStart=performance.now();
+    }
+
+    function lerpIdleFrame(frameA,frameB,t,bone){
+      const THREE=window.THREE;
+      const a=frameA[bone],b=frameB[bone];
+      if(!a)return b||null;if(!b)return a;
+      const qa=new THREE.Quaternion(a[0],a[1],a[2],a[3]);
+      const qb=new THREE.Quaternion(b[0],b[1],b[2],b[3]);
+      qa.slerp(qb,t);return[qa.x,qa.y,qa.z,qa.w];
+    }
+
+    function getIdleFrameAt(action,time){
+      const fi=time*action.fps;
+      const i0=Math.min(Math.floor(fi),action.frames.length-1);
+      const i1=Math.min(i0+1,action.frames.length-1);
+      const frac=fi-i0;
+      const f0=action.frames[i0],f1=action.frames[i1];
+      const result={};
+      for(const bn of Object.keys(f0)){
+        if(bn==='__expressions')continue;
+        result[bn]=lerpIdleFrame(f0,f1,frac,bn);
+      }
+      const ex0=f0.__expressions,ex1=f1.__expressions;
+      if(ex0||ex1){
+        const expr={};
+        const allE=new Set([...Object.keys(ex0||{}),...Object.keys(ex1||{})]);
+        for(const en of allE){const v0=(ex0&&ex0[en])||0;const v1=(ex1&&ex1[en])||0;expr[en]=v0+(v1-v0)*frac;}
+        result.__expressions=expr;
+      }
+      return result;
+    }
+
+    const IDLE_HAND_PATS=[/J_Bip_[LR]_Hand$/,/J_Bip_[LR]_Thumb\d/,/J_Bip_[LR]_Index\d/,/J_Bip_[LR]_Middle\d/,/J_Bip_[LR]_Ring\d/,/J_Bip_[LR]_Little\d/,/J_Bip_[LR]_UpperArm$/,/J_Bip_[LR]_LowerArm$/];
+    // 待機アクション中の口は常にデフォルト微笑みを維持（GLBの口データを無視）
+    const IDLE_MOUTH_OVERRIDE={MouthSmileLeft:SMILE_AMOUNT,MouthSmileRight:SMILE_AMOUNT};
+    const IDLE_MOUTH_MORPH_FILTER=/^(Fcl_MTH_|Fcl_HA_|mouth|jaw|tongue|cheek)/i;
+    function applyIdlePose(pose,skipHandBones=false){
+      for(const[name,q]of Object.entries(pose)){
+        if(name==='__expressions')continue;
+        if(skipHandBones&&IDLE_HAND_PATS.some(p=>p.test(name)))continue;
+        const bone=idleAllBones[name];if(bone&&q)bone.quaternion.set(q[0],q[1],q[2],q[3]);
+      }
+      if(pose.__expressions&&vrm){
+        // 口系を微笑み固定に置き換え
+        const filtered={...IDLE_MOUTH_OVERRIDE};
+        for(const[name,v]of Object.entries(pose.__expressions)){
+          if(!IDLE_MOUTH_MORPH_FILTER.test(name))filtered[name]=v;
+        }
+        vrm.scene.traverse(o=>{
+          if(!o.isMesh||!o.morphTargetDictionary||!o.morphTargetInfluences)return;
+          for(const[name,v]of Object.entries(filtered)){
+            const idx=o.morphTargetDictionary[name];
+            if(idx!==undefined)o.morphTargetInfluences[idx]=v;
+          }
+        });
+      }
+    }
+
+    function slerpPoses(poseA,poseB,t){
+      const THREE=window.THREE;const result={};
+      const allKeys=new Set([...Object.keys(poseA),...Object.keys(poseB)]);
+      for(const bn of allKeys){
+        if(bn==='__expressions')continue;
+        const a=poseA[bn]||poseB[bn];const b=poseB[bn]||poseA[bn];
+        if(!a||!b){result[bn]=a||b;continue;}
+        const qa=new THREE.Quaternion(a[0],a[1],a[2],a[3]);
+        const qb=new THREE.Quaternion(b[0],b[1],b[2],b[3]);
+        qa.slerp(qb,t);result[bn]=[qa.x,qa.y,qa.z,qa.w];
+      }
+      const exA=poseA.__expressions||{};const exB=poseB.__expressions||{};
+      const exKeys=new Set([...Object.keys(exA),...Object.keys(exB)]);
+      if(exKeys.size>0){
+        const expr={};for(const en of exKeys){const va=exA[en]||0;const vb=exB[en]||0;expr[en]=va+(vb-va)*t;}
+        result.__expressions=expr;
+      }
+      return result;
+    }
+
+    function updateIdleAction(dtMs){
+      if(idlePhase==='none')return;
+      if(idlePhase!=='blendOut'&&!idleActiveAction)return;
+      const now=performance.now();const elapsed=now-idlePhaseStart;const a=idleActiveAction;
+      if(idlePhase==='blendIn'){
+        const blendMs=getBlendInMs();const t=Math.min(1,elapsed/blendMs);const e=easeInOutSine(t);
+        const firstFrame=a.frames[0];const pose=slerpPoses(idleStartPose,firstFrame,e);applyIdlePose(pose);
+        if(t>=1){idlePhase='playing';idlePlayTime=0;}
+      }else if(idlePhase==='playing'){
+        idlePlayTime+=dtMs/1000;
+        if(idlePlayTime>=a.dur){
+          // スペシャルアクション（special_で始まる）はループ再生
+          if(a.name&&a.name.startsWith('special_')){
+            idlePlayTime=idlePlayTime%a.dur; // 先頭に巻き戻し
+          }else{
+            idleBonePose=a.frames[a.frames.length-1];applyIdlePose(idleBonePose);
+            idlePhase='blendOut';idlePhaseStart=now;
+          }
+        }
+        if(idlePhase==='playing'){
+          const isSpecialLoop=a.name&&a.name.startsWith('special_');
+          if(isSpecialLoop){
+            // ループ境界クロスフェード: 末尾15%(最大0.4秒)で先頭フレームへブレンド
+            const crossSec=Math.min(a.dur*0.15,0.4);
+            const timeLeft=a.dur-idlePlayTime;
+            if(timeLeft<crossSec&&crossSec>0){
+              const crossT=easeInOutSine(1-timeLeft/crossSec);
+              const poseNow=getIdleFrameAt(a,idlePlayTime);
+              const poseStart=getIdleFrameAt(a,0);
+              const blended=slerpPoses(poseNow,poseStart,crossT);
+              applyIdlePose(blended);
+            }else{
+              const pose=getIdleFrameAt(a,idlePlayTime);applyIdlePose(pose);
+            }
+          }else{
+            const pose=getIdleFrameAt(a,Math.min(idlePlayTime,a.dur));applyIdlePose(pose);
+          }
+        }
+      }else if(idlePhase==='blendOut'){
+        const blendMs=idleInterruptBlendMs>0?idleInterruptBlendMs:getBlendOutMs();
+        const t=Math.min(1,elapsed/blendMs);const e=easeInOutSine(t);
+        const resumeTarget=computeBreathPose(breathTime);
+        if(currentHandBones){for(const[name,q]of Object.entries(currentHandBones))resumeTarget[name]=[...q];}
+        for(const[name,q]of Object.entries(idleNeutralPose)){if(!resumeTarget[name])resumeTarget[name]=q;}
+        resumeTarget.__expressions={MouthSmileLeft:SMILE_AMOUNT,MouthSmileRight:SMILE_AMOUNT};
+        const pose=slerpPoses(idleBonePose||{},resumeTarget,e);applyIdlePose(pose,false);
+        if(t>=1){idleInterruptBlendMs=0;idleActiveAction=null;idlePhase='none';idleAnimating=false;}
+      }
+    }
+
+    function updateIdleTimer(dtMs){
+      if(idleAnimating)return;
+      idleTimer+=dtMs;
+      const intervalMs=IDLE_INTERVAL_S*1000;
+      if(idleTimer>=intervalMs){
+        idleTimer=0;
+        const available=idleActions.filter(a=>a.enabled);
+        if(available.length>0){
+          const pick=available[Math.floor(Math.random()*available.length)];
+          startIdleAction(pick);
+        }
+      }
+    }
+
+    // ===== Mouth control (mouth_profile.json sequence対応) =====
+    // expressionManager経由でARKitブレンド値を適用
+    let mouthActiveKeys=new Set(); // 現在値が入っているexpression名
+    let mouthSequence=null; // {steps, stepIdx, stepStart, prevBlend}
+    let mouthCurrentBlend={}; // 現在適用中の{key:val}
+
+    function clearMouthExprs(){
+      if(!vrm||!vrm.expressionManager)return;
+      for(const k of mouthActiveKeys)vrm.expressionManager.setValue(k,0);
+      mouthActiveKeys.clear();
+      mouthCurrentBlend={};
+    }
+    function applyMouthBlend(blend){
+      if(!vrm||!vrm.expressionManager)return;
+      // 前回のキーで今回にないものを0にする
+      for(const k of mouthActiveKeys){
+        if(!(k in blend))vrm.expressionManager.setValue(k,0);
+      }
+      mouthActiveKeys=new Set();
+      for(const[k,v]of Object.entries(blend)){
+        vrm.expressionManager.setValue(k,v);
+        mouthActiveKeys.add(k);
+      }
+      mouthCurrentBlend={...blend};
+    }
+    function applyMouthForChar(charId){
+      if(!vrm||!vrm.expressionManager||!mouthProfile)return;
+      // 派生文字でmouthProfileに直接エントリがなければベースIDを使う
+      let entry=mouthProfile[charId];
+      if(!entry&&DERIVED_MAP[charId])entry=mouthProfile[DERIVED_MAP[charId].baseId];
+      if(!entry){clearMouthExprs();mouthSequence=null;return;}
+
+      if(entry.type==='static'){
+        // 静止型: 前のブレンドから遷移してセット
+        mouthSequence={
+          steps:[{blend:entry.blend,duration_ms:300}],
+          stepIdx:0,stepStart:performance.now(),
+          prevBlend:{...mouthCurrentBlend}
+        };
+      }else if(entry.type==='sequence'&&entry.steps){
+        // シーケンス型: ステップ順に遷移再生
+        mouthSequence={
+          steps:entry.steps,
+          stepIdx:0,stepStart:performance.now(),
+          prevBlend:{...mouthCurrentBlend}
+        };
+      }else{
+        clearMouthExprs();mouthSequence=null;
+      }
+    }
+    function updateMouthTransition(){
+      if(!mouthSequence||!vrm||!vrm.expressionManager)return;
+      // motionPlaybackにexprDataがある場合はそちらが口を制御するのでスキップ
+      if(motionPlayback&&motionPlayback.pose&&motionPlayback.pose.exprData)return;
+      const{steps,prevBlend}=mouthSequence;
+      let{stepIdx,stepStart}=mouthSequence;
+      const now=performance.now();
+      const step=steps[stepIdx];
+      const dur=step.duration_ms||300;
+      const elapsed=now-stepStart;
+      const raw=Math.min(elapsed/dur,1);
+      const t=0.5-0.5*Math.cos(Math.PI*raw); // easeInOutSine
+
+      // 補間元: stepIdx===0なら前回のブレンド、それ以降は前ステップのブレンド
+      const fromBlend=(stepIdx===0)?prevBlend:steps[stepIdx-1].blend;
+      const toBlend=step.blend;
+
+      // 全キーを補間
+      const allKeys=new Set([...Object.keys(fromBlend),...Object.keys(toBlend)]);
+      const interpolated={};
+      for(const k of allKeys){
+        const vFrom=fromBlend[k]||0;
+        const vTo=toBlend[k]||0;
+        interpolated[k]=vFrom+(vTo-vFrom)*t;
+      }
+      applyMouthBlend(interpolated);
+
+      // ステップ完了→次へ
+      if(raw>=1){
+        if(stepIdx<steps.length-1){
+          mouthSequence.stepIdx=stepIdx+1;
+          mouthSequence.stepStart=now;
+        }else{
+          // 最終ステップ完了: 最終ブレンドを維持
+          applyMouthBlend(toBlend);
+          mouthSequence=null;
+        }
+      }
+    }
+
+    // ===== Hand pose application from JSON =====
+    function computeDerivedPose(baseId,type){
+      const THREE=window.THREE;
+      const pose=handPoses.poses[baseId];
+      if(!pose)return null;
+      const result={};
+      if(pose.type==='static'){for(const[name,q]of Object.entries(pose.bones))result[name]=[...q];}
+      else if(pose.type==='motion'&&pose.frames&&pose.frames.length>0){
+        const lastFrame=pose.frames[pose.frames.length-1];for(const[name,q]of Object.entries(lastFrame))result[name]=[...q];
+      }else return null;
+      const cfg=getOffsetConfig()[type];if(!cfg)return result;
+      let rx=cfg.rx,ry=cfg.ry,rz=cfg.rz;
+      if(rx===0&&ry===0&&rz===0)return result;
+      const toRad=d=>d*Math.PI/180;
+      if(rx!==0||ry!==0){
+        const xyQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(toRad(rx),toRad(ry),0));
+        const ua=result[B('J_Bip_L_UpperArm')]||[0,0,0,1];
+        const q=new THREE.Quaternion(ua[0],ua[1],ua[2],ua[3]);q.premultiply(xyQ);
+        result[B('J_Bip_L_UpperArm')]=[q.x,q.y,q.z,q.w];
+      }
+      if(rz!==0){
+        const t=Math.abs(rz);const sign=Math.sign(rz);
+        const ID=new THREE.Quaternion();
+        const uaFull=new THREE.Quaternion(0.247173,0.095251,-0.261902,0.928030);
+        const laFull=new THREE.Quaternion(-0.328793,0.251539,-0.183355,0.891631);
+        const haFull=new THREE.Quaternion(0.050796,-0.025826,0.029053,0.997952);
+        if(sign<0){uaFull.invert();laFull.invert();haFull.invert();}
+        const uaOffset=ID.clone().slerp(uaFull,t);
+        const laOffset=ID.clone().slerp(laFull,t);
+        const haOffset=ID.clone().slerp(haFull,t);
+        const ua=result[B('J_Bip_L_UpperArm')]||[0,0,0,1];
+        const qUA=new THREE.Quaternion(ua[0],ua[1],ua[2],ua[3]);qUA.premultiply(uaOffset);
+        result[B('J_Bip_L_UpperArm')]=[qUA.x,qUA.y,qUA.z,qUA.w];
+        const la=result[B('J_Bip_L_LowerArm')]||[0,0,0,1];
+        const qLA=new THREE.Quaternion(la[0],la[1],la[2],la[3]);qLA.premultiply(laOffset);
+        result[B('J_Bip_L_LowerArm')]=[qLA.x,qLA.y,qLA.z,qLA.w];
+        const ha=result[B('J_Bip_L_Hand')]||[0,0,0,1];
+        const qHA=new THREE.Quaternion(ha[0],ha[1],ha[2],ha[3]);qHA.premultiply(haOffset);
+        result[B('J_Bip_L_Hand')]=[qHA.x,qHA.y,qHA.z,qHA.w];
+      }
+      return result;
+    }
+
+    function getHandTarget(id){
+      const p=handPoses.poses[id];
+      if(!p){console.warn(`[HandTarget] pose not found: ${id}`);return null;}
+      if(p.type==='static')return p.bones;
+      if(p.type==='motion'&&p.frames&&p.frames.length>0)return p.frames[p.frames.length-1];
+      return null;
+    }
+
+    function getMotion(id){
+      const p=handPoses.poses[id];
+      if(p&&p.type==='motion')return p;
+      if(!p)console.warn(`[Motion] pose not found: ${id}`);
+      return null;
+    }
+
+    // Smooth transition to target hand bones
+    const HAND_TRANSITION_MS=300;
+    function transitionHandTo(targetBones){
+      if(!targetBones)return;
+      const THREE=window.THREE;
+      if(!currentHandBones){currentHandBones=targetBones;return;}
+      const fromB=JSON.parse(JSON.stringify(currentHandBones));
+      const start=performance.now();
+      function tick(){
+        const raw=Math.min((performance.now()-start)/HAND_TRANSITION_MS,1);
+        const t=easeInOutSine(raw);
+        const result={};
+        const keys=new Set([...Object.keys(fromB),...Object.keys(targetBones)]);
+        keys.forEach(k=>{
+          const a=fromB[k]||[0,0,0,1];const b=targetBones[k]||[0,0,0,1];
+          const qa=new THREE.Quaternion(a[0],a[1],a[2],a[3]);
+          const qb=new THREE.Quaternion(b[0],b[1],b[2],b[3]);
+          qa.slerp(qb,t);result[k]=[qa.x,qa.y,qa.z,qa.w];
+        });
+        currentHandBones=result;
+        if(raw<1)requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    // Play motion-type character frames (with blend-in from current pose)
+    let motionPlayback=null; // {pose, startTime, blendFrom}
+    function playMotionFrames(pose){
+      if(!pose||!pose.frames||!pose.frames.length)return;
+      // 現在のポーズを保存してブレンド元にする
+      const blendFrom=currentHandBones?JSON.parse(JSON.stringify(currentHandBones)):null;
+      motionPlayback={pose,startTime:performance.now(),blendFrom};
+    }
+    function updateMotionPlayback(){
+      if(!motionPlayback)return;
+      const{pose,startTime,blendFrom}=motionPlayback;
+      const elapsed=(performance.now()-startTime)/1000;
+      const blendInSec=HAND_TRANSITION_MS/1000; // ブレンドイン期間
+      const totalFrames=pose.frames.length;
+      const dur=totalFrames/pose.fps;
+      const crossfadeFrames=Math.min(Math.floor(totalFrames*0.15),10); // 全体の15%か10フレームの小さい方
+      // ループ再生
+      const loopElapsed=elapsed%dur;
+      const fi=loopElapsed*pose.fps;
+      const f0=Math.floor(fi),f1=Math.min(f0+1,totalFrames-1);
+      const frac=fi-f0;
+      const THREE=window.THREE;
+      // 通常のフレーム補間
+      function sampleFrame(i0,i1,t){
+        const r={};
+        const ks=new Set([...Object.keys(pose.frames[i0]),...Object.keys(pose.frames[i1])]);
+        ks.forEach(k=>{
+          const a=pose.frames[i0][k]||[0,0,0,1];const b=pose.frames[i1][k]||[0,0,0,1];
+          const qa=new THREE.Quaternion(a[0],a[1],a[2],a[3]);
+          const qb=new THREE.Quaternion(b[0],b[1],b[2],b[3]);
+          qa.slerp(qb,t);r[k]=[qa.x,qa.y,qa.z,qa.w];
+        });
+        return r;
+      }
+      const currentFrame=sampleFrame(f0,f1,frac);
+      // クロスフェード: 末尾付近では先頭フレームとブレンド
+      const frameIdx=fi;
+      const crossfadeStart=totalFrames-crossfadeFrames;
+      let frameResult;
+      if(frameIdx>=crossfadeStart&&crossfadeFrames>0){
+        // 末尾区間: currentFrameとloop先頭をブレンド
+        const crossT=(frameIdx-crossfadeStart)/crossfadeFrames; // 0→1
+        const loopStartFrame=sampleFrame(0,Math.min(1,totalFrames-1),0);
+        frameResult={};
+        const allK=new Set([...Object.keys(currentFrame),...Object.keys(loopStartFrame)]);
+        allK.forEach(k=>{
+          const a=currentFrame[k]||[0,0,0,1];const b=loopStartFrame[k]||[0,0,0,1];
+          const qa=new THREE.Quaternion(a[0],a[1],a[2],a[3]);
+          const qb=new THREE.Quaternion(b[0],b[1],b[2],b[3]);
+          qa.slerp(qb,easeInOutSine(crossT));frameResult[k]=[qa.x,qa.y,qa.z,qa.w];
+        });
+      }else{
+        frameResult=currentFrame;
+      }
+      // ブレンドイン: 最初のblendInSec秒間は前のポーズからスムーズ遷移
+      if(blendFrom&&elapsed<blendInSec){
+        const bt=easeInOutSine(elapsed/blendInSec);
+        const blended={};
+        const allKeys=new Set([...Object.keys(blendFrom),...Object.keys(frameResult)]);
+        allKeys.forEach(k=>{
+          const a=blendFrom[k]||[0,0,0,1];const b=frameResult[k]||[0,0,0,1];
+          const qa=new THREE.Quaternion(a[0],a[1],a[2],a[3]);
+          const qb=new THREE.Quaternion(b[0],b[1],b[2],b[3]);
+          qa.slerp(qb,bt);blended[k]=[qa.x,qa.y,qa.z,qa.w];
+        });
+        currentHandBones=blended;
+      }else{
+        currentHandBones=frameResult;
+      }
+    }
+
+    // _expr.json の口データを手のループに同期して適用（vrm.update()の前に呼ぶ）
+    // ループ境界でニュートラル(閉じ口)にフェードアウト→フェードインする
+    function updateMotionExpr(){
+      if(!motionPlayback||!vrm||!vrm.expressionManager)return;
+      const{pose,startTime}=motionPlayback;
+      if(!pose.exprData||!pose.exprData.frames)return;
+      const elapsed=(performance.now()-startTime)/1000;
+      const ef=pose.exprData.frames;
+      const eFps=pose.exprData.fps||30;
+      const toPascal=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+      // 手のループ周期に同期（口と手が同じタイミングでリセット）
+      const handDur=pose.frames.length/pose.fps;
+      const handLoopElapsed=elapsed%handDur;
+      // 手のループ進捗に合わせてexprフレームをサンプリング
+      const exprT=handLoopElapsed/handDur; // 0→1
+      const eFi=exprT*(ef.length-1);
+      const eF0=Math.floor(eFi),eF1=Math.min(eF0+1,ef.length-1);
+      const eFrac=eFi-eF0;
+
+      // フレーム間補間
+      const e0=ef[eF0]||{};const e1=ef[eF1]||{};
+      let exprResult={};
+      const ek=new Set([...Object.keys(e0),...Object.keys(e1)]);
+      for(const k of ek){
+        exprResult[k]=(e0[k]||0)+((e1[k]||0)-(e0[k]||0))*eFrac;
+      }
+
+      // ループ境界でニュートラルへフェード（手のクロスフェードと同期）
+      const crossfadeFrames=Math.min(Math.floor(pose.frames.length*0.15),10);
+      const crossfadeSec=crossfadeFrames/pose.fps;
+      // ループ末尾: ニュートラルへフェードアウト
+      if(handLoopElapsed>handDur-crossfadeSec&&crossfadeSec>0){
+        const crossT=easeInOutSine((handLoopElapsed-(handDur-crossfadeSec))/crossfadeSec);
+        for(const k of Object.keys(exprResult)){
+          exprResult[k]*=(1-crossT);
+        }
+      }
+      // ループ先頭: ニュートラルからフェードイン
+      else if(handLoopElapsed<crossfadeSec&&crossfadeSec>0){
+        const blendT=easeInOutSine(handLoopElapsed/crossfadeSec);
+        for(const k of Object.keys(exprResult)){
+          exprResult[k]*=blendT;
+        }
+      }
+
+      // 初回ブレンドイン（motionPlayback開始直後）
+      const blendInSec=HAND_TRANSITION_MS/1000;
+      if(elapsed<blendInSec){
+        const bt=easeInOutSine(elapsed/blendInSec);
+        for(const k of Object.keys(exprResult)){
+          exprResult[k]*=bt;
+        }
+      }
+
+      // 適用
+      if(!motionPlayback._prevExprKeys)motionPlayback._prevExprKeys=new Set();
+      for(const k of motionPlayback._prevExprKeys){
+        if(!(k in exprResult))vrm.expressionManager.setValue(toPascal(k),0);
+      }
+      const newKeys=new Set();
+      for(const[k,v]of Object.entries(exprResult)){
+        vrm.expressionManager.setValue(toPascal(k),v);
+        newKeys.add(k);
+      }
+      motionPlayback._prevExprKeys=newKeys;
+    }
+
+    // Special stage GLB playback
+    let specialStageAction=null; // reuse idle action format
+    async function loadAndPlaySpecialStage(glbFile){
+      const THREE=window.THREE;
+      const loader=new GLTFLoader();
+      try{
+        const gltf=await loader.loadAsync('./glb/special_actions/'+glbFile);
+        if(!gltf.animations||!gltf.animations.length)return;
+        // Sample frames like idle action
+        const valid=new Set();vrm.scene.traverse(o=>{if(o.name)valid.add(o.name);});
+        const allRawTracks=[];let maxDur=0;
+        for(const anim of gltf.animations){for(const t of anim.tracks)allRawTracks.push(t);if(anim.duration>maxDur)maxDur=anim.duration;}
+        const tracks=[];
+        for(const t of allRawTracks){
+          if(t.name.match(/J_Sec_Hair/))continue;
+          if(t.name.includes('.morphTargetInfluences')){tracks.push(t.clone());continue;}
+          if(t.name.includes('.position'))continue;
+          const bn=t.name.split('.')[0];
+          if(/Root|mixamorig|Hips/.test(bn))continue;
+          if(!valid.has(bn))continue;
+          tracks.push(t.clone());
+        }
+        const clip=new THREE.AnimationClip('special',maxDur,tracks);
+        const animatedBones=new Set();
+        for(const t of clip.tracks){const bn=t.name.split('.')[0];if(idleAllBones[bn])animatedBones.add(bn);}
+        // サンプリング前にボーン状態を保存（サンプリングが実ボーンを動かすため）
+        const savedBoneQ={};
+        for(const bn of animatedBones){
+          const bone=idleAllBones[bn];
+          if(bone)savedBoneQ[bn]=[bone.quaternion.x,bone.quaternion.y,bone.quaternion.z,bone.quaternion.w];
+        }
+        const tmpMixer=new THREE.AnimationMixer(vrm.scene);
+        const tmpAction=tmpMixer.clipAction(clip);
+        tmpAction.setLoop(THREE.LoopOnce);tmpAction.clampWhenFinished=true;
+        tmpAction.reset();tmpAction.play();
+        const FPS=30;const frameCount=Math.ceil(maxDur*FPS);const frames=[];
+        const exprNames=vrm.expressionManager?vrm.expressionManager.expressions.map(e=>e.expressionName):[];
+        const hasMorphTracks=clip.tracks.some(t=>t.name.includes('.morphTargetInfluences'));
+        for(let i=0;i<=frameCount;i++){
+          const t=i/FPS;tmpAction.time=Math.min(t,maxDur);tmpMixer.update(0.001);
+          if(hasMorphTracks&&vrm.expressionManager)vrm.update(0);
+          const frame={};
+          for(const bn of animatedBones){const bone=idleAllBones[bn];if(!bone)continue;const q=bone.quaternion;frame[bn]=[+q.x.toFixed(5),+q.y.toFixed(5),+q.z.toFixed(5),+q.w.toFixed(5)];}
+          if(hasMorphTracks&&vrm.expressionManager){
+            const expr={};for(const en of exprNames){const v=vrm.expressionManager.getValue(en);if(v!==null&&v!==undefined&&Math.abs(v)>0.001)expr[en]=+v.toFixed(4);}
+            if(Object.keys(expr).length>0)frame.__expressions=expr;
+          }
+          frames.push(frame);
+        }
+        tmpAction.stop();tmpMixer.stopAllAction();
+        // サンプリング後にボーンを元の位置に復元（描画ちらつき防止）
+        for(const[bn,q] of Object.entries(savedBoneQ)){
+          const bone=idleAllBones[bn];
+          if(bone)bone.quaternion.set(q[0],q[1],q[2],q[3]);
+        }
+        const action={name:'special_'+glbFile,frames,dur:maxDur,fps:FPS,bones:[...animatedBones],hasExpressions:hasMorphTracks,enabled:true};
+        startIdleAction(action,true); // force=true: 再生中でも即切り替え
+      }catch(e){console.error('[SpecialStage] Failed:',glbFile,e);}
+    }
+
+    // ===== romajiToHiragana =====
+    const romajiToHiragana = {
+      "a":"あ","i":"い","u":"う","e":"え","o":"お",
+      "ka":"か","ki":"き","ku":"く","ke":"け","ko":"こ",
+      "sa":"さ","si":"し","shi":"し","su":"す","se":"せ","so":"そ",
+      "ta":"た","ti":"ち","chi":"ち","tu":"つ","tsu":"つ","te":"て","to":"と",
+      "na":"な","ni":"に","nu":"ぬ","ne":"ね","no":"の",
+      "ha":"は","hi":"ひ","hu":"ふ","fu":"ふ","he":"へ","ho":"ほ",
+      "ma":"ま","mi":"み","mu":"む","me":"め","mo":"も",
+      "ya":"や","yu":"ゆ","yo":"よ",
+      "ra":"ら","ri":"り","ru":"る","re":"れ","ro":"ろ",
+      "wa":"わ","wo":"を","n":"ん","nn":"ん",
+      "ga":"が","gi":"ぎ","gu":"ぐ","ge":"げ","go":"ご",
+      "za":"ざ","zi":"じ","ji":"じ","zu":"ず","ze":"ぜ","zo":"ぞ",
+      "da":"だ","di":"ぢ","du":"づ","de":"で","do":"ど",
+      "ba":"ば","bi":"び","bu":"ぶ","be":"べ","bo":"ぼ",
+      "pa":"ぱ","pi":"ぴ","pu":"ぷ","pe":"ぺ","po":"ぽ",
+      "kya":"きゃ","kyu":"きゅ","kyo":"きょ",
+      "sha":"しゃ","shu":"しゅ","sho":"しょ",
+      "cha":"ちゃ","chu":"ちゅ","cho":"ちょ",
+      "nya":"にゃ","nyu":"にゅ","nyo":"にょ",
+      "hya":"ひゃ","hyu":"ひゅ","hyo":"ひょ",
+      "mya":"みゃ","myu":"みゅ","myo":"みょ",
+      "rya":"りゃ","ryu":"りゅ","ryo":"りょ",
+      "gya":"ぎゃ","gyu":"ぎゅ","gyo":"ぎょ",
+      "ja":"じゃ","ju":"じゅ","jo":"じょ",
+      "bya":"びゃ","byu":"びゅ","byo":"びょ",
+      "pya":"ぴゃ","pyu":"ぴゅ","pyo":"ぴょ",
+      "xa":"ぁ","xi":"ぃ","xu":"ぅ","xe":"ぇ","xo":"ぉ",
+      "la":"ぁ","li":"ぃ","lu":"ぅ","le":"ぇ","lo":"ぉ",
+      "xya":"ゃ","xyu":"ゅ","xyo":"ょ",
+      "lya":"ゃ","lyu":"ゅ","lyo":"ょ",
+      "xtu":"っ","xtsu":"っ","ltu":"っ","ltsu":"っ",
+      "xwa":"ゎ","lwa":"ゎ",
+      "bar":"ー"
+    };
+    function convertToHiragana(sign){return romajiToHiragana[sign]||sign;}
+
+    async function loadCharacterHints(){
+      try{
+        const response=await fetch(`./data/character_hints.txt?v=${Date.now()}`);
+        const text=await response.text();
+        CHARACTER_HINTS={};
+        text.split('\n').map(l=>l.trim()).filter(l=>l.length>0&&l.includes('|')).forEach(line=>{
+          const[char,hint]=line.split('|').map(s=>s.trim());
+          if(char&&hint)CHARACTER_HINTS[char]=hint;
+        });
+      }catch(e){CHARACTER_HINTS={};}
+    }
+
     // ==========================================
-    // モード切り替え
+    // NEW switchVRMMotion (JSON-based)
     // ==========================================
-    async function switchMode(mode) {
-      currentMode = mode;
-      
-      // ボタンのアクティブ状態更新
-      document.getElementById('modeGuide').classList.toggle('active', mode === 'guide');
-      document.getElementById('modeExpression').classList.toggle('active', mode === 'expression');
-      document.getElementById('modeReading').classList.toggle('active', mode === 'reading');
-      
-      // 全UIセクションを一旦非表示
-      document.getElementById('characterSelector').style.display = 'none';
-      document.getElementById('randomModeUI').style.display = 'none';
-      document.getElementById('readingModeUI').style.display = 'none';
-      document.querySelector('.navigation').style.display = 'flex';
-      document.getElementById('prevBtn').style.display = 'inline-block';
-      document.getElementById('nextBtn').style.display = 'inline-block';
-      
-      // カメラエリアの表示/非表示
-      const cameraArea = document.querySelector('.camera-area');
-      const practiceMain = document.querySelector('.practice-main');
-      
-      if (mode === 'guide') {
-        // ガイドモード（旧：個別練習）
-        document.getElementById('characterSelector').style.display = 'block';
-        if (cameraArea) cameraArea.classList.remove('reading-hidden');
-        if (practiceMain) practiceMain.classList.remove('reading-layout');
-        randomModeActive = false;
-        
-        // 現在の文字を再選択（UIをリセット、由来コメントも表示される）
+    async function switchVRMMotion(char){
+      if(!handPoses){console.warn('handPoses not loaded');return;}
+
+      // Special stages（ループ再生）
+      if(SPECIAL_GLBS[char]){
+        isCharDemonstrating=true;
+        motionPlayback=null;
+        clearMouthExprs();mouthSequence=null;
+        await loadAndPlaySpecialStage(SPECIAL_GLBS[char]);
+        return;
+      }
+
+      // スペシャルモーション再生中のみ中断（通常の待機アクションはそのまま継続）
+      if(idleActiveAction&&idleActiveAction.name&&idleActiveAction.name.startsWith('special_')){
+        interruptIdleAction();
+      }
+
+      const charId=CHAR_TO_ID[char];
+      if(!charId){console.warn('No CHAR_TO_ID for:',char);return;}
+
+      isCharDemonstrating=true;
+
+      // Motion-type character
+      const motion=getMotion(charId);
+      if(motion){
+        // 現在のポーズからモーション先頭へスムーズ遷移、完了後ループ開始
+        motionPlayback=null;
+        transitionHandTo(motion.frames[0]);
+        setTimeout(()=>playMotionFrames(motion),HAND_TRANSITION_MS);
+      }else{
+        // Static — 前のモーション再生を停止
+        motionPlayback=null;
+        const target=getHandTarget(charId);
+        if(target)transitionHandTo(target);
+      }
+
+      // Apply mouth: モーション型で_expr.jsonがあればフレーム同期（updateMotionPlaybackで処理）
+      if(motion&&motion.exprData){
+        // 前の口データをクリア、mouthSequenceも停止
+        clearMouthExprs();
+        mouthSequence=null;
+      }else{
+        applyMouthForChar(charId);
+      }
+    }
+
+    // Expression mode: 静止型は静止表示、非静止型はループ再生（動きそのものが指文字）
+    async function switchVRMMotionFrozen(char){
+      if(!handPoses){console.warn('handPoses not loaded');return;}
+
+      if(SPECIAL_GLBS[char]){
+        isCharDemonstrating=true;
+        motionPlayback=null;
+        clearMouthExprs();mouthSequence=null;
+        await loadAndPlaySpecialStage(SPECIAL_GLBS[char]);
+        return;
+      }
+
+      // スペシャルモーション再生中のみ中断
+      if(idleActiveAction&&idleActiveAction.name&&idleActiveAction.name.startsWith('special_')){
+        interruptIdleAction();
+      }
+      const charId=CHAR_TO_ID[char];
+      if(!charId){console.warn('No CHAR_TO_ID for:',char);return;}
+      isCharDemonstrating=true;
+      const motion=getMotion(charId);
+      if(motion){
+        // 非静止型: ガイドモードと同様にループ再生
+        motionPlayback=null;
+        transitionHandTo(motion.frames[0]);
+        setTimeout(()=>playMotionFrames(motion),HAND_TRANSITION_MS);
+        if(motion.exprData){
+          clearMouthExprs();mouthSequence=null;
+        }else{
+          applyMouthForChar(charId);
+        }
+      }else{
+        // 静止型: 最終ポーズを静止表示
+        motionPlayback=null;
+        const target=getHandTarget(charId);
+        if(target)transitionHandTo(target);
+        applyMouthForChar(charId);
+      }
+    }
+
+    // ==========================================
+    // Mode switching (from practice.html)
+    // ==========================================
+    async function switchMode(mode){
+      currentMode=mode;
+      document.getElementById('modeGuide').classList.toggle('active',mode==='guide');
+      document.getElementById('modeExpression').classList.toggle('active',mode==='expression');
+      document.getElementById('modeReading').classList.toggle('active',mode==='reading');
+      document.getElementById('characterSelector').style.display='none';
+      document.getElementById('randomModeUI').style.display='none';
+      document.getElementById('readingModeUI').style.display='none';
+      document.querySelector('.navigation').style.display='flex';
+      document.getElementById('prevBtn').style.display='inline-block';
+      document.getElementById('nextBtn').style.display='inline-block';
+      const cameraArea=document.querySelector('.camera-area');
+      const practiceMain=document.querySelector('.practice-main');
+
+      if(mode==='guide'){
+        document.getElementById('characterSelector').style.display='block';
+        if(cameraArea)cameraArea.classList.remove('reading-hidden');
+        if(practiceMain)practiceMain.classList.remove('reading-layout');
+        randomModeActive=false;
         selectCharacter(currentCharIndex);
-        
-      } else if (mode === 'expression') {
-        // 表現練習モード（旧：ランダム出題）
-        document.getElementById('randomModeUI').style.display = 'block';
-        document.getElementById('prevBtn').style.display = 'none';
-        document.getElementById('nextBtn').style.display = 'none';
-        if (cameraArea) cameraArea.classList.remove('reading-hidden');
-        if (practiceMain) practiceMain.classList.remove('reading-layout');
-        
-        // ランダムモード開始（完了を待つ）
+      }else{
+        // ガイド以外のモードではブラックアウトを解除＋再生中のスペシャルモーションを中断
+        hideBlackout();
+        interruptIdleAction();
+      }
+      if(mode==='expression'){
+        document.getElementById('randomModeUI').style.display='block';
+        document.getElementById('prevBtn').style.display='none';
+        document.getElementById('nextBtn').style.display='none';
+        if(cameraArea)cameraArea.classList.remove('reading-hidden');
+        if(practiceMain)practiceMain.classList.remove('reading-layout');
         await startRandomMode();
-        
-      } else if (mode === 'reading') {
-        // 読取練習モード（NEW）
-        document.getElementById('readingModeUI').style.display = 'block';
-        document.getElementById('prevBtn').style.display = 'none';
-        document.getElementById('nextBtn').style.display = 'none';
-        if (cameraArea) cameraArea.classList.add('reading-hidden');
-        if (practiceMain) practiceMain.classList.add('reading-layout');
-        randomModeActive = false;
-        
-        // 読取練習開始
+      }else if(mode==='reading'){
+        document.getElementById('readingModeUI').style.display='block';
+        document.getElementById('prevBtn').style.display='none';
+        document.getElementById('nextBtn').style.display='none';
+        if(cameraArea)cameraArea.classList.add('reading-hidden');
+        if(practiceMain)practiceMain.classList.add('reading-layout');
+        randomModeActive=false;
         await startReadingMode();
       }
     }
-    
+
     // ==========================================
-    // ランダム出題モード
+    // Random mode
     // ==========================================
-    async function startRandomMode() {
-      randomModeActive = true;
-      
-      // 統計リセット
-      totalQuestions = 0;
-      correctAnswers = 0;
-      currentQuestionAnswered = false;
-      
-      // 出題対象の文字リスト（清音のみ）
-      randomCharPool = [...JUDGEABLE_CHARS];
-      
-      // 最初の文字を出題（完了を待つ）
+    async function startRandomMode(){
+      randomModeActive=true;totalQuestions=0;correctAnswers=0;currentQuestionAnswered=false;
+      randomCharPool=[...JUDGEABLE_CHARS];
       await nextRandomCharacter();
     }
-    
-    async function nextRandomCharacter() {
-      if (randomCharPool.length === 0) {
-        // 全文字終了 - ガイドモードに戻る
-        switchMode('guide');
-        return;
-      }
-      
-      // ランダムに文字を選択
-      const randomIndex = Math.floor(Math.random() * randomCharPool.length);
-      currentChar = randomCharPool[randomIndex];
-      
-      // 出題数カウント
-      totalQuestions++;
-      currentQuestionAnswered = false;
-      
-      // UI更新
-      document.getElementById('randomCharDisplay').textContent = currentChar;
-      
-      // ランダムモードでは由来コメントを非表示
-      const hintElement = document.getElementById('charHint');
-      hintElement.style.display = 'none';
-      
-      // VRMモーション切り替え（完了を待つ）
-      await switchVRMMotion(currentChar);
-      
-      // ★ 1フレーム待ってからtimeScale=0.0001で停止
-      // animate()が最低1回実行され正しいポーズが描画されてからフリーズする
-      // timeScale=0ではなく0.0001を使う（0だとThree.jsがTポーズを出す）
-      await new Promise(resolve => requestAnimationFrame(() => {
-        if (action && currentMode === 'expression') {
-          action.timeScale = 0.0001;
-          if (exprAction) exprAction.timeScale = 0.0001;
-          isPaused = true;
-          console.log('[EXPRESSION] ⏸ Frozen at', action.time.toFixed(3), 's (timeScale=0.0001)');
-        }
-        resolve();
-      }));
-      
-      // フレームバッファをクリア
-      frameBuffer = []; wristBuffer = [];
-      
-      // 認識結果リセット
-      const resultArea = document.querySelector('.recognition-result');
+    async function nextRandomCharacter(){
+      if(randomCharPool.length===0){switchMode('guide');return;}
+      const randomIndex=Math.floor(Math.random()*randomCharPool.length);
+      currentChar=randomCharPool[randomIndex];
+      totalQuestions++;currentQuestionAnswered=false;
+      document.getElementById('randomCharDisplay').textContent=currentChar;
+      const hintElement=document.getElementById('charHint');hintElement.style.display='none';
+      // Expression mode: show static pose (last frame for motion type)
+      await switchVRMMotionFrozen(currentChar);
+      frameBuffer=[];wristBuffer=[];
+      const resultArea=document.querySelector('.recognition-result');
       resultArea.classList.remove('disabled');
-      updateUI('-', 0, 'waiting', '手をカメラに映してください');
+      updateUI('-',0,'waiting','手をカメラに映してください');
     }
-    
-    function updateRandomStats() {
-      // 統計更新は不要になったが、関数は残しておく（エラー回避）
-    }
-    
-    function endRandomMode() {
-      switchMode('guide');
-    }
-    
+    function updateRandomStats(){}
+    function endRandomMode(){switchMode('guide');}
+
     // ==========================================
-    // 読取練習モード
+    // Reading mode
     // ==========================================
-    
-    // 似た手形のグループ（紛らわしい選択肢を生成するため）
-    const CONFUSABLE_GROUPS = [
-      ['う', 'く'],
-      ['ち', 'と'],
-      ['え', 'ん'],
-      ['き', 'ひ'],
-      ['あ', 'ま'],
-      ['け', 'は'],
-      ['お', 'そ'],
-      ['か', 'や'],
-      ['さ', 'せ'],
-      ['し', 'り'],
-      ['す', 'む'],
-      ['た', 'な'],
-      ['ぬ', 'ね', 'る'],
-      ['て', 'ほ'],
-      ['に', 'の'],
-      ['ふ', 'め'],
-      ['み', 'も'],
-      ['へ', 'ろ'],
-      ['ゆ', 'れ'],
-      ['よ', 'わ'],
+    const CONFUSABLE_GROUPS=[
+      ['う','く'],['ち','と'],['え','ん'],['き','ひ'],['あ','ま'],['け','は'],['お','そ'],
+      ['か','や'],['さ','せ'],['し','り'],['す','む'],['た','な'],['ぬ','ね','る'],
+      ['て','ほ'],['に','の'],['ふ','め'],['み','も'],['へ','ろ'],['ゆ','れ'],['よ','わ'],
     ];
-    
-    async function startReadingMode() {
-      // 統計リセット
-      readingTotalQuestions = 0;
-      readingCorrectAnswers = 0;
-      readingWrongAnswers = 0;
-      updateReadingStats();
-      
-      // 最初の問題を出題
-      await nextReadingQuestion();
+
+    async function startReadingMode(){
+      readingTotalQuestions=0;readingCorrectAnswers=0;readingWrongAnswers=0;
+      updateReadingStats();await nextReadingQuestion();
     }
-    
-    async function nextReadingQuestion() {
-      // 出題対象：清音のみ（JUDGEABLE_CHARS）
-      const pool = [...JUDGEABLE_CHARS];
-      const answer = pool[Math.floor(Math.random() * pool.length)];
-      readingCurrentAnswer = answer;
-      readingTotalQuestions++;
-      
-      // カウンター更新
-      document.getElementById('readingCounter').textContent = `第 ${readingTotalQuestions} 問`;
-      
-      // 結果・次へを非表示
-      document.getElementById('readingResult').style.display = 'none';
-      document.getElementById('readingNextWrapper').style.display = 'none';
-      
-      // 選択肢を生成（正解1 + ダミー4 = 5択）
-      const choices = generateChoices(answer, 5);
-      
-      // 選択肢ボタンを描画
-      const container = document.getElementById('readingChoices');
-      container.innerHTML = '';
-      choices.forEach(ch => {
-        const btn = document.createElement('button');
-        btn.className = 'reading-choice-btn';
-        btn.textContent = ch;
-        btn.addEventListener('click', () => onReadingChoiceClick(btn, ch));
-        container.appendChild(btn);
+    async function nextReadingQuestion(){
+      const pool=[...JUDGEABLE_CHARS];
+      const answer=pool[Math.floor(Math.random()*pool.length)];
+      readingCurrentAnswer=answer;readingTotalQuestions++;
+      document.getElementById('readingCounter').textContent=`第 ${readingTotalQuestions} 問`;
+      document.getElementById('readingResult').style.display='none';
+      document.getElementById('readingNextWrapper').style.display='none';
+      const choices=generateChoices(answer,5);
+      const container=document.getElementById('readingChoices');container.innerHTML='';
+      choices.forEach(ch=>{
+        const btn=document.createElement('button');btn.className='reading-choice-btn';btn.textContent=ch;
+        btn.addEventListener('click',()=>onReadingChoiceClick(btn,ch));container.appendChild(btn);
       });
-      
-      // 3DCGでモーション再生
-      currentChar = answer;
+      currentChar=answer;
       await switchVRMMotion(answer);
-      
-      // 再生状態にする（ガイドモードと同じく再生）
-      if (action) {
-        isPaused = false;
-        action.timeScale = 1;
-        if (exprAction) exprAction.timeScale = 1;
-      }
-      
-      // ヒントを非表示（答えがバレるので）
-      const hintElement = document.getElementById('charHint');
-      if (hintElement) hintElement.style.display = 'none';
-      
+      const hintElement=document.getElementById('charHint');if(hintElement)hintElement.style.display='none';
       updateReadingStats();
     }
-    
-    function generateChoices(answer, count) {
-      const choices = new Set([answer]);
-      
-      // まず似た手形の文字を優先的に追加
-      for (const group of CONFUSABLE_GROUPS) {
-        if (group.includes(answer)) {
-          for (const ch of group) {
-            if (ch !== answer && choices.size < count) {
-              choices.add(ch);
-            }
-          }
-        }
+    function generateChoices(answer,count){
+      const choices=new Set([answer]);
+      for(const group of CONFUSABLE_GROUPS){
+        if(group.includes(answer)){for(const ch of group){if(ch!==answer&&choices.size<count)choices.add(ch);}}
       }
-      
-      // 残りをランダムに追加
-      const pool = JUDGEABLE_CHARS.filter(ch => !choices.has(ch));
-      while (choices.size < count && pool.length > 0) {
-        const idx = Math.floor(Math.random() * pool.length);
-        choices.add(pool.splice(idx, 1)[0]);
-      }
-      
-      // シャッフル
-      const arr = [...choices];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
+      const pool=JUDGEABLE_CHARS.filter(ch=>!choices.has(ch));
+      while(choices.size<count&&pool.length>0){const idx=Math.floor(Math.random()*pool.length);choices.add(pool.splice(idx,1)[0]);}
+      const arr=[...choices];
+      for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
       return arr;
     }
-    
-    function onReadingChoiceClick(clickedBtn, chosen) {
-      const isCorrect = (chosen === readingCurrentAnswer);
-      
-      // 全ボタンを無効化
-      document.querySelectorAll('.reading-choice-btn').forEach(btn => {
+    function onReadingChoiceClick(clickedBtn,chosen){
+      const isCorrect=(chosen===readingCurrentAnswer);
+      document.querySelectorAll('.reading-choice-btn').forEach(btn=>{
         btn.classList.add('disabled');
-        // 正解ボタンにハイライト
-        if (btn.textContent === readingCurrentAnswer) {
-          btn.classList.add('correct');
-        }
+        if(btn.textContent===readingCurrentAnswer)btn.classList.add('correct');
       });
-      
-      // 押したボタンが不正解ならマーク
-      if (!isCorrect) {
-        clickedBtn.classList.add('wrong');
-        readingWrongAnswers++;
-      } else {
-        readingCorrectAnswers++;
-      }
-      
-      // 結果表示
-      const resultEl = document.getElementById('readingResult');
-      const iconEl = document.getElementById('readingResultIcon');
-      const textEl = document.getElementById('readingResultText');
-      
-      resultEl.style.display = 'block';
-      resultEl.className = 'reading-result ' + (isCorrect ? 'correct' : 'wrong');
-      
-      if (isCorrect) {
-        iconEl.textContent = '⭕';
-        textEl.textContent = `正解！ 「${readingCurrentAnswer}」`;
-      } else {
-        iconEl.textContent = '❌';
-        textEl.textContent = `不正解… 正解は「${readingCurrentAnswer}」`;
-      }
-      
-      // ヒントテキスト（覚え方）を表示
-      const hint = CHARACTER_HINTS[readingCurrentAnswer] || '';
-      const hintLine = document.getElementById('readingResultHint');
-      if (hintLine) {
-        if (hint) {
-          hintLine.textContent = `💡 ${hint}`;
-          hintLine.style.display = 'block';
-        } else {
-          hintLine.style.display = 'none';
-        }
-      }
-      
-      // 正解演出（正解時のみ）
-      if (isCorrect) {
-        showCorrectOverlay();
-      }
-      
-      // 次へボタン表示
-      document.getElementById('readingNextWrapper').style.display = 'block';
-      
+      if(!isCorrect){clickedBtn.classList.add('wrong');readingWrongAnswers++;}else{readingCorrectAnswers++;}
+      const resultEl=document.getElementById('readingResult');
+      const iconEl=document.getElementById('readingResultIcon');
+      const textEl=document.getElementById('readingResultText');
+      resultEl.style.display='block';
+      resultEl.className='reading-result '+(isCorrect?'correct':'wrong');
+      if(isCorrect){iconEl.textContent='⭕';textEl.textContent=`正解！ 「${readingCurrentAnswer}」`;}
+      else{iconEl.textContent='❌';textEl.textContent=`不正解… 正解は「${readingCurrentAnswer}」`;}
+      const hint=CHARACTER_HINTS[readingCurrentAnswer]||'';
+      const hintLine=document.getElementById('readingResultHint');
+      if(hintLine){if(hint){hintLine.textContent='💡 '+hint;hintLine.style.display='block';}else{hintLine.style.display='none';}}
+      if(isCorrect)showCorrectOverlay();
+      document.getElementById('readingNextWrapper').style.display='block';
       updateReadingStats();
     }
-    
-    function updateReadingStats() {
-      document.getElementById('readingStatsCorrect').textContent = `⭕ ${readingCorrectAnswers}`;
-      document.getElementById('readingStatsWrong').textContent = `❌ ${readingWrongAnswers}`;
-      document.getElementById('readingStatsTotal').textContent = `全 ${readingTotalQuestions} 問`;
+    function updateReadingStats(){
+      document.getElementById('readingStatsCorrect').textContent='⭕ '+readingCorrectAnswers;
+      document.getElementById('readingStatsWrong').textContent='❌ '+readingWrongAnswers;
+      document.getElementById('readingStatsTotal').textContent='全 '+readingTotalQuestions+' 問';
     }
-    
-    // 正解演出（既存のcorrectOverlayを再利用）
-    function showCorrectOverlay() {
-      const overlay = document.getElementById('correctOverlay');
-      overlay.classList.remove('hide');
-      overlay.classList.add('show');
-      setTimeout(() => {
-        overlay.classList.remove('show');
-        overlay.classList.add('hide');
-      }, 700);
+    function showCorrectOverlay(){
+      const overlay=document.getElementById('correctOverlay');
+      overlay.classList.remove('hide');overlay.classList.add('show');
+      setTimeout(()=>{overlay.classList.remove('show');overlay.classList.add('hide');},700);
     }
-    
+
     // ==========================================
-    // VRM表示の初期化
+    // VRM初期化 (merged)
     // ==========================================
-    async function initVRM() {
-      console.log('🎓 VRM Display - Practice Mode');
-      
-      // Three.jsモジュールのインポート
-      const THREE = await import('three');
-      window.THREE = THREE; // グローバルに設定（他の関数からも使えるように）
-      
-      const { OrbitControls: OC } = await import('three/addons/controls/OrbitControls.js');
-      const { GLTFLoader: GL } = await import('three/addons/loaders/GLTFLoader.js');
-      const { VRMLoaderPlugin: VLP } = await import('@pixiv/three-vrm');
-      
-      // グローバル変数に代入
-      OrbitControls = OC;
-      GLTFLoader = GL;
-      VRMLoaderPlugin = VLP;
-      
-      const container = document.getElementById('vrm-canvas');
+    async function initVRM(){
+      const THREE=await import('three');window.THREE=THREE;
+      const{OrbitControls:OC}=await import('three/addons/controls/OrbitControls.js');
+      const{GLTFLoader:GL}=await import('three/addons/loaders/GLTFLoader.js');
+      const{VRMLoaderPlugin:VLP}=await import('@pixiv/three-vrm');
+      OrbitControls=OC;GLTFLoader=GL;VRMLoaderPlugin=VLP;
 
-      // Clock for animation
-      clock = new THREE.Clock();
-
-      // Scene
-      vrmScene = new THREE.Scene();
-      vrmScene.background = null;  // CSSグラデーションを使用
-      vrmScene.fog = new THREE.Fog(0x062e55, 6, 22);  // 深海の霧
-
-      // Camera
-      vrmCamera = new THREE.PerspectiveCamera(
-        45,
-        container.clientWidth / container.clientHeight,
-        0.1,
-        100
-      );
-      vrmCamera.position.set(0, 1.4, 1.4);
-      
-      console.log('📷 Initial camera position:', vrmCamera.position.toArray());
-
-      // Renderer
-      vrmRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      vrmRenderer.setSize(container.clientWidth, container.clientHeight);
+      const container=document.getElementById('vrm-canvas');
+      clock=new THREE.Clock();
+      vrmScene=new THREE.Scene();
+      // 背景: 上が淡い空色→下が白のグラデーション（Canvas生成）
+      {
+        const bgC=document.createElement('canvas');bgC.width=2;bgC.height=256;
+        const ctx=bgC.getContext('2d');
+        const grad=ctx.createLinearGradient(0,0,0,256);
+        grad.addColorStop(0,'#1e88e5');  // 上: 濃い青
+        grad.addColorStop(0.5,'#42a5f5');// 中: 鮮やかな青
+        grad.addColorStop(1,'#64b5f6');  // 下: やや明るい青
+        ctx.fillStyle=grad;ctx.fillRect(0,0,2,256);
+        const bgTex=new THREE.CanvasTexture(bgC);
+        bgTex.magFilter=THREE.LinearFilter;
+        vrmScene.background=bgTex;
+      }
+      // 遠景フォグ（背景と馴染ませる）
+      vrmScene.fog=new THREE.Fog(0x42a5f5,8,25);
+      vrmCamera=new THREE.PerspectiveCamera(45,container.clientWidth/container.clientHeight,0.1,100);
+      vrmCamera.position.set(0,1.4,1.4);
+      vrmRenderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+      vrmRenderer.setSize(container.clientWidth,container.clientHeight);
       vrmRenderer.setPixelRatio(window.devicePixelRatio);
-      vrmRenderer.shadowMap.enabled = true;
-      vrmRenderer.toneMapping = THREE.ACESFilmicToneMapping;
-      vrmRenderer.toneMappingExposure = 1.5;
-      vrmRenderer.outputColorSpace = THREE.SRGBColorSpace;
+      vrmRenderer.outputColorSpace=THREE.SRGBColorSpace;
+      vrmRenderer.toneMapping=THREE.ACESFilmicToneMapping;
+      vrmRenderer.toneMappingExposure=1.25;
       container.appendChild(vrmRenderer.domElement);
-      // ★ canvasをabsoluteにしてボタン（z-index:10）より背面に置く
-      vrmRenderer.domElement.style.position = 'absolute';
-      vrmRenderer.domElement.style.top = '0';
-      vrmRenderer.domElement.style.left = '0';
-      vrmRenderer.domElement.style.zIndex = '1';
+      vrmRenderer.domElement.style.position='absolute';
+      vrmRenderer.domElement.style.top='0';
+      vrmRenderer.domElement.style.left='0';
+      vrmRenderer.domElement.style.zIndex='1';
 
-      // Controls
-      vrmControls = new OrbitControls(vrmCamera, vrmRenderer.domElement);
-      vrmControls.target.set(0, 1.2, 0);
-      vrmControls.enableDamping = true;
-      vrmControls.dampingFactor = 0.05;
-      vrmControls.enablePan = true;
-      vrmControls.update();
-      
-      console.log('📷 Camera target:', vrmControls.target.toArray());
-      
-      // カメラの初期位置とターゲットを保存
-      initialCameraPosition = vrmCamera.position.clone();
-      initialCameraTarget = vrmControls.target.clone();
+      vrmControls=new OrbitControls(vrmCamera,vrmRenderer.domElement);
+      vrmControls.target.set(0,1.2,0);
+      vrmControls.enableDamping=true;vrmControls.dampingFactor=0.05;
+      vrmControls.enablePan=true;vrmControls.update();
+      initialCameraPosition=vrmCamera.position.clone();
+      initialCameraTarget=vrmControls.target.clone();
 
-      // Lights
-      const directionalLight = new THREE.DirectionalLight(0xfff8f0, 2.2);
-      directionalLight.position.set(2, 4, 3);
-      directionalLight.castShadow = true;
-      vrmScene.add(directionalLight);
+      // Lights: 環境光やや強め + メインキー + 正面フィル
+      vrmScene.add(new THREE.AmbientLight(0xffffff,1.3));
+      const dl=new THREE.DirectionalLight(0xffffff,0.9);dl.position.set(2,3,2);vrmScene.add(dl);
+      // 正面からの補助光（顔や体の影を和らげ全体を明るく）
+      const fl=new THREE.DirectionalLight(0xffffff,0.75);fl.position.set(0,2,3);vrmScene.add(fl);
 
-      const directionalLight2 = new THREE.DirectionalLight(0xb0d8f8, 0.8);
-      directionalLight2.position.set(-2, 2, -2);
-      vrmScene.add(directionalLight2);
+      // Ground: 円形グラデーション床（中心明るく→外周フェードアウト）
+      {
+        const gndC=document.createElement('canvas');gndC.width=512;gndC.height=512;
+        const gCtx=gndC.getContext('2d');
+        const gGrad=gCtx.createRadialGradient(256,256,0,256,256,256);
+        gGrad.addColorStop(0,'#64b5f6');   // 中心: 明るい青
+        gGrad.addColorStop(0.6,'#42a5f5'); // 中間: 鮮やかな青
+        gGrad.addColorStop(1,'#1e88e5');   // 外周: 濃い青
+        gCtx.fillStyle=gGrad;gCtx.fillRect(0,0,512,512);
+        const gndTex=new THREE.CanvasTexture(gndC);
+        const gnd=new THREE.Mesh(
+          new THREE.CircleGeometry(5,64),
+          new THREE.MeshStandardMaterial({map:gndTex,roughness:0.9,metalness:0})
+        );
+        gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;vrmScene.add(gnd);
+      }
 
-      const ambientLight = new THREE.AmbientLight(0xd0e8ff, 1.0);
-      vrmScene.add(ambientLight);
+      // 浮遊パーティクル（ゆったり漂う光の粒）
+      {
+        const pCount=40;
+        const pGeo=new THREE.BufferGeometry();
+        const pPos=new Float32Array(pCount*3);
+        for(let i=0;i<pCount;i++){
+          pPos[i*3]=(Math.random()-0.5)*6;
+          pPos[i*3+1]=Math.random()*3.5+0.3;
+          pPos[i*3+2]=(Math.random()-0.5)*6;
+        }
+        pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+        const pMat=new THREE.PointsMaterial({color:0xffffff,size:0.05,transparent:true,opacity:0.6,sizeAttenuation:true});
+        const particles=new THREE.Points(pGeo,pMat);
+        particles.userData.basePositions=pPos.slice();
+        vrmScene.add(particles);
+        vrmScene.userData.particles=particles;
+      }
 
-      const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0xd2b48c, 1.0);
-      vrmScene.add(hemisphereLight);
-
-      // Ground
-      const groundGeometry = new THREE.PlaneGeometry(10, 10);
-      const groundMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xf5deb3,
-        roughness: 0.8
-      });
-      const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-      ground.rotation.x = -Math.PI / 2;
-      ground.receiveShadow = true;
-      vrmScene.add(ground);
-
-      // Load VRM（スマホは軽量版を使用）
-      try {
-        const isMobile = window.innerWidth <= 640 ||
-          /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        const vrmPath = isMobile
-          ? './vrm/Diver_Woman8_compressed_mobile.vrm'
-          : './vrm/Diver_Woman8_compressed.vrm';
-        console.log('📂 Loading VRM from:', vrmPath, isMobile ? '(mobile)' : '(desktop)');
-        
-        const loader = new GLTFLoader();
-        loader.register((parser) => new VRMLoaderPlugin(parser));
-
-        const gltf = await loader.loadAsync(vrmPath);
-        vrm = gltf.userData.vrm;
-        
+      try{
+        const vrmT0=performance.now();
+        const isMobile=window.innerWidth<=640||/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const vrmPath=isMobile?'./vrm/Diver_Woman8_compressed_mobile.vrm':'./vrm/Diver_Woman8_compressed.vrm';
+        const loader=new GLTFLoader();loader.register(p=>new VRMLoaderPlugin(p));
+        const gltf=await loader.loadAsync(vrmPath);
+        vrm=gltf.userData.vrm;
+        // デバッグ: expression名一覧
+        if(vrm.expressionManager){
+          const names=[];
+          vrm.expressionManager._expressionMap&&Object.keys(vrm.expressionManager._expressionMap).forEach(k=>names.push(k));
+          if(!names.length&&vrm.expressionManager.expressions)vrm.expressionManager.expressions.forEach(e=>names.push(e.expressionName||e.name));
+          console.log('[VRM] Expression names:',names);
+        }
         vrmScene.add(vrm.scene);
-        
-        // スプリングボーン初期化
-        if (vrm.springBoneManager && vrm.springBoneManager.reset) {
-          vrm.springBoneManager.reset();
-        }
-        for (let i = 0; i < 30; i++) {
-          vrm.update(1 / 60);
-        }
-        
-        // 髪のボーン修正
-        console.log('🔧 Fixing hair bone rotations...');
-        let fixCount = 0;
-        hairBones = [];
-        vrm.scene.traverse((object) => {
-          if (object.isBone && object.name.match(/J_Sec_Hair[123]_\d+$/)) {
-            hairBones.push(object);
-            
-            const euler = object.rotation;
-            const xDeg = Math.abs(euler.x * 180 / Math.PI);
-            const zDeg = Math.abs(euler.z * 180 / Math.PI);
-            
-            if (xDeg > 170) {
-              object.rotation.x = 0;
-              fixCount++;
-            }
-            if (zDeg > 150) {
-              object.rotation.z = 0;
-              fixCount++;
-            }
-          }
-        });
-        console.log(`✅ Fixed ${fixCount} extreme hair rotations (${hairBones.length} bones cached)`);
-        
-        // VRM初期状態を保存
-        vrmInitialPosition = vrm.scene.position.clone();
-        vrmInitialRotation = vrm.scene.quaternion.clone();
-        
-        // 影の設定
-        vrm.scene.traverse((object) => {
-          if (object.isMesh) {
-            object.castShadow = true;
+        if(vrm.springBoneManager&&vrm.springBoneManager.reset)vrm.springBoneManager.reset();
+        for(let i=0;i<30;i++)vrm.update(1/60);
+
+        // Hair bone fix
+        hairBones=[];let fixCount=0;
+        vrm.scene.traverse(obj=>{
+          if(obj.isBone&&obj.name.match(/J_Sec_Hair[123]_\d+$/)){
+            hairBones.push(obj);
+            const euler=obj.rotation;
+            if(Math.abs(euler.x*180/Math.PI)>170){obj.rotation.x=0;fixCount++;}
+            if(Math.abs(euler.z*180/Math.PI)>150){obj.rotation.z=0;fixCount++;}
           }
         });
 
-        console.log('✅ VRM loaded successfully');
+        vrmInitialPosition=vrm.scene.position.clone();
+        vrmInitialRotation=vrm.scene.quaternion.clone();
+        vrm.scene.traverse(obj=>{if(obj.isMesh)obj.castShadow=true;});
 
-        // カメラアクセサリー読み込み（XOR難読化アセット）
-        try {
-          // XOR復号 → ArrayBuffer → BlobURL
-          const key = CAMERA_ASSET_KEY;
-          const raw = atob(CAMERA_ASSET_DATA);
-          const buf = new Uint8Array(raw.length);
-          for (let i = 0; i < raw.length; i++) {
-            buf[i] = raw.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+        // Build bone map
+        cachedBoneMap={};
+        vrm.scene.traverse(n=>{if(n.isBone)cachedBoneMap[n.name]=n;});
+
+        // Init naturalness systems
+        initBreathBones();
+        initIdleBones();
+
+        // Cache eye bone defaults
+        eyeDefaultQuats=[];
+        for(const[name,bone]of Object.entries(cachedBoneMap)){
+          if(/eye|faceEye/i.test(name)){
+            eyeDefaultQuats.push({bone,quat:bone.quaternion.clone(),name});
           }
-          const blob = new Blob([buf], { type: 'model/gltf-binary' });
-          const blobUrl = URL.createObjectURL(blob);
-          const cameraGltf = await loader.loadAsync(blobUrl);
-          URL.revokeObjectURL(blobUrl);
-          const cameraModel = cameraGltf.scene;
-
-          // Chest ボーンを探す（raw = アニメーション追従する実体ボーン）
-          let chestBone = vrm.humanoid?.getRawBoneNode('chest')
-                       || vrm.scene.getObjectByName('J_Bip_C_Chest')
-                       || vrm.scene.getObjectByName('Chest');
-
-          if (chestBone) {
-            // --- 位置・回転・スケール（要調整） ---
-            cameraModel.position.set(0.00, 0.00, 0.0);
-            cameraModel.rotation.set(0, 0, 0);
-            cameraModel.scale.set(1, 1, 1);
-
-            chestBone.attach(cameraModel);
-
-            cameraModel.traverse((child) => {
-              if (child.isMesh) child.castShadow = true;
-            });
-
-            console.log('📷 Camera accessory attached to Chest bone');
-          } else {
-            console.warn('⚠️ Chest bone not found — camera accessory skipped');
-          }
-        } catch (camErr) {
-          console.warn('📷 Camera GLB not loaded (file may not exist yet):', camErr.message);
         }
 
-        // Load Motion - 現在選択中の文字に対応するモーション
-        const initialGlb = CHAR_TO_GLB[currentChar] || '01_a.glb';
-        console.log(`📂 Loading motion for: ${currentChar} (${initialGlb})`);
-        await loadMotion(`./glb/${initialGlb}`);
+        // Camera accessory
+        try{
+          const key=CAMERA_ASSET_KEY;const raw=atob(CAMERA_ASSET_DATA);
+          const buf=new Uint8Array(raw.length);
+          for(let i=0;i<raw.length;i++)buf[i]=raw.charCodeAt(i)^key.charCodeAt(i%key.length);
+          const blob=new Blob([buf],{type:'model/gltf-binary'});
+          const blobUrl=URL.createObjectURL(blob);
+          const cameraGltf=await loader.loadAsync(blobUrl);URL.revokeObjectURL(blobUrl);
+          const cameraModel=cameraGltf.scene;
+          let chestBone=vrm.humanoid?.getRawBoneNode('chest')||vrm.scene.getObjectByName('J_Bip_C_Chest')||vrm.scene.getObjectByName('Chest');
+          if(chestBone){cameraModel.position.set(0,0,0);cameraModel.rotation.set(0,0,0);cameraModel.scale.set(1,1,1);chestBone.attach(cameraModel);cameraModel.traverse(c=>{if(c.isMesh)c.castShadow=true;});}
+        }catch(e){}
 
-        // ローディングオーバーレイを非表示
-        const vrmLoader = document.getElementById('vrmLoadingOverlay');
-        if (vrmLoader) vrmLoader.classList.add('hidden');
-        
-      } catch (error) {
-        console.error('❌ VRM load error:', error);
-        // エラー時もオーバーレイを非表示（エラー表示に委ねる）
-        const vrmLoader = document.getElementById('vrmLoadingOverlay');
-        if (vrmLoader) vrmLoader.classList.add('hidden');
+        // Load sign poses + idle GLBs in parallel
+        await Promise.all([loadSignPoses(), loadIdleGLBs()]);
+
+        // Apply initial hand pose
+        if(handPoses&&handPoses.poses){
+          const initId=CHAR_TO_ID[currentChar]||'a';
+          const target=getHandTarget(initId);
+          if(target)currentHandBones=target;
+        }
+
+        const vrmLoader=document.getElementById('vrmLoadingOverlay');
+        if(vrmLoader)vrmLoader.classList.add('hidden');
+        console.log(`[Perf] VRM+GLB init: ${(performance.now()-vrmT0).toFixed(0)}ms`);
+      }catch(e){
+        console.error('VRM load error:',e);
+        const vrmLoader=document.getElementById('vrmLoadingOverlay');
+        if(vrmLoader)vrmLoader.classList.add('hidden');
       }
 
-      // 画面クリックで再生・停止トグル
-      let mouseDownPos = null;
-      let pausedTime = 0.05; // 停止時のtime位置
-      
-      vrmRenderer.domElement.addEventListener('mousedown', (e) => {
-        mouseDownPos = { x: e.clientX, y: e.clientY };
-        console.log('[CLICK] Mouse down at', e.clientX, e.clientY);
-      });
-      
-      vrmRenderer.domElement.addEventListener('mouseup', (e) => {
-        if (!mouseDownPos) return;
-        
-        const deltaX = Math.abs(e.clientX - mouseDownPos.x);
-        const deltaY = Math.abs(e.clientY - mouseDownPos.y);
-        
-        console.log('[CLICK] Mouse up, delta:', deltaX, deltaY);
-        
-        if (deltaX < 5 && deltaY < 5) {
-          console.log('[CLICK] Click detected (small movement)');
-          if (action) {
-            if (isPaused) {
-              isPaused = false;
-              action.timeScale = 1;
-              if (exprAction) exprAction.timeScale = 1;
-              console.log(`[CLICK] ▶ Playing from ${action.time.toFixed(3)}s`);
-            } else {
-              isPaused = true;
-              action.timeScale = 0.0001;
-              if (exprAction) exprAction.timeScale = 0.0001;
-              console.log(`[CLICK] ⏸ Paused at ${action.time.toFixed(3)}s`);
-            }
-          }
-        } else {
-          console.log('[CLICK] Not a click (moved too much)');
-        }
-        
-        mouseDownPos = null;
-      });
-
-      // Animation loop
-      let lastIsPausedState = null;
-      
-      function animate() {
-        requestAnimationFrame(animate);
-        
-        const delta = clock.getDelta();
-        
-        // isPausedの状態変化をログ
-        if (isPaused !== lastIsPausedState) {
-          console.log(`[LOOP] isPaused changed: ${lastIsPausedState} → ${isPaused}`);
-          if (action) {
-            console.log(`[LOOP] Action time: ${action.time.toFixed(3)}s`);
-          }
-          lastIsPausedState = isPaused;
-        }
-        
-        vrmControls.update();
-        
-        // VRM更新（スプリングボーン含め常にdeltaで更新）
-        if (vrm) {
-          vrm.update(delta);
-        }
-        
-        // ★ Mixer更新：常にmixer.update(delta)を呼ぶ
-        // isPaused時に mixer.update(0) を呼ぶとThree.js r159では
-        // ボーンへの書き込みが空になりTポーズになる（既知のバグ）
-        // → action.timeScale=0.0001にして「事実上停止」しつつ毎フレーム正しく評価させる
-        if (mixer) {
-          mixer.update(delta);
-          
-          if (!isPaused && action) {
-            const duration = action.getClip().duration;
-            if (action.time > duration - 0.05) {
-              action.time = 0.05;
-            }
-          }
-          
-          updateSeekSlider();
-        }
-        
-        // ルートモーション対策
-        if (vrm && vrmInitialPosition && vrmInitialRotation) {
-          vrm.scene.position.copy(vrmInitialPosition);
-          vrm.scene.quaternion.copy(vrmInitialRotation);
-        }
-        
-        // 髪のボーン対策（最適化版）
-        if (hairBones.length > 0) {
-          hairBones.forEach(bone => {
-            const euler = bone.rotation;
-            const xDeg = Math.abs(euler.x * 180 / Math.PI);
-            const zDeg = Math.abs(euler.z * 180 / Math.PI);
-            
-            if (xDeg > 170) {
-              bone.rotation.x = 0;
-            }
-            if (zDeg > 150) {
-              bone.rotation.z = 0;
-            }
-          });
-        }
-        
-        vrmRenderer.render(vrmScene, vrmCamera);
-      }
-      animate();
-      
-      // Resize
-      window.addEventListener('resize', () => {
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        
-        vrmCamera.aspect = width / height;
-        vrmCamera.updateProjectionMatrix();
-        
-        vrmRenderer.setSize(width, height);
-      });
-    }
-    
-    // ==========================================
-    // ブラックアウト表示（ロックコンテンツ）
-    // ==========================================
-    function showBlackout(char) {
-      const overlay = document.getElementById('vrm-blackout');
-      const title = document.getElementById('blackout-title');
-      const message = document.getElementById('blackout-message');
-      
-      // タイトル設定
-      if (SPECIAL_STAGE_NAMES[char]) {
-        title.textContent = `${SPECIAL_STAGE_NAMES[char]} - ロック中`;
-      } else {
-        title.textContent = 'このコンテンツはロックされています';
-      }
-      
-      // 解放条件を取得（character_hints.txtから）
-      const unlockCondition = CHARACTER_HINTS[char] || 'タイピングゲームで対応するステージをクリアすると解放されます。';
-      message.textContent = unlockCondition;
-      
-      // オーバーレイを表示
-      overlay.classList.add('show');
-      
-      console.log(`🔒 Locked content: ${char} (${SPECIAL_STAGE_NAMES[char] || char})`);
-    }
-    
-    function hideBlackout() {
-      const overlay = document.getElementById('vrm-blackout');
-      overlay.classList.remove('show');
-    }
-    
-    // ==========================================
-    // VRMモーション切り替え
-    // ==========================================
-    async function switchVRMMotion(char) {
-      // 対応するGLBファイル名を取得
-      const glbFile = CHAR_TO_GLB[char];
-      
-      if (!glbFile) {
-        console.warn(`⚠️ No motion file for character: ${char}`);
-        return;
-      }
-      
-      const motionPath = `./glb/${glbFile}`;
-      
-      console.log(`🔄 Switching motion to: ${char} (${glbFile})`);
-      
-      // 古いアニメーションは停止せず、新しいモーションを読み込んでから切り替え
-      // これによりTポーズが映るのを防ぐ
-      await loadMotion(motionPath);
-    }
-    
-    // ==========================================
-    // モーション読み込み
-    // ==========================================
-    async function loadMotion(motionPath) {
-      const THREE = window.THREE;
-      
-      try {
-        console.log('');
-        console.log('========================================');
-        console.log('[LOAD] START loadMotion:', motionPath);
-        console.log('[LOAD] currentMode:', currentMode);
-        console.log('[LOAD] isPaused BEFORE:', isPaused);
-        console.log('========================================');
-        
-        // アニメーションループとの干渉を防ぐため、一時的に停止
-        const wasPlaying = !isPaused;
-        isPaused = true;
-        console.log('[LOAD] Set isPaused = true temporarily');
-        
-        const gltfLoader = new GLTFLoader();
-        
-        // GLB読み込み
-        const gltf = await gltfLoader.loadAsync(motionPath);
-        currentGltf = gltf;  // retargetExpressions内でGLBのtargetNamesを参照するために保持
-        
-        console.log('[LOAD] ✅ GLB loaded');
-        
-        if (gltf.animations && gltf.animations.length > 0) {
-          // animations[0]=骨, animations[1]=表情(weights) を両方ロード
-          console.log(`[LOAD] animations: ${gltf.animations.map((a,i)=>`[${i}]${a.name}`).join(', ')}`);
-          const boneClip = retargetExpressions(gltf.animations[0]);
-          const exprClip = gltf.animations.length > 1 ? retargetExpressions(gltf.animations[1]) : null;
-          if (exprClip) console.log('[LOAD] ✅ Expression animation found');
-          
-          console.log('[LOAD] Stopping old actions...');
-          if (action) { action.stop(); action.enabled = false; action = null; }
-          if (mixer)  { mixer.stopAllAction(); mixer = null; }
-          
-          console.log('[LOAD] Old actions stopped and cleared');
-          
-          // 新しいmixerで骨アニメ＋表情アニメを同時再生
-          const newMixer = new THREE.AnimationMixer(vrm.scene);
-          const newAction = newMixer.clipAction(boneClip);
-          newAction.setLoop(THREE.LoopRepeat);
-          newAction.clampWhenFinished = false;
-          newAction.reset();
-          newAction.play();
-          
-          // 表情アニメーションを同じミキサーで同期再生
-          if (exprClip) {
-            exprAction = newMixer.clipAction(exprClip);
-            exprAction.setLoop(THREE.LoopRepeat);
-            exprAction.clampWhenFinished = false;
-            exprAction.reset();
-            exprAction.play();
-          } else {
-            exprAction = null;
-          }
-          
-          console.log('[LOAD] New action created and playing');
-          
-          // 0.05秒まで進める
-          newMixer.update(0.05);
-          
-          // VRMも更新（アニメーションを適用）
-          if (vrm) {
-            vrm.update(0.05);
-          }
-          
-          console.log('[LOAD] Advanced to:', newAction.time.toFixed(3), 's');
-          
-          // グローバル変数を更新
-          mixer = newMixer;
-          action = newAction;
-          
-          console.log('[LOAD] Global variables updated');
-          
-          // ルートモーション対策を適用
-          if (vrm && vrmInitialPosition && vrmInitialRotation) {
-            vrm.scene.position.copy(vrmInitialPosition);
-            vrm.scene.quaternion.copy(vrmInitialRotation);
-          }
-          
-          // 髪のボーン対策を適用
-          if (hairBones.length > 0) {
-            hairBones.forEach(bone => {
-              const euler = bone.rotation;
-              const xDeg = Math.abs(euler.x * 180 / Math.PI);
-              const zDeg = Math.abs(euler.z * 180 / Math.PI);
-              
-              if (xDeg > 170) {
-                bone.rotation.x = 0;
-              }
-              if (zDeg > 150) {
-                bone.rotation.z = 0;
-              }
-            });
-          }
-          
-          console.log('[LOAD] Corrections applied');
-          
-          // レンダリングを強制実行してポーズを確実に適用
-          if (vrmRenderer && vrmScene && vrmCamera) {
-            vrmRenderer.render(vrmScene, vrmCamera);
-            console.log('[LOAD] Rendering forced');
-          }
-          
-          // モードに応じて停止/再生
-          if (currentMode === 'expression') {
-            isPaused = true;
-            console.log('[LOAD] ⏸ Setting isPaused = TRUE (expression mode)');
-            console.log('[LOAD] Paused at', newAction.time.toFixed(3), 's');
-          } else {
-            isPaused = false;
-            console.log('[LOAD] ▶ Setting isPaused = FALSE (normal/reading mode)');
-            console.log('[LOAD] Playing from', newAction.time.toFixed(3), 's');
-          }
-          
-          console.log('[LOAD] ✅ Animation switched:', boneClip.name);
-          console.log('[LOAD] Duration:', boneClip.duration);
-          console.log('[LOAD] isPaused AFTER:', isPaused);
-          console.log('========================================');
-          console.log('[LOAD] Calling setupControls()...');
-          
-          setupControls();
-          
-          console.log('[LOAD] setupControls() completed');
-          console.log('[LOAD] isPaused FINAL:', isPaused);
-          console.log('[LOAD] END loadMotion');
-          console.log('========================================');
-          console.log('');
-        }
-        
-      } catch (error) {
-        console.error('❌ Motion load error:', error);
-      }
-    }
-
-    // ==========================================
-    // 表情トラックのリターゲティング
-    // ==========================================
-    function retargetExpressions(originalClip) {
-      const THREE = window.THREE;
-      console.log('[INFO] Retargeting:', originalClip.name, '(', originalClip.tracks.length, 'tracks)');
-      
-      // VRMに存在する骨ノード名を収集（存在しない骨はTHREE警告が出るため除外）
-      const validBoneNames = new Set();
-      vrm.scene.traverse((obj) => { if (obj.name) validBoneNames.add(obj.name); });
-      
-      const newTracks = [];
-      let hairFiltered = 0, rootFiltered = 0, boneSkipped = 0, bonePassed = 0, morphPassed = 0;
-
-      for (const track of originalClip.tracks) {
-        // ① 髪ボーンフィルタ（揺れ暴走防止）
-        if (track.name.match(/J_Sec_Hair[123]_\d+\.(?:quaternion|rotation|position|scale)/)) {
-          hairFiltered++; continue;
-        }
-        
-        const isBoneTrack = track.name.includes('.position') ||
-                            track.name.includes('.quaternion') ||
-                            track.name.includes('.rotation') ||
-                            track.name.includes('.scale');
-        
-        if (isBoneTrack) {
-          // ② ルートモーションフィルタ（位置ズレ防止）
-          if (track.name.includes('Hips') || track.name.includes('Root') ||
-              track.name.includes('mixamorig') || track.name.toLowerCase().includes('armature')) {
-            rootFiltered++; continue;
-          }
-          // ③ VRMに存在しない骨はスキップ（THREE.PropertyBinding警告防止）
-          const boneName = track.name.split('.')[0];
-          if (!validBoneNames.has(boneName)) { boneSkipped++; continue; }
-          newTracks.push(track.clone()); bonePassed++;
-        } else {
-          // ④ モーフ・表情トラック（morphTargetInfluences）
-          // VRMのメッシュ名取得 + インデックスを57個に展開して適用
-          const cloned = track.clone();
-          if (cloned.name.includes('.morphTargetInfluences')) {
-
-            // VRMシーンのモーフ付きメッシュを取得
-            let vrmMorphMesh = null;
-            vrm.scene.traverse((obj) => {
-              if (obj.isMesh && obj.morphTargetInfluences && obj.morphTargetInfluences.length > 0) {
-                vrmMorphMesh = obj;
-              }
-            });
-
-            if (vrmMorphMesh) {
-              // トラック名をVRMのメッシュ名に合わせる
-              cloned.name = vrmMorphMesh.name + '.morphTargetInfluences';
-
-              const vrmDict    = vrmMorphMesh.morphTargetDictionary || {};  // {name: vrmIndex}
-              const vrmTotal   = vrmMorphMesh.morphTargetInfluences.length; // 57
-
-              // GLBのtargetNamesをgltf.scene内のMeshから取得
-              let glbTargetNames = [];
-              if (typeof currentGltf !== 'undefined' && currentGltf) {
-                currentGltf.scene.traverse((obj) => {
-                  if (obj.isMesh && obj.morphTargetDictionary) {
-                    glbTargetNames = Object.keys(obj.morphTargetDictionary)
-                      .sort((a, b) => obj.morphTargetDictionary[a] - obj.morphTargetDictionary[b]);
-                  }
-                });
-              }
-
-              if (glbTargetNames.length > 0 && vrmTotal > glbTargetNames.length) {
-                // 7値 → 57値に展開: GLBのname→VRMのindexでマッピング
-                const glbCount   = glbTargetNames.length;
-                const oldValues  = cloned.values;
-                const nFrames    = oldValues.length / glbCount;
-                const newValues  = new Float32Array(nFrames * vrmTotal);
-
-                for (let f = 0; f < nFrames; f++) {
-                  for (let gi = 0; gi < glbCount; gi++) {
-                    const name     = glbTargetNames[gi];
-                    const vrmIdx   = vrmDict[name];
-                    if (vrmIdx !== undefined) {
-                      newValues[f * vrmTotal + vrmIdx] = oldValues[f * glbCount + gi];
-                    }
-                  }
-                }
-                cloned.values = newValues;
-                console.log(`[INFO] Morph track expanded: ${glbCount}→${vrmTotal} indices, frames=${nFrames}`);
-              } else {
-                console.log(`[INFO] Morph track renamed to: ${cloned.name}`);
-              }
-            }
-          }
-          newTracks.push(cloned); morphPassed++;
-        }
-      }
-      
-      console.log(`   Total: ${originalClip.tracks.length}→${newTracks.length} | Hair:${hairFiltered} Root:${rootFiltered} BoneSkip:${boneSkipped} Bone:${bonePassed} Morph:${morphPassed}`);
-      return new THREE.AnimationClip(originalClip.name, originalClip.duration, newTracks);
-    }
-
-    // ==========================================
-    // UIコントロール設定
-    // ==========================================
-    function setupControls() {
-      const playBtn = document.getElementById('vrm-playBtn');
-      const pauseBtn = document.getElementById('vrm-pauseBtn');
-      const resetCameraBtn = document.getElementById('vrm-resetCameraBtn');
-      const seekSlider = document.getElementById('vrm-seekSlider');
-      const speedSlider = document.getElementById('vrm-speedSlider');
-      const speedDisplay = document.getElementById('vrm-speedDisplay');
-      
-      playBtn.addEventListener('click', () => {
-        if (action) {
-          isPaused = false;
-          const ts = parseFloat(speedSlider.value) || 1;
-          action.timeScale = ts;
-          if (exprAction) exprAction.timeScale = ts;
-          console.log('▶ Play');
-        }
-      });
-      
-      pauseBtn.addEventListener('click', () => {
-        isPaused = true;
-        if (action) action.timeScale = 0.0001;
-        if (exprAction) exprAction.timeScale = 0.0001;
-        console.log('⏸ Pause');
-      });
-      
-      resetCameraBtn.addEventListener('click', () => {
-        if (initialCameraPosition && initialCameraTarget) {
+      document.getElementById('vrm-resetCameraBtn').addEventListener('click',()=>{
+        if(initialCameraPosition&&initialCameraTarget){
           vrmCamera.position.copy(initialCameraPosition);
           vrmControls.target.copy(initialCameraTarget);
           vrmControls.update();
-          console.log('📷 Camera reset');
         }
       });
-      
-      seekSlider.addEventListener('input', (e) => {
-        if (action) {
-          const duration = action.getClip().duration;
-          const targetTime = (e.target.value / 100) * duration;
-          action.time = targetTime;
-        }
-      });
-      
-      speedSlider.addEventListener('input', (e) => {
-        if (action) {
-          const spd = parseFloat(e.target.value);
-          action.timeScale = spd;
-          if (exprAction) exprAction.timeScale = spd;
-          speedDisplay.textContent = e.target.value + 'x';
-        }
-      });
-    }
 
-    // ==========================================
-    // シークバー更新
-    // ==========================================
-    function updateSeekSlider() {
-      if (!action) return;
-      
-      const seekSlider = document.getElementById('vrm-seekSlider');
-      const timeDisplay = document.getElementById('vrm-timeDisplay');
-      
-      if (seekSlider && timeDisplay) {
-        const duration = action.getClip().duration;
-        const progress = (action.time / duration) * 100;
-        
-        seekSlider.value = progress;
-        timeDisplay.textContent = `${action.time.toFixed(1)}s / ${duration.toFixed(1)}s`;
-      }
-    }
-    
-    // ==========================================
-    // 初期化
-    // ==========================================
-    // ==========================================
-    // カメラ起動ヘルパー（エラーハンドリング・複数カメラ対応）
-    // ==========================================
+      // ===== NEW animate loop (naturalness-aware) =====
+      function animate(){
+        requestAnimationFrame(animate);
+        const dt=clock.getDelta();
+        vrmControls.update();
 
-    // カメラエラーモーダル表示
-    function showCameraError(type) {
-      const modal = document.getElementById('cameraErrorModal');
-      const icon  = document.getElementById('camErrIcon');
-      const title = document.getElementById('camErrTitle');
-      const body  = document.getElementById('camErrBody');
-
-      if (type === 'busy') {
-        icon.textContent  = '🔒';
-        title.textContent = 'カメラが使用中です';
-        body.innerHTML    =
-          'ZoomやTeams、他のブラウザタブなど、別のアプリがカメラを使用しています。<br><br>' +
-          '<b>対処方法:</b><br>' +
-          '① 他のアプリ・タブでカメラを使用している場合は終了してください<br>' +
-          '② その後「再試行」ボタンを押してください';
-      } else if (type === 'denied') {
-        icon.textContent  = '🚫';
-        title.textContent = 'カメラの使用が許可されていません';
-        body.innerHTML    =
-          'ブラウザがカメラへのアクセスをブロックしています。<br><br>' +
-          '<b>許可の方法:</b><br>' +
-          '・<b>Chrome</b>: アドレスバー左の 🔒 → 「カメラ」→「許可」<br>' +
-          '・<b>Edge</b>: アドレスバー左の 🔒 → 「カメラ」→「許可」<br>' +
-          '・<b>Safari</b>: 設定 → Safari → カメラ → 許可<br><br>' +
-          '許可後に「再試行」を押してください。';
-      } else {
-        icon.textContent  = '❌';
-        title.textContent = 'カメラが見つかりません';
-        body.innerHTML    =
-          'カメラデバイスが検出されませんでした。<br><br>' +
-          '・カメラが正しく接続されているか確認してください<br>' +
-          '・内蔵カメラがある場合はドライバーを確認してください';
-      }
-
-      modal.classList.add('show');
-
-      return new Promise(resolve => {
-        document.getElementById('camErrRetry').onclick = () => {
-          modal.classList.remove('show');
-          resolve('retry');
-        };
-        document.getElementById('camErrSkip').onclick = () => {
-          modal.classList.remove('show');
-          resolve('skip');
-        };
-      });
-    }
-
-    // 複数カメラ選択モーダル
-    function showCameraSelect(devices) {
-      const modal = document.getElementById('cameraSelectModal');
-      const list  = document.getElementById('camSelectList');
-      list.innerHTML = '';
-
-      devices.forEach((device, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'cam-select-item' + (i === 0 ? ' recommended' : '');
-        btn.textContent = device.label || `カメラ ${i + 1}`;
-        list.appendChild(btn);
-      });
-
-      modal.classList.add('show');
-
-      return new Promise(resolve => {
-        list.querySelectorAll('.cam-select-item').forEach((btn, i) => {
-          btn.onclick = () => {
-            modal.classList.remove('show');
-            resolve(devices[i].deviceId);
-          };
-        });
-        document.getElementById('camSelectSkip').onclick = () => {
-          modal.classList.remove('show');
-          resolve(null);
-        };
-      });
-    }
-
-    // カメラ起動（複数カメラ対応・エラーハンドリング付き）
-    async function startCameraWithHandling(videoEl) {
-      while (true) {
-        try {
-          // 利用可能なカメラデバイスを列挙
-          const devices = (await navigator.mediaDevices.enumerateDevices())
-            .filter(d => d.kind === 'videoinput');
-
-          let deviceId = null;
-
-          if (devices.length > 1 && devices[0].label) {
-            // 複数カメラかつラベル取得済み（許可済み）→ 選択モーダル
-            deviceId = await showCameraSelect(devices);
-            if (!deviceId) return null;  // スキップ
+        if(vrm){
+          // Step 0a: Motion expr data (must be BEFORE vrm.update)
+          if(motionPlayback&&motionPlayback.pose&&motionPlayback.pose.exprData){
+            updateMotionExpr();
           }
-
-          const constraints = {
-            video: deviceId
-              ? { deviceId: { exact: deviceId } }
-              : { facingMode: 'user', width: 640, height: 480 },
-            audio: false,
-          };
-
-          const stream = await navigator.mediaDevices.getUserMedia(constraints);
-          videoEl.srcObject = stream;
-          return stream;
-
-        } catch (err) {
-          let errorType = 'unknown';
-          if (err.name === 'NotReadableError' || err.name === 'AbortError') {
-            errorType = 'busy';
-          } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-            errorType = 'denied';
-          } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-            errorType = 'notfound';
+          // Step 0: Natural expressions (smile + blink)
+          updateNatural(dt*1000);
+          // Step 1: vrm.update (processes expressions to morphs, including mouth vowel)
+          vrm.update(dt);
+          // Step 2: Motion playback update
+          updateMotionPlayback();
+          // Step 3: Force hand bones back
+          if(currentHandBones&&cachedBoneMap){
+            for(const[name,q]of Object.entries(currentHandBones)){
+              const bone=cachedBoneMap[name];
+              if(bone)bone.quaternion.set(q[0],q[1],q[2],q[3]);
+            }
           }
+          // Step 4: Eye bones (default + micro-movement + glance)
+          updateEyeMicro(dt*1000);
+          updateGlance(dt*1000);
+          if(eyeDefaultQuats){
+            const THREE=window.THREE;
+            const totalX=eyeDriftX+glanceOverrideX;
+            const totalY=eyeDriftY+glanceOverrideY;
+            const eyeOffsetQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(totalY,totalX,0));
+            eyeDefaultQuats.forEach(({bone,quat})=>{
+              const q=quat.clone().multiply(eyeOffsetQ);bone.quaternion.copy(q);
+            });
+          }
+          // Step 4.5: Mouth transition (smooth vowel crossfade)
+          updateMouthTransition();
+          // Step 5: Breathing (always running)
+          advanceBreathTime(dt*1000);
+          updateBreathing(dt*1000);
+          // Step 6: Idle actions (overrides body bones)
+          updateIdleAction(dt*1000);
+          // Step 7: Idle timer
+          updateIdleTimer(dt*1000);
+        }
 
-          const action = await showCameraError(errorType);
-          if (action === 'skip') return null;
-          // retry → ループ継続
+        // Root motion fix
+        if(vrm&&vrmInitialPosition&&vrmInitialRotation){
+          vrm.scene.position.copy(vrmInitialPosition);
+          vrm.scene.quaternion.copy(vrmInitialRotation);
+        }
+        // Hair bone fix
+        if(hairBones.length>0){
+          hairBones.forEach(bone=>{
+            const euler=bone.rotation;
+            if(Math.abs(euler.x*180/Math.PI)>170)bone.rotation.x=0;
+            if(Math.abs(euler.z*180/Math.PI)>150)bone.rotation.z=0;
+          });
+        }
+        // パーティクルゆっくり浮遊
+        if(vrmScene.userData.particles){
+          const pts=vrmScene.userData.particles;
+          const bp=pts.userData.basePositions;
+          const pos=pts.geometry.attributes.position.array;
+          const t=clock.elapsedTime;
+          for(let i=0;i<pos.length/3;i++){
+            pos[i*3]=bp[i*3]+Math.sin(t*0.15+i*1.7)*0.3;
+            pos[i*3+1]=bp[i*3+1]+Math.sin(t*0.2+i*0.9)*0.15;
+            pos[i*3+2]=bp[i*3+2]+Math.cos(t*0.12+i*2.1)*0.3;
+          }
+          pts.geometry.attributes.position.needsUpdate=true;
+        }
+        vrmRenderer.render(vrmScene,vrmCamera);
+      }
+      animate();
+
+      window.addEventListener('resize',()=>{
+        const w=container.clientWidth;const h=container.clientHeight;
+        vrmCamera.aspect=w/h;vrmCamera.updateProjectionMatrix();
+        vrmRenderer.setSize(w,h);
+      });
+    }
+
+    // ==========================================
+    // Blackout (locked content)
+    // ==========================================
+    function showBlackout(char){
+      const overlay=document.getElementById('vrm-blackout');
+      const title=document.getElementById('blackout-title');
+      const message=document.getElementById('blackout-message');
+      if(SPECIAL_STAGE_NAMES[char])title.textContent=`${SPECIAL_STAGE_NAMES[char]} - ロック中`;
+      else title.textContent='このコンテンツはロックされています';
+      const unlockCondition=CHARACTER_HINTS[char]||'タイピングゲームで対応するステージをクリアすると解放されます。';
+      message.textContent=unlockCondition;overlay.classList.add('show');
+    }
+    function hideBlackout(){document.getElementById('vrm-blackout').classList.remove('show');}
+
+    // ==========================================
+    // Camera functions
+    // ==========================================
+    function showCameraError(type){
+      const modal=document.getElementById('cameraErrorModal');
+      const icon=document.getElementById('camErrIcon');
+      const title=document.getElementById('camErrTitle');
+      const body=document.getElementById('camErrBody');
+      if(type==='busy'){icon.textContent='🔒';title.textContent='カメラが使用中です';body.innerHTML='他のアプリがカメラを使用しています。<br><br>終了後「再試行」を押してください。';}
+      else if(type==='denied'){icon.textContent='🚫';title.textContent='カメラの使用が許可されていません';body.innerHTML='ブラウザの設定でカメラアクセスを許可してください。';}
+      else{icon.textContent='❌';title.textContent='カメラが見つかりません';body.innerHTML='カメラが検出されませんでした。';}
+      modal.classList.add('show');
+      return new Promise(resolve=>{
+        document.getElementById('camErrRetry').onclick=()=>{modal.classList.remove('show');resolve('retry');};
+        document.getElementById('camErrSkip').onclick=()=>{modal.classList.remove('show');resolve('skip');};
+      });
+    }
+    function showCameraSelect(devices){
+      const modal=document.getElementById('cameraSelectModal');
+      const list=document.getElementById('camSelectList');list.innerHTML='';
+      devices.forEach((device,i)=>{
+        const btn=document.createElement('button');btn.className='cam-select-item'+(i===0?' recommended':'');
+        btn.textContent=device.label||`カメラ ${i+1}`;list.appendChild(btn);
+      });
+      modal.classList.add('show');
+      return new Promise(resolve=>{
+        list.querySelectorAll('.cam-select-item').forEach((btn,i)=>{btn.onclick=()=>{modal.classList.remove('show');resolve(devices[i].deviceId);};});
+        document.getElementById('camSelectSkip').onclick=()=>{modal.classList.remove('show');resolve(null);};
+      });
+    }
+    async function startCameraWithHandling(videoEl){
+      while(true){
+        try{
+          const devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');
+          let deviceId=null;
+          if(devices.length>1&&devices[0].label){deviceId=await showCameraSelect(devices);if(!deviceId)return null;}
+          const constraints={video:deviceId?{deviceId:{exact:deviceId}}:{facingMode:'user',width:640,height:480},audio:false};
+          const stream=await navigator.mediaDevices.getUserMedia(constraints);
+          videoEl.srcObject=stream;return stream;
+        }catch(err){
+          let errorType='unknown';
+          if(err.name==='NotReadableError'||err.name==='AbortError')errorType='busy';
+          else if(err.name==='NotAllowedError')errorType='denied';
+          else if(err.name==='NotFoundError')errorType='notfound';
+          const action=await showCameraError(errorType);
+          if(action==='skip')return null;
         }
       }
     }
 
-    async function init() {
-      // ─── ステージ名を stage.json から取得 ───────────
+    // ==========================================
+    // Hand drawing & recognition
+    // ==========================================
+    function drawHandsPractice(res){
+      const w=canvas.width;const h=canvas.height;
+      ctx.clearRect(0,0,w,h);ctx.drawImage(video,0,0,w,h);
+      if(res?.landmarks?.length>0){
+        for(const landmarks of res.landmarks){
+          ctx.strokeStyle='rgba(100,220,255,0.7)';ctx.lineWidth=2;
+          const connections=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],[0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]];
+          for(const[a,b]of connections){const p1=landmarks[a];const p2=landmarks[b];if(p1&&p2){ctx.beginPath();ctx.moveTo(p1.x*w,p1.y*h);ctx.lineTo(p2.x*w,p2.y*h);ctx.stroke();}}
+          ctx.fillStyle='rgba(80,200,255,0.95)';
+          for(const lm of landmarks){ctx.beginPath();ctx.arc(lm.x*w,lm.y*h,3,0,Math.PI*2);ctx.fill();}
+        }
+      }
+    }
+
+    async function recognizeSign(landmarks){
+      if(!model)return;
+      trackWrist(landmarks);
+      try{
+        const features=prepareInputData(landmarks);
+        const now=performance.now();
+        frameBuffer.push({features,timestamp:now});
+        const cutoff=now-RECOGNITION_WINDOW_MS*2;
+        while(frameBuffer.length>0&&frameBuffer[0].timestamp<cutoff)frameBuffer.shift();
+        const windowStart=now-RECOGNITION_WINDOW_MS;
+        const recentFrames=frameBuffer.filter(f=>f.timestamp>=windowStart);
+        if(recentFrames.length<MIN_FRAMES_TO_START){updateUI('-',0,'waiting','手をカメラに映してください');return;}
+        const frames15=resampleTo15(recentFrames.map(f=>f.features));
+        const inputTensor=tf.tensor3d([frames15],[1,TARGET_FRAMES,63]);
+        const output=await model.executeAsync(inputTensor);
+        const probs=await output.data();
+        inputTensor.dispose();output.dispose();
+        const predId=Array.from(probs).indexOf(Math.max(...probs));
+        const conf=probs[predId];
+        const rawSign=labelMap.id_to_label[String(predId)];
+        const sign=postProcessSign(rawSign,conf);
+        const recognized=convertToHiragana(sign);
+        const confidence=Math.round(conf*100);
+        lastRecognized=recognized;lastConfidence=confidence;
+        if(conf>=0.80){
+          const komojiToOmoji={'ぁ':'あ','ぃ':'い','ぅ':'う','ぇ':'え','ぉ':'お'};
+          const normalized=komojiToOmoji[recognized]||recognized;
+          if(normalized===currentChar){
+            updateUI(recognized,confidence,'correct','正解！');
+            if(randomModeActive&&!currentQuestionAnswered){
+              currentQuestionAnswered=true;correctAnswers++;
+              const overlay=document.getElementById('correctOverlay');
+              overlay.classList.remove('hide');overlay.classList.add('show');
+              setTimeout(()=>{overlay.classList.remove('show');overlay.classList.add('hide');},700);
+              setTimeout(()=>{nextRandomCharacter();},1200);
+            }
+          }else{updateUI(recognized,confidence,'incorrect',`「${currentChar}」を練習中...`);}
+        }else{updateUI('-',confidence,'waiting','手をカメラに映してください');}
+      }catch(e){console.error('認識エラー:',e);}
+    }
+
+    function resampleTo15(frames){
+      const n=frames.length;if(n===TARGET_FRAMES)return frames;
+      if(n<TARGET_FRAMES){const result=[...frames];while(result.length<TARGET_FRAMES)result.push(frames[frames.length-1]);return result;}
+      const indices=[];for(let i=0;i<TARGET_FRAMES;i++)indices.push(i*(n-1)/(TARGET_FRAMES-1));
+      return indices.map(idx=>{const i0=Math.floor(idx);const i1=Math.min(i0+1,n-1);const alpha=idx-i0;return frames[i0].map((v,j)=>v*(1-alpha)+frames[i1][j]*alpha);});
+    }
+
+    function prepareInputData(landmarks){
+      const mirror=(selectedHand==='right');
+      const wrist=landmarks[0];
+      const pts=landmarks.map(p=>({
+        x:(mirror?(1.0-p.x):p.x)-(mirror?(1.0-wrist.x):wrist.x),
+        y:p.y-wrist.y,z:p.z-wrist.z
+      }));
+      let maxd=0;for(const p of pts){const d=Math.sqrt(p.x*p.x+p.y*p.y+p.z*p.z);if(d>maxd)maxd=d;}
+      const s=(maxd>1e-9)?(1.0/maxd):1.0;
+      const vec=[];for(const p of pts){vec.push(p.x*s,p.y*s,p.z*s);}
+      return vec;
+    }
+
+    function updateUI(char,confidence,status,message){
+      document.getElementById('recognizedChar').textContent=char;
+      document.getElementById('confidence').textContent=confidence>0?`信頼度: ${confidence}%`:'-';
+      const statusEl=document.getElementById('statusMessage');statusEl.textContent=message;statusEl.className=`status-message ${status}`;
+    }
+
+    // ==========================================
+    // UI selectors
+    // ==========================================
+    function initRowSelector(){
+      const container=document.getElementById('rowButtons');container.innerHTML='';
+      ROW_ORDER.forEach(rowKey=>{
+        const btn=document.createElement('button');btn.className='row-btn';btn.textContent=rowKey;
+        if(rowKey===currentRow)btn.classList.add('active');
+        btn.addEventListener('click',()=>{selectRow(rowKey);});
+        container.appendChild(btn);
+      });
+    }
+    function selectRow(rowKey){
+      currentRow=rowKey;currentCharIndex=0;
+      document.querySelectorAll('.row-btn').forEach(btn=>{btn.classList.toggle('active',btn.textContent===rowKey);});
+      document.getElementById('currentRowLabel').textContent=`（「${CHARACTER_ROWS[rowKey].label}」を選択中）`;
+      initCharacterButtons();frameBuffer=[];wristBuffer=[];selectCharacter(0);
+    }
+    function initCharacterButtons(){
+      const container=document.getElementById('charButtons');container.innerHTML='';
+      const chars=CHARACTER_ROWS[currentRow].chars;
+      chars.forEach((char,index)=>{
+        const btn=document.createElement('button');btn.className='char-btn';btn.textContent=char;
+        if(index===0)btn.classList.add('active');
+        if(currentRow==='S')btn.title=SPECIAL_STAGE_NAMES[char];
+        btn.addEventListener('click',()=>{selectCharacter(index);});
+        container.appendChild(btn);
+        if((index+1)%5===0&&index<chars.length-1){const lb=document.createElement('div');lb.style.width='100%';lb.style.height='0';container.appendChild(lb);}
+      });
+    }
+
+    function selectCharacter(index){
+      const chars=CHARACTER_ROWS[currentRow].chars;
+      currentCharIndex=index;currentChar=chars[index];
+      hideBlackout();
+      document.getElementById('currentCharDisplay').textContent=currentChar;
+      document.querySelectorAll('.char-btn').forEach((btn,i)=>{btn.classList.toggle('active',i===index);});
+
+      // Special stages
+      if(currentRow==='S'){
+        const hintElement=document.getElementById('charHint');hintElement.style.display='none';
+        const stageNum=parseInt(currentChar);
+        if(!isStageUnlocked(stageNum)){showBlackout(currentChar);return;}
+      }
+
+      // Hint
+      if(currentRow!=='S'){
+        const hint=CHARACTER_HINTS[currentChar]||'';
+        const hintElement=document.getElementById('charHint');
+        if(hint){hintElement.textContent=hint;hintElement.style.display='block';}
+        else{hintElement.style.display='none';}
+      }
+
+      // Switch VRM motion (JSON-based)
+      switchVRMMotion(currentChar);
+
+      frameBuffer=[];wristBuffer=[];
+      const resultArea=document.querySelector('.recognition-result');
+      resultArea.classList.remove('disabled');updateUI('-',0,'waiting','手をカメラに映してください');
+    }
+
+    // ==========================================
+    // Navigation
+    // ==========================================
+    document.getElementById('prevBtn').addEventListener('click',()=>{
+      const chars=CHARACTER_ROWS[currentRow].chars;
+      if(currentCharIndex>0){selectCharacter(currentCharIndex-1);}
+      else{const ri=ROW_ORDER.indexOf(currentRow);if(ri>0){const pr=ROW_ORDER[ri-1];selectRow(pr);selectCharacter(CHARACTER_ROWS[pr].chars.length-1);}}
+    });
+    document.getElementById('nextBtn').addEventListener('click',()=>{
+      const chars=CHARACTER_ROWS[currentRow].chars;
+      if(currentCharIndex<chars.length-1){selectCharacter(currentCharIndex+1);}
+      else{const ri=ROW_ORDER.indexOf(currentRow);if(ri<ROW_ORDER.length-1){const nr=ROW_ORDER[ri+1];selectRow(nr);selectCharacter(0);}}
+    });
+
+    // ==========================================
+    // Debug helpers
+    // ==========================================
+    window.unlockStage=function(stage){saveMaxStageReached(stage);console.log('Unlocked stage',stage);};
+    window.checkStageProgress=function(){const m=getMaxStageReached();console.log('Max stage:',m);for(let i=1;i<=5;i++)console.log(i,SPECIAL_STAGE_NAMES[String(i)],isStageUnlocked(i)?'UNLOCKED':'LOCKED');};
+    window.resetStageProgress=function(){localStorage.removeItem('signDiverMaxStage');console.log('Reset');};
+
+    // ==========================================
+    // init
+    // ==========================================
+    async function init(){
       await initSpecialStageNames();
+      const isMobileDevice=window.innerWidth<=640||/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const showCamera=localStorage.getItem('signDiver_showCamera')!=='false';
+      if(!showCamera)document.querySelectorAll('.camera-area').forEach(el=>el.classList.add('hidden'));
 
-      // ─── カメラ使用確認 ───────────────────────────
-      const isMobileDevice = window.innerWidth <= 640 ||
-        /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-      // カメラ映像表示設定をlocalStorageから取得
-      const showCamera = localStorage.getItem('signDiver_showCamera') !== 'false';
-      if (!showCamera) {
-        document.querySelectorAll('.camera-area').forEach(el => el.classList.add('hidden'));
-      }
-
-      const cameraAllowed = await new Promise(resolve => {
-        const modal = document.getElementById('cameraModal');
-
-        // PC・モバイル共通：通常のモーダル表示
-        const yesBtn = document.getElementById('cameraYesBtn');
-        const noBtn  = document.getElementById('cameraNoBtn');
-        yesBtn.addEventListener('click', () => { modal.style.display = 'none'; resolve(true); });
-        noBtn.addEventListener('click', () => {
-          modal.style.display = 'none';
-          const overlay = document.getElementById('cameraOffOverlay');
-          if (overlay) overlay.style.display = 'flex';
-          const status = document.getElementById('cameraStatus');
-          if (status) status.style.display = 'none';
-          const sm = document.getElementById('statusMessage');
-          if (sm) { sm.textContent = 'カメラ未使用モード'; sm.className = 'status-message info'; }
+      const cameraAllowed=await new Promise(resolve=>{
+        const modal=document.getElementById('cameraModal');
+        document.getElementById('cameraYesBtn').addEventListener('click',()=>{modal.style.display='none';resolve(true);});
+        document.getElementById('cameraNoBtn').addEventListener('click',()=>{
+          modal.style.display='none';
+          const overlay=document.getElementById('cameraOffOverlay');if(overlay)overlay.style.display='flex';
+          const status=document.getElementById('cameraStatus');if(status)status.style.display='none';
+          const sm=document.getElementById('statusMessage');if(sm){sm.textContent='カメラ未使用モード';sm.className='status-message info';}
           resolve(false);
         });
       });
-      // ────────────────────────────────────────────────
 
-      try {
-        // 到達ステージ情報を表示
-        console.log('');
-        console.log('========================================');
-        console.log('🏆 スペシャルステージ到達状況');
-        console.log('========================================');
-        const maxStage = getMaxStageReached();
-        console.log(`到達ステージ: ${maxStage}/5`);
-        if (maxStage > 0) {
-          const reachedStages = Array.from({length: maxStage}, (_, i) => SPECIAL_STAGE_NAMES[String(i+1)]).join(', ');
-          console.log(`アンロック済み: ${reachedStages}`);
-        } else {
-          console.log('まだスペシャルステージに到達していません');
-          console.log('タイピングゲームでステージをクリアしてください');
-        }
-        console.log('========================================');
-        console.log('');
-        
-        // 全文字リストを生成
-        ROW_ORDER.forEach(rowKey => {
-          allCharacters = allCharacters.concat(CHARACTER_ROWS[rowKey].chars);
-        });
-        
-        // 覚え方コメントを読み込み
-        await loadCharacterHints();
-        
-        if (cameraAllowed) {
-          // モデル読み込み（カメラ使用時のみ）
-          console.log('モデル読み込み中...');
-          const modelPath = './tfjs_model_official/model.json';
-          model = await tf.loadGraphModel(modelPath);
-          console.log('✅ モデル読み込み完了');
-          
-          // ラベルマップ読み込み
-          const labelMapPath = './tfjs_model_official/label_map_unified.json';
-          const labelRes = await fetch(labelMapPath);
-          labelMap = await labelRes.json();
-          console.log('✅ ラベルマップ読み込み完了');
-        } else {
-          console.log('📷 モデル読み込みスキップ（カメラ不使用）');
-        }
-        
-        if (cameraAllowed) {
-          // ── MediaPipe Tasks Vision API 初期化 ──
-          console.log('MediaPipe初期化中...');
-          const fileset = await FilesetResolver.forVisionTasks(WASM_BASE);
+      try{
+        ROW_ORDER.forEach(rowKey=>{allCharacters=allCharacters.concat(CHARACTER_ROWS[rowKey].chars);});
 
-          // IndexedDB キャッシュ付きモデル取得
-          const MODEL_CACHE_KEY = 'hand_landmarker_task_v0.10.21';
-          let mpModelBuffer = null;
-          try {
-            mpModelBuffer = await idbGet(MODEL_CACHE_KEY);
-            if (mpModelBuffer) {
-              console.log(`[PERF] IndexedDB cache HIT (${(mpModelBuffer.byteLength / 1024 / 1024).toFixed(1)}MB)`);
-            }
-          } catch (e) { /* ignore */ }
+        // ── 小さいJSON/テキストを並列取得 ──
+        const [hintsOk, mouthOk, specialOk] = await Promise.allSettled([
+          loadCharacterHints(),
+          fetch('./glb/mouth_profile.json').then(r=>r.ok?r.json():null).then(d=>{if(d){mouthProfile=d;console.log('[Data] Mouth profile loaded');}}).catch(()=>{}),
+          fetch('./glb/special_actions/manifest.json').then(r=>r.ok?r.json():null).then(d=>{if(d){SPECIAL_GLBS=d;console.log('[Data] Special actions manifest loaded:',Object.keys(SPECIAL_GLBS).length,'entries');}}).catch(()=>{})
+        ]);
 
-          if (!mpModelBuffer) {
-            const modelResponse = await fetch(MP_MODEL_URL);
-            mpModelBuffer = await modelResponse.arrayBuffer();
-            console.log(`[PERF] IndexedDB cache MISS → fetched (${(mpModelBuffer.byteLength / 1024 / 1024).toFixed(1)}MB)`);
-            idbSet(MODEL_CACHE_KEY, mpModelBuffer).catch(e =>
-              console.warn('[PERF] IndexedDB write failed:', e)
-            );
+        // ── カメラ/AI初期化とVRM初期化を並列実行 ──
+        const cameraInitPromise=(async()=>{
+          if(!cameraAllowed)return;
+          const t0=performance.now();
+          const [tfjsResult, filesetResult] = await Promise.all([
+            (async()=>{
+              const m=await tf.loadGraphModel('./tfjs_model_official/model.json');
+              const lr=await fetch('./tfjs_model_official/label_map_unified.json');
+              const lm=await lr.json();
+              return {model:m, labelMap:lm};
+            })(),
+            FilesetResolver.forVisionTasks(WASM_BASE)
+          ]);
+          model=tfjsResult.model; labelMap=tfjsResult.labelMap;
+
+          const MODEL_CACHE_KEY='hand_landmarker_task_v0.10.21';
+          let mpModelBuffer=null;
+          try{mpModelBuffer=await idbGet(MODEL_CACHE_KEY);}catch(e){}
+          if(!mpModelBuffer){
+            const modelResponse=await fetch(MP_MODEL_URL);
+            mpModelBuffer=await modelResponse.arrayBuffer();
+            idbSet(MODEL_CACHE_KEY,mpModelBuffer).catch(e=>{});
           }
-
-          landmarker = await HandLandmarker.createFromOptions(fileset, {
-            baseOptions: {
-              modelAssetBuffer: new Uint8Array(mpModelBuffer),
-              delegate: 'GPU'
-            },
-            runningMode: "VIDEO",
-            numHands: 1
+          landmarker=await HandLandmarker.createFromOptions(filesetResult,{
+            baseOptions:{modelAssetBuffer:new Uint8Array(mpModelBuffer),delegate:'GPU'},
+            runningMode:"VIDEO",numHands:1
           });
-          console.log('✅ MediaPipe Tasks Vision 初期化完了（GPU delegate）');
+          console.log(`[Perf] Camera/AI init: ${(performance.now()-t0).toFixed(0)}ms`);
+        })();
 
-          // カメラ起動（複数カメラ対応・エラーハンドリング付き）
-          const stream = await startCameraWithHandling(video);
+        const vrmInitPromise=initVRM();
 
-          if (stream) {
-            await new Promise(resolve => { video.onloadedmetadata = resolve; });
+        await Promise.all([cameraInitPromise, vrmInitPromise]);
+
+        // カメラ起動（AI+VRM両方完了後）
+        if(cameraAllowed&&landmarker){
+          const stream=await startCameraWithHandling(video);
+          if(stream){
+            await new Promise(resolve=>{video.onloadedmetadata=resolve;});
             await video.play();
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-
-            // 画面スリープ防止
+            canvas.width=video.videoWidth||640;canvas.height=video.videoHeight||480;
             await requestWakeLock();
 
-            // ── スロットリング付き認識ループ（typing_game.htmlと統一） ──
-            let practiceLoopFrame = 0;
-            let lastPracticeResult = null;
-            let pendingPracticeFeatures = null;
-
-            const practiceLoop = async () => {
-              const now = performance.now();
-              const isDetectFrame = (practiceLoopFrame % 2 === 0);
-              practiceLoopFrame++;
-
-              if (isDetectFrame) {
-                // 偶数フレーム: MediaPipe検出 + 描画 + 特徴量抽出
-                const res = landmarker.detectForVideo(video, now);
-                lastPracticeResult = res;
-                drawHandsPractice(res);
-
-                if (res?.landmarks?.length > 0) {
-                  const landmarks = res.landmarks[0];
-                  recognizeSign(landmarks);
-                } else {
-                  frameBuffer = []; wristBuffer = [];
-                  lastRecognized = '';
-                  if (!isJudgeable(currentChar)) {
-                    updateUI('-', 0, 'info', '💡 この文字は練習モードでは\n認識判定を行いません。\n形を確認してください。');
-                  } else {
-                    updateUI('-', 0, 'waiting', '手をカメラに映してください');
-                  }
+            let practiceLoopFrame=0;let lastPracticeResult=null;
+            const practiceLoop=async()=>{
+              const now=performance.now();
+              const isDetectFrame=(practiceLoopFrame%2===0);practiceLoopFrame++;
+              if(isDetectFrame){
+                const res=landmarker.detectForVideo(video,now);lastPracticeResult=res;drawHandsPractice(res);
+                if(res?.landmarks?.length>0){recognizeSign(res.landmarks[0]);}
+                else{frameBuffer=[];wristBuffer=[];lastRecognized='';
+                  updateUI('-',0,'waiting','手をカメラに映してください');
                 }
-              } else {
-                // 奇数フレーム: 前回結果で再描画のみ
-                drawHandsPractice(lastPracticeResult);
-              }
-
+              }else{drawHandsPractice(lastPracticeResult);}
               requestAnimationFrame(practiceLoop);
             };
             requestAnimationFrame(practiceLoop);
-
-            document.getElementById('cameraStatus').textContent = '認識中';
-            document.getElementById('cameraStatus').className = 'camera-status ready';
-            console.log('✅ カメラ起動完了');
-          } else {
-            // スキップ（カメラなしで続ける）
-            const overlay = document.getElementById('cameraOffOverlay');
-            if (overlay) overlay.style.display = 'flex';
-            const status = document.getElementById('cameraStatus');
-            if (status) status.style.display = 'none';
-            const sm = document.getElementById('statusMessage');
-            if (sm) { sm.textContent = 'カメラ未使用モード'; sm.className = 'status-message info'; }
-            console.log('📷 カメラ起動スキップ（ユーザー選択）');
-          }
-        } else {
-          console.log('📷 カメラ起動スキップ（不使用モード）');
-        }
-        
-        // VRM表示を初期化
-        await initVRM();
-        console.log('✅ VRM表示初期化完了');
-        
-      } catch (error) {
-        console.error('初期化エラー:', error);
-        
-        // エラーメッセージを日本語で表示
-        let errorMessage = 'カメラまたはモデルの読み込みに失敗しました';
-        
-        if (error.name === 'NotReadableError') {
-          errorMessage = 'カメラが使用中です。他のアプリ（Zoom、Teams等）やブラウザのタブでカメラを使用している場合は終了してから再度お試しください。';
-        } else if (error.name === 'NotAllowedError') {
-          errorMessage = 'カメラの使用が許可されていません。ブラウザの設定でカメラへのアクセスを許可してください。';
-        } else if (error.name === 'NotFoundError') {
-          errorMessage = 'カメラが見つかりません。カメラが接続されているか確認してください。';
-        }
-        
-        const csEl = document.getElementById('cameraStatus');
-        if (csEl) { csEl.textContent = 'エラー'; csEl.className = 'camera-status loading'; }
-        const smEl = document.getElementById('statusMessage');
-        if (smEl) { smEl.textContent = errorMessage; smEl.className = 'status-message incorrect'; }
-        
-        // より詳細なエラー情報をコンソールに
-        console.error('エラー詳細:', {
-          name: error.name,
-          message: error.message
-        });
-      }
-    }
-    
-    // ==========================================
-    // 手の描画（新 Tasks Vision API 対応）
-    // ==========================================
-    function drawHandsPractice(res) {
-      const w = canvas.width;
-      const h = canvas.height;
-      
-      ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(video, 0, 0, w, h);
-      
-      if (res?.landmarks?.length > 0) {
-        for (const landmarks of res.landmarks) {
-          // 深海テーマ: コネクション（typing_game.htmlと統一）
-          ctx.strokeStyle = 'rgba(100, 220, 255, 0.7)';
-          ctx.lineWidth = 2;
-
-          const connections = [
-            [0, 1], [1, 2], [2, 3], [3, 4],
-            [0, 5], [5, 6], [6, 7], [7, 8],
-            [0, 9], [9, 10], [10, 11], [11, 12],
-            [0, 13], [13, 14], [14, 15], [15, 16],
-            [0, 17], [17, 18], [18, 19], [19, 20],
-            [5, 9], [9, 13], [13, 17]
-          ];
-
-          for (const [a, b] of connections) {
-            const p1 = landmarks[a];
-            const p2 = landmarks[b];
-            if (p1 && p2) {
-              ctx.beginPath();
-              ctx.moveTo(p1.x * w, p1.y * h);
-              ctx.lineTo(p2.x * w, p2.y * h);
-              ctx.stroke();
-            }
-          }
-          
-          // ランドマーク点（深海テーマ）
-          ctx.fillStyle = 'rgba(80, 200, 255, 0.95)';
-          for (const lm of landmarks) {
-            ctx.beginPath();
-            ctx.arc(lm.x * w, lm.y * h, 3, 0, Math.PI * 2);
-            ctx.fill();
+            document.getElementById('cameraStatus').textContent='認識中';
+            document.getElementById('cameraStatus').className='camera-status ready';
+          }else{
+            const overlay=document.getElementById('cameraOffOverlay');if(overlay)overlay.style.display='flex';
+            const status=document.getElementById('cameraStatus');if(status)status.style.display='none';
+            const sm=document.getElementById('statusMessage');if(sm){sm.textContent='カメラ未使用モード';sm.className='status-message info';}
           }
         }
+      }catch(error){
+        console.error('初期化エラー:',error);
+        const csEl=document.getElementById('cameraStatus');if(csEl){csEl.textContent='エラー';csEl.className='camera-status loading';}
+        const smEl=document.getElementById('statusMessage');if(smEl){smEl.textContent='初期化に失敗しました';smEl.className='status-message incorrect';}
       }
     }
-    
-    // ==========================================
-    // 指文字認識（typing_game.htmlと同じ実装）
-    // ==========================================
-    async function recognizeSign(landmarks) {
-      if (!model) return;
-      
-      // 判定対象外の文字は認識処理をスキップ
-      if (!isJudgeable(currentChar)) {
-        return;
-      }
-      
-      // 動き検出用にwrist位置を追跡
-      trackWrist(landmarks);
-      
-      try {
-        // ランドマークを63次元の特徴量に変換
-        const features = prepareInputData(landmarks);
-        
-        // フレームバッファに追加（時間ベース）
-        const now = performance.now();
-        frameBuffer.push({ features, timestamp: now });
-        
-        // 古いフレームを除去（ウィンドウ外）
-        const cutoff = now - RECOGNITION_WINDOW_MS * 2;
-        while (frameBuffer.length > 0 && frameBuffer[0].timestamp < cutoff) {
-          frameBuffer.shift();
-        }
-        
-        // 500ms ウィンドウ内のフレームを取得
-        const windowStart = now - RECOGNITION_WINDOW_MS;
-        const recentFrames = frameBuffer.filter(f => f.timestamp >= windowStart);
-        
-        // 最低フレーム数に達するまで待機
-        if (recentFrames.length < MIN_FRAMES_TO_START) {
-          updateUI('-', 0, 'waiting', '手をカメラに映してください');
-          return;
-        }
-        
-        // 15フレームにリサンプリング
-        const frames15 = resampleTo15(recentFrames.map(f => f.features));
-        const inputTensor = tf.tensor3d([frames15], [1, TARGET_FRAMES, 63]);
-        
-        // 推論
-        const output = await model.executeAsync(inputTensor);
-        const probs = await output.data();
-        
-        inputTensor.dispose();
-        output.dispose();
-        
-        // 最大確率のクラスを取得
-        const predId = Array.from(probs).indexOf(Math.max(...probs));
-        const conf = probs[predId];
-        const rawSign = labelMap.id_to_label[String(predId)];
-        
-        // 動き検出による混同ペア補正
-        const sign = postProcessSign(rawSign, conf);
-        
-        // 英語ラベルを日本語に変換
-        const recognized = convertToHiragana(sign);
-        const confidence = Math.round(conf * 100);
-        
-        lastRecognized = recognized;
-        lastConfidence = confidence;
-        
-        // 正誤判定（信頼度80%以上で判定）
-        if (conf >= 0.80) {
-          // 小文字→大文字の互換（ぁ→あ等）
-          const komojiToOmoji = { 'ぁ':'あ', 'ぃ':'い', 'ぅ':'う', 'ぇ':'え', 'ぉ':'お' };
-          const normalized = komojiToOmoji[recognized] || recognized;
-          
-          if (normalized === currentChar) {
-            updateUI(recognized, confidence, 'correct', '正解！');
-            
-            // ランダムモードの場合、正解カウント
-            if (randomModeActive && !currentQuestionAnswered) {
-              currentQuestionAnswered = true;
-              correctAnswers++;
 
-              // 正解演出
-              const overlay = document.getElementById('correctOverlay');
-              overlay.classList.remove('hide');
-              overlay.classList.add('show');
-              setTimeout(() => {
-                overlay.classList.remove('show');
-                overlay.classList.add('hide');
-              }, 700);
-
-              // 1.2秒後に次の文字へ
-              setTimeout(() => {
-                nextRandomCharacter();
-              }, 1200);
-            }
-          } else {
-            updateUI(recognized, confidence, 'incorrect', `「${currentChar}」を練習中...`);
-          }
-        } else {
-          // 信頼度が低い場合
-          updateUI('-', confidence, 'waiting', '手をカメラに映してください');
-        }
-        
-      } catch (error) {
-        console.error('認識エラー:', error);
-      }
-    }
-    
-    // ==========================================
-    // 15フレームへのリサンプリング
-    // ==========================================
-    function resampleTo15(frames) {
-      const n = frames.length;
-      if (n === TARGET_FRAMES) return frames;
-      
-      // フレーム数が少ない場合は最後のフレームを複製
-      if (n < TARGET_FRAMES) {
-        const result = [...frames];
-        while (result.length < TARGET_FRAMES) {
-          result.push(frames[frames.length - 1]);
-        }
-        return result;
-      }
-      
-      // フレーム数が多い場合は線形補間でリサンプリング
-      const indices = [];
-      for (let i = 0; i < TARGET_FRAMES; i++) {
-        indices.push(i * (n - 1) / (TARGET_FRAMES - 1));
-      }
-      
-      return indices.map(idx => {
-        const i0 = Math.floor(idx);
-        const i1 = Math.min(i0 + 1, n - 1);
-        const alpha = idx - i0;
-        return frames[i0].map((v, j) => v * (1 - alpha) + frames[i1][j] * alpha);
-      });
-    }
-    
-    // ==========================================
-    // 入力データ準備（typing_game.htmlのtoFeature63と同じ）
-    // ==========================================
-    function prepareInputData(landmarks) {
-      // 右手: ミラーあり / 左手: ミラーなし
-      const mirror = (selectedHand === 'right');
-      const wrist = landmarks[0];
-      
-      // 1. ミラー反転 + 手首基準の相対座標化
-      const pts = landmarks.map(p => ({
-        x: (mirror ? (1.0 - p.x) : p.x) - (mirror ? (1.0 - wrist.x) : wrist.x),
-        y: p.y - wrist.y,
-        z: p.z - wrist.z
-      }));
-      
-      // 2. 最大距離で正規化
-      let maxd = 0;
-      for (const p of pts) {
-        const d = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
-        if (d > maxd) maxd = d;
-      }
-      
-      const s = (maxd > 1e-9) ? (1.0 / maxd) : 1.0;
-      const vec = [];
-      for (const p of pts) {
-        vec.push(p.x * s, p.y * s, p.z * s);
-      }
-      
-      return vec;
-    }
-    
-    // ==========================================
-    // UI更新
-    // ==========================================
-    function updateUI(char, confidence, status, message) {
-      document.getElementById('recognizedChar').textContent = char;
-      document.getElementById('confidence').textContent = confidence > 0 ? `信頼度: ${confidence}%` : '-';
-      
-      const statusEl = document.getElementById('statusMessage');
-      statusEl.textContent = message;
-      statusEl.className = `status-message ${status}`;
-    }
-    
-    // ==========================================
-    // 行選択UI
-    // ==========================================
-    function initRowSelector() {
-      const container = document.getElementById('rowButtons');
-      container.innerHTML = '';
-      
-      ROW_ORDER.forEach(rowKey => {
-        const btn = document.createElement('button');
-        btn.className = 'row-btn';
-        btn.textContent = rowKey;
-        if (rowKey === currentRow) btn.classList.add('active');
-        
-        btn.addEventListener('click', () => {
-          selectRow(rowKey);
-        });
-        
-        container.appendChild(btn);
-      });
-    }
-    
-    function selectRow(rowKey) {
-      currentRow = rowKey;
-      currentCharIndex = 0;  // 行が変わったら最初の文字に
-      
-      // 行ボタンのアクティブ状態更新
-      document.querySelectorAll('.row-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent === rowKey);
-      });
-      
-      // ラベル更新
-      document.getElementById('currentRowLabel').textContent = `（「${CHARACTER_ROWS[rowKey].label}」を選択中）`;
-      
-      // 文字ボタンを再生成
-      initCharacterButtons();
-      
-      // フレームバッファをクリア
-      frameBuffer = []; wristBuffer = [];
-      
-      // 最初の文字を選択
-      selectCharacter(0);
-    }
-    
-    // ==========================================
-    // 文字選択UI
-    // ==========================================
-    function initCharacterButtons() {
-      const container = document.getElementById('charButtons');
-      container.innerHTML = '';
-      
-      const chars = CHARACTER_ROWS[currentRow].chars;
-      
-      chars.forEach((char, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'char-btn';
-        btn.textContent = char;
-        if (index === 0) btn.classList.add('active');
-        
-        // スペシャルステージの場合、ツールチップを追加
-        if (currentRow === 'S') {
-          btn.title = SPECIAL_STAGE_NAMES[char];
-        }
-        
-        btn.addEventListener('click', () => {
-          selectCharacter(index);
-        });
-        
-        container.appendChild(btn);
-        
-        // 5個ごとに改行（折り返し）を挿入
-        if ((index + 1) % 5 === 0 && index < chars.length - 1) {
-          const lineBreak = document.createElement('div');
-          lineBreak.style.width = '100%';
-          lineBreak.style.height = '0';
-          container.appendChild(lineBreak);
-        }
-      });
-    }
-    
-    function selectCharacter(index) {
-      const chars = CHARACTER_ROWS[currentRow].chars;
-      currentCharIndex = index;
-      currentChar = chars[index];
-      
-      // ブラックアウトを非表示（別の文字に移った時に自動で閉じる）
-      hideBlackout();
-      
-      // UI更新（ロック判定より前に行う）
-      document.getElementById('currentCharDisplay').textContent = currentChar;
-      
-      // ボタンのアクティブ状態更新
-      document.querySelectorAll('.char-btn').forEach((btn, i) => {
-        btn.classList.toggle('active', i === index);
-      });
-      
-      // スペシャルステージの場合の処理
-      if (currentRow === 'S') {
-        console.log(`[DEBUG] Special stage selected: ${currentChar}`);
-        
-        // ヒントを非表示
-        const hintElement = document.getElementById('charHint');
-        hintElement.style.display = 'none';
-        
-        // ロック判定
-        const stageNum = parseInt(currentChar);
-        console.log(`[DEBUG] Stage number:`, stageNum);
-        
-        const unlocked = isStageUnlocked(stageNum);
-        console.log(`[DEBUG] Unlock result:`, unlocked);
-        
-        if (!unlocked) {
-          // ロックされている場合、ブラックアウト表示して処理を中断
-          console.log(`[DEBUG] Stage ${stageNum} is LOCKED - showing blackout`);
-          showBlackout(currentChar);
-          return;
-        } else {
-          console.log(`[DEBUG] Stage ${stageNum} is UNLOCKED - loading motion`);
-        }
-      }
-      
-      // コメント更新（スペシャルステージ以外）
-      if (currentRow !== 'S') {
-        const hint = CHARACTER_HINTS[currentChar] || '';
-        const hintElement = document.getElementById('charHint');
-        if (hint) {
-          hintElement.textContent = hint;
-          hintElement.style.display = 'block';
-        } else {
-          hintElement.style.display = 'none';
-        }
-      }
-      
-      // VRMモーション切り替え
-      switchVRMMotion(currentChar);
-      
-      // フレームバッファをクリア（新しい文字の認識を開始）
-      frameBuffer = []; wristBuffer = [];
-      
-      // 判定対象外の文字の場合
-      const resultArea = document.querySelector('.recognition-result');
-      if (!isJudgeable(currentChar)) {
-        resultArea.classList.add('disabled');
-        updateUI('-', 0, 'info', '💡 この文字は練習モードでは\n認識判定を行いません。\n形を確認してください。');
-      } else {
-        resultArea.classList.remove('disabled');
-        updateUI('-', 0, 'waiting', '手をカメラに映してください');
-      }
-    }
-    
-    // ==========================================
-    // ナビゲーション（前へ・次へ）
-    // ==========================================
-    document.getElementById('prevBtn').addEventListener('click', () => {
-      // 現在の行の文字数
-      const chars = CHARACTER_ROWS[currentRow].chars;
-      
-      if (currentCharIndex > 0) {
-        // 同じ行の前の文字へ
-        selectCharacter(currentCharIndex - 1);
-      } else {
-        // 前の行の最後の文字へ
-        const currentRowIndex = ROW_ORDER.indexOf(currentRow);
-        if (currentRowIndex > 0) {
-          const prevRow = ROW_ORDER[currentRowIndex - 1];
-          selectRow(prevRow);
-          const prevChars = CHARACTER_ROWS[prevRow].chars;
-          selectCharacter(prevChars.length - 1);
-        }
-      }
-    });
-    
-    document.getElementById('nextBtn').addEventListener('click', () => {
-      // 現在の行の文字数
-      const chars = CHARACTER_ROWS[currentRow].chars;
-      
-      if (currentCharIndex < chars.length - 1) {
-        // 同じ行の次の文字へ
-        selectCharacter(currentCharIndex + 1);
-      } else {
-        // 次の行の最初の文字へ
-        const currentRowIndex = ROW_ORDER.indexOf(currentRow);
-        if (currentRowIndex < ROW_ORDER.length - 1) {
-          const nextRow = ROW_ORDER[currentRowIndex + 1];
-          selectRow(nextRow);
-          selectCharacter(0);
-        }
-      }
-    });
-    
-    // ==========================================
-    // デバッグ用ヘルパー（開発者コンソールから使用可能）
-    // ==========================================
-    window.unlockStage = function(stage) {
-      saveMaxStageReached(stage);
-      console.log(`✅ ステージ ${stage} までアンロックしました`);
-      console.log('ページをリロードして反映してください');
-    };
-    
-    window.checkStageProgress = function() {
-      const maxStage = getMaxStageReached();
-      console.log(`🏆 現在の到達ステージ: ${maxStage}/5`);
-      for (let i = 1; i <= 5; i++) {
-        const unlocked = isStageUnlocked(i);
-        console.log(`  ${i}. ${SPECIAL_STAGE_NAMES[String(i)]}: ${unlocked ? '✅ アンロック済み' : '🔒 ロック中'}`);
-      }
-    };
-    
-    window.resetStageProgress = function() {
-      localStorage.removeItem('signDiverMaxStage');
-      console.log('✅ ステージ進行状況をリセットしました');
-      console.log('ページをリロードして反映してください');
-    };
-    
-    window.debugLocalStorage = function() {
-      console.log('=== localStorage Debug ===');
-      console.log('signDiverMaxStage:', localStorage.getItem('signDiverMaxStage'));
-      console.log('Type:', typeof localStorage.getItem('signDiverMaxStage'));
-      console.log('Parsed:', parseInt(localStorage.getItem('signDiverMaxStage')));
-      console.log('All localStorage keys:', Object.keys(localStorage));
-    };
-    
     // ==========================================
     // 起動
     // ==========================================
     initRowSelector();
     initCharacterButtons();
-    
-    // モード切り替えイベント
-    document.getElementById('modeGuide').addEventListener('click', () => switchMode('guide'));
-    document.getElementById('modeExpression').addEventListener('click', () => switchMode('expression'));
-    document.getElementById('modeReading').addEventListener('click', () => switchMode('reading'));
-    
-    // 読取練習「次へ」ボタン
-    document.getElementById('readingNextBtn').addEventListener('click', () => nextReadingQuestion());
-    
+    document.getElementById('modeGuide').addEventListener('click',()=>switchMode('guide'));
+    document.getElementById('modeExpression').addEventListener('click',()=>switchMode('expression'));
+    document.getElementById('modeReading').addEventListener('click',()=>switchMode('reading'));
+    document.getElementById('readingNextBtn').addEventListener('click',()=>nextReadingQuestion());
     init();
   </script>
   <!-- 正解演出オーバーレイ -->

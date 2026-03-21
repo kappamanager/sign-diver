@@ -1,0 +1,1042 @@
+{
+  "name": "yubimoji_や_2026-03-21",
+  "dur": 4.851600000023842,
+  "fps": 30,
+  "frameCount": 112,
+  "frames": [
+    {
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3
+    },
+    {
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0017,
+      "mouthUpperUpRight": 0.0017,
+      "mouthLowerDownLeft": 0.0011,
+      "mouthLowerDownRight": 0.0011,
+      "mouthStretchLeft": 0.0028,
+      "mouthStretchRight": 0.0028
+    },
+    {
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0068,
+      "mouthUpperUpRight": 0.0068,
+      "mouthLowerDownLeft": 0.0045,
+      "mouthLowerDownRight": 0.0045,
+      "mouthStretchLeft": 0.0113,
+      "mouthStretchRight": 0.0113
+    },
+    {
+      "jawOpen": 0.0013,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0132,
+      "mouthUpperUpRight": 0.0132,
+      "mouthLowerDownLeft": 0.0088,
+      "mouthLowerDownRight": 0.0088,
+      "mouthStretchLeft": 0.022,
+      "mouthStretchRight": 0.022
+    },
+    {
+      "jawOpen": 0.0023,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.023,
+      "mouthUpperUpRight": 0.023,
+      "mouthLowerDownLeft": 0.0153,
+      "mouthLowerDownRight": 0.0153,
+      "mouthStretchLeft": 0.0383,
+      "mouthStretchRight": 0.0383
+    },
+    {
+      "jawOpen": 0.0045,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0445,
+      "mouthUpperUpRight": 0.0445,
+      "mouthLowerDownLeft": 0.0297,
+      "mouthLowerDownRight": 0.0297,
+      "mouthStretchLeft": 0.0742,
+      "mouthStretchRight": 0.0742
+    },
+    {
+      "jawOpen": 0.0077,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0766,
+      "mouthUpperUpRight": 0.0766,
+      "mouthLowerDownLeft": 0.0511,
+      "mouthLowerDownRight": 0.0511,
+      "mouthStretchLeft": 0.1276,
+      "mouthStretchRight": 0.1276
+    },
+    {
+      "jawOpen": 0.0121,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.1214,
+      "mouthUpperUpRight": 0.1214,
+      "mouthLowerDownLeft": 0.081,
+      "mouthLowerDownRight": 0.081,
+      "mouthStretchLeft": 0.2024,
+      "mouthStretchRight": 0.2024
+    },
+    {
+      "jawOpen": 0.0159,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.1592,
+      "mouthUpperUpRight": 0.1592,
+      "mouthLowerDownLeft": 0.1062,
+      "mouthLowerDownRight": 0.1062,
+      "mouthStretchLeft": 0.2654,
+      "mouthStretchRight": 0.2654
+    },
+    {
+      "jawOpen": 0.0209,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.209,
+      "mouthUpperUpRight": 0.209,
+      "mouthLowerDownLeft": 0.1393,
+      "mouthLowerDownRight": 0.1393,
+      "mouthStretchLeft": 0.3484,
+      "mouthStretchRight": 0.3484
+    },
+    {
+      "jawOpen": 0.0235,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2346,
+      "mouthUpperUpRight": 0.2346,
+      "mouthLowerDownLeft": 0.1564,
+      "mouthLowerDownRight": 0.1564,
+      "mouthStretchLeft": 0.391,
+      "mouthStretchRight": 0.391
+    },
+    {
+      "jawOpen": 0.0263,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2634,
+      "mouthUpperUpRight": 0.2634,
+      "mouthLowerDownLeft": 0.1756,
+      "mouthLowerDownRight": 0.1756,
+      "mouthStretchLeft": 0.439,
+      "mouthStretchRight": 0.439
+    },
+    {
+      "jawOpen": 0.0282,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2821,
+      "mouthUpperUpRight": 0.2821,
+      "mouthLowerDownLeft": 0.1881,
+      "mouthLowerDownRight": 0.1881,
+      "mouthStretchLeft": 0.4702,
+      "mouthStretchRight": 0.4702
+    },
+    {
+      "jawOpen": 0.0293,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.293,
+      "mouthUpperUpRight": 0.293,
+      "mouthLowerDownLeft": 0.1954,
+      "mouthLowerDownRight": 0.1954,
+      "mouthStretchLeft": 0.4884,
+      "mouthStretchRight": 0.4884
+    },
+    {
+      "jawOpen": 0.0297,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.297,
+      "mouthUpperUpRight": 0.297,
+      "mouthLowerDownLeft": 0.198,
+      "mouthLowerDownRight": 0.198,
+      "mouthStretchLeft": 0.495,
+      "mouthStretchRight": 0.495
+    },
+    {
+      "jawOpen": 0.03,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2996,
+      "mouthUpperUpRight": 0.2996,
+      "mouthLowerDownLeft": 0.1997,
+      "mouthLowerDownRight": 0.1997,
+      "mouthStretchLeft": 0.4993,
+      "mouthStretchRight": 0.4993
+    },
+    {
+      "jawOpen": 0.03,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.3,
+      "mouthUpperUpRight": 0.3,
+      "mouthLowerDownLeft": 0.2,
+      "mouthLowerDownRight": 0.2,
+      "mouthStretchLeft": 0.5,
+      "mouthStretchRight": 0.5
+    },
+    {
+      "jawOpen": 0.03,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.3,
+      "mouthUpperUpRight": 0.3,
+      "mouthLowerDownLeft": 0.2,
+      "mouthLowerDownRight": 0.2,
+      "mouthStretchLeft": 0.5,
+      "mouthStretchRight": 0.5
+    },
+    {
+      "jawOpen": 0.03,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.3,
+      "mouthUpperUpRight": 0.3,
+      "mouthLowerDownLeft": 0.2,
+      "mouthLowerDownRight": 0.2,
+      "mouthStretchLeft": 0.5,
+      "mouthStretchRight": 0.5
+    },
+    {
+      "Fcl_EYE_Close": 0.625,
+      "jawOpen": 0.0302,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2999,
+      "mouthUpperUpRight": 0.2999,
+      "mouthLowerDownLeft": 0.2,
+      "mouthLowerDownRight": 0.2,
+      "mouthStretchLeft": 0.4998,
+      "mouthStretchRight": 0.4998
+    },
+    {
+      "Fcl_EYE_Close": 0.86,
+      "jawOpen": 0.0307,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2996,
+      "mouthUpperUpRight": 0.2996,
+      "mouthLowerDownLeft": 0.2001,
+      "mouthLowerDownRight": 0.2001,
+      "mouthStretchLeft": 0.4994,
+      "mouthStretchRight": 0.4994
+    },
+    {
+      "Fcl_EYE_Close": 0.58,
+      "jawOpen": 0.0313,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2993,
+      "mouthUpperUpRight": 0.2993,
+      "mouthLowerDownLeft": 0.2002,
+      "mouthLowerDownRight": 0.2002,
+      "mouthStretchLeft": 0.4988,
+      "mouthStretchRight": 0.4988
+    },
+    {
+      "Fcl_EYE_Close": 0.1658,
+      "jawOpen": 0.0327,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2986,
+      "mouthUpperUpRight": 0.2986,
+      "mouthLowerDownLeft": 0.2005,
+      "mouthLowerDownRight": 0.2005,
+      "mouthStretchLeft": 0.4976,
+      "mouthStretchRight": 0.4976
+    },
+    {
+      "jawOpen": 0.0349,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2974,
+      "mouthUpperUpRight": 0.2974,
+      "mouthLowerDownLeft": 0.2009,
+      "mouthLowerDownRight": 0.2009,
+      "mouthStretchLeft": 0.4957,
+      "mouthStretchRight": 0.4957
+    },
+    {
+      "jawOpen": 0.038,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2958,
+      "mouthUpperUpRight": 0.2958,
+      "mouthLowerDownLeft": 0.2014,
+      "mouthLowerDownRight": 0.2014,
+      "mouthStretchLeft": 0.493,
+      "mouthStretchRight": 0.493
+    },
+    {
+      "jawOpen": 0.0421,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2936,
+      "mouthUpperUpRight": 0.2936,
+      "mouthLowerDownLeft": 0.2021,
+      "mouthLowerDownRight": 0.2021,
+      "mouthStretchLeft": 0.4894,
+      "mouthStretchRight": 0.4894
+    },
+    {
+      "jawOpen": 0.0475,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2908,
+      "mouthUpperUpRight": 0.2908,
+      "mouthLowerDownLeft": 0.2031,
+      "mouthLowerDownRight": 0.2031,
+      "mouthStretchLeft": 0.4847,
+      "mouthStretchRight": 0.4847
+    },
+    {
+      "jawOpen": 0.0518,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2885,
+      "mouthUpperUpRight": 0.2885,
+      "mouthLowerDownLeft": 0.2038,
+      "mouthLowerDownRight": 0.2038,
+      "mouthStretchLeft": 0.4808,
+      "mouthStretchRight": 0.4808
+    },
+    {
+      "jawOpen": 0.0596,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2844,
+      "mouthUpperUpRight": 0.2844,
+      "mouthLowerDownLeft": 0.2052,
+      "mouthLowerDownRight": 0.2052,
+      "mouthStretchLeft": 0.474,
+      "mouthStretchRight": 0.474
+    },
+    {
+      "jawOpen": 0.0691,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2794,
+      "mouthUpperUpRight": 0.2794,
+      "mouthLowerDownLeft": 0.2069,
+      "mouthLowerDownRight": 0.2069,
+      "mouthStretchLeft": 0.4657,
+      "mouthStretchRight": 0.4657
+    },
+    {
+      "jawOpen": 0.0765,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2755,
+      "mouthUpperUpRight": 0.2755,
+      "mouthLowerDownLeft": 0.2082,
+      "mouthLowerDownRight": 0.2082,
+      "mouthStretchLeft": 0.4592,
+      "mouthStretchRight": 0.4592
+    },
+    {
+      "jawOpen": 0.089,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2689,
+      "mouthUpperUpRight": 0.2689,
+      "mouthLowerDownLeft": 0.2104,
+      "mouthLowerDownRight": 0.2104,
+      "mouthStretchLeft": 0.4482,
+      "mouthStretchRight": 0.4482
+    },
+    {
+      "jawOpen": 0.1037,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2612,
+      "mouthUpperUpRight": 0.2612,
+      "mouthLowerDownLeft": 0.2129,
+      "mouthLowerDownRight": 0.2129,
+      "mouthStretchLeft": 0.4353,
+      "mouthStretchRight": 0.4353
+    },
+    {
+      "jawOpen": 0.1207,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2523,
+      "mouthUpperUpRight": 0.2523,
+      "mouthLowerDownLeft": 0.2159,
+      "mouthLowerDownRight": 0.2159,
+      "mouthStretchLeft": 0.4205,
+      "mouthStretchRight": 0.4205
+    },
+    {
+      "jawOpen": 0.1334,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2456,
+      "mouthUpperUpRight": 0.2456,
+      "mouthLowerDownLeft": 0.2181,
+      "mouthLowerDownRight": 0.2181,
+      "mouthStretchLeft": 0.4093,
+      "mouthStretchRight": 0.4093
+    },
+    {
+      "jawOpen": 0.1544,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2346,
+      "mouthUpperUpRight": 0.2346,
+      "mouthLowerDownLeft": 0.2218,
+      "mouthLowerDownRight": 0.2218,
+      "mouthStretchLeft": 0.3909,
+      "mouthStretchRight": 0.3909
+    },
+    {
+      "jawOpen": 0.1701,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2263,
+      "mouthUpperUpRight": 0.2263,
+      "mouthLowerDownLeft": 0.2246,
+      "mouthLowerDownRight": 0.2246,
+      "mouthStretchLeft": 0.3771,
+      "mouthStretchRight": 0.3771
+    },
+    {
+      "jawOpen": 0.1956,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.2129,
+      "mouthUpperUpRight": 0.2129,
+      "mouthLowerDownLeft": 0.229,
+      "mouthLowerDownRight": 0.229,
+      "mouthStretchLeft": 0.3548,
+      "mouthStretchRight": 0.3548
+    },
+    {
+      "jawOpen": 0.2143,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.203,
+      "mouthUpperUpRight": 0.203,
+      "mouthLowerDownLeft": 0.2323,
+      "mouthLowerDownRight": 0.2323,
+      "mouthStretchLeft": 0.3383,
+      "mouthStretchRight": 0.3383
+    },
+    {
+      "jawOpen": 0.245,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.1868,
+      "mouthUpperUpRight": 0.1868,
+      "mouthLowerDownLeft": 0.2377,
+      "mouthLowerDownRight": 0.2377,
+      "mouthStretchLeft": 0.3114,
+      "mouthStretchRight": 0.3114
+    },
+    {
+      "jawOpen": 0.2788,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.169,
+      "mouthUpperUpRight": 0.169,
+      "mouthLowerDownLeft": 0.2437,
+      "mouthLowerDownRight": 0.2437,
+      "mouthStretchLeft": 0.2817,
+      "mouthStretchRight": 0.2817
+    },
+    {
+      "jawOpen": 0.3033,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.1561,
+      "mouthUpperUpRight": 0.1561,
+      "mouthLowerDownLeft": 0.248,
+      "mouthLowerDownRight": 0.248,
+      "mouthStretchLeft": 0.2602,
+      "mouthStretchRight": 0.2602
+    },
+    {
+      "jawOpen": 0.3412,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.1362,
+      "mouthUpperUpRight": 0.1362,
+      "mouthLowerDownLeft": 0.2546,
+      "mouthLowerDownRight": 0.2546,
+      "mouthStretchLeft": 0.227,
+      "mouthStretchRight": 0.227
+    },
+    {
+      "jawOpen": 0.3647,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.1238,
+      "mouthUpperUpRight": 0.1238,
+      "mouthLowerDownLeft": 0.2587,
+      "mouthLowerDownRight": 0.2587,
+      "mouthStretchLeft": 0.2064,
+      "mouthStretchRight": 0.2064
+    },
+    {
+      "jawOpen": 0.3974,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.1066,
+      "mouthUpperUpRight": 0.1066,
+      "mouthLowerDownLeft": 0.2645,
+      "mouthLowerDownRight": 0.2645,
+      "mouthStretchLeft": 0.1777,
+      "mouthStretchRight": 0.1777
+    },
+    {
+      "jawOpen": 0.4173,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0961,
+      "mouthUpperUpRight": 0.0961,
+      "mouthLowerDownLeft": 0.268,
+      "mouthLowerDownRight": 0.268,
+      "mouthStretchLeft": 0.1602,
+      "mouthStretchRight": 0.1602
+    },
+    {
+      "jawOpen": 0.4448,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0817,
+      "mouthUpperUpRight": 0.0817,
+      "mouthLowerDownLeft": 0.2728,
+      "mouthLowerDownRight": 0.2728,
+      "mouthStretchLeft": 0.1361,
+      "mouthStretchRight": 0.1361
+    },
+    {
+      "jawOpen": 0.4615,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0729,
+      "mouthUpperUpRight": 0.0729,
+      "mouthLowerDownLeft": 0.2757,
+      "mouthLowerDownRight": 0.2757,
+      "mouthStretchLeft": 0.1215,
+      "mouthStretchRight": 0.1215
+    },
+    {
+      "jawOpen": 0.4842,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0609,
+      "mouthUpperUpRight": 0.0609,
+      "mouthLowerDownLeft": 0.2797,
+      "mouthLowerDownRight": 0.2797,
+      "mouthStretchLeft": 0.1016,
+      "mouthStretchRight": 0.1016
+    },
+    {
+      "jawOpen": 0.5042,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0504,
+      "mouthUpperUpRight": 0.0504,
+      "mouthLowerDownLeft": 0.2832,
+      "mouthLowerDownRight": 0.2832,
+      "mouthStretchLeft": 0.084,
+      "mouthStretchRight": 0.084
+    },
+    {
+      "jawOpen": 0.5163,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0441,
+      "mouthUpperUpRight": 0.0441,
+      "mouthLowerDownLeft": 0.2853,
+      "mouthLowerDownRight": 0.2853,
+      "mouthStretchLeft": 0.0734,
+      "mouthStretchRight": 0.0734
+    },
+    {
+      "jawOpen": 0.5323,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0356,
+      "mouthUpperUpRight": 0.0356,
+      "mouthLowerDownLeft": 0.2881,
+      "mouthLowerDownRight": 0.2881,
+      "mouthStretchLeft": 0.0594,
+      "mouthStretchRight": 0.0594
+    },
+    {
+      "jawOpen": 0.5418,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0306,
+      "mouthUpperUpRight": 0.0306,
+      "mouthLowerDownLeft": 0.2898,
+      "mouthLowerDownRight": 0.2898,
+      "mouthStretchLeft": 0.051,
+      "mouthStretchRight": 0.051
+    },
+    {
+      "jawOpen": 0.5503,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0261,
+      "mouthUpperUpRight": 0.0261,
+      "mouthLowerDownLeft": 0.2913,
+      "mouthLowerDownRight": 0.2913,
+      "mouthStretchLeft": 0.0436,
+      "mouthStretchRight": 0.0436
+    },
+    {
+      "jawOpen": 0.5615,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0202,
+      "mouthUpperUpRight": 0.0202,
+      "mouthLowerDownLeft": 0.2933,
+      "mouthLowerDownRight": 0.2933,
+      "mouthStretchLeft": 0.0337,
+      "mouthStretchRight": 0.0337
+    },
+    {
+      "jawOpen": 0.568,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0169,
+      "mouthUpperUpRight": 0.0169,
+      "mouthLowerDownLeft": 0.2944,
+      "mouthLowerDownRight": 0.2944,
+      "mouthStretchLeft": 0.0281,
+      "mouthStretchRight": 0.0281
+    },
+    {
+      "jawOpen": 0.5762,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0125,
+      "mouthUpperUpRight": 0.0125,
+      "mouthLowerDownLeft": 0.2958,
+      "mouthLowerDownRight": 0.2958,
+      "mouthStretchLeft": 0.0209,
+      "mouthStretchRight": 0.0209
+    },
+    {
+      "jawOpen": 0.5808,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0101,
+      "mouthUpperUpRight": 0.0101,
+      "mouthLowerDownLeft": 0.2966,
+      "mouthLowerDownRight": 0.2966,
+      "mouthStretchLeft": 0.0168,
+      "mouthStretchRight": 0.0168
+    },
+    {
+      "jawOpen": 0.5848,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.008,
+      "mouthUpperUpRight": 0.008,
+      "mouthLowerDownLeft": 0.2973,
+      "mouthLowerDownRight": 0.2973,
+      "mouthStretchLeft": 0.0133,
+      "mouthStretchRight": 0.0133
+    },
+    {
+      "jawOpen": 0.5897,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0054,
+      "mouthUpperUpRight": 0.0054,
+      "mouthLowerDownLeft": 0.2982,
+      "mouthLowerDownRight": 0.2982,
+      "mouthStretchLeft": 0.0091,
+      "mouthStretchRight": 0.0091
+    },
+    {
+      "jawOpen": 0.5923,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0041,
+      "mouthUpperUpRight": 0.0041,
+      "mouthLowerDownLeft": 0.2986,
+      "mouthLowerDownRight": 0.2986,
+      "mouthStretchLeft": 0.0068,
+      "mouthStretchRight": 0.0068
+    },
+    {
+      "jawOpen": 0.5953,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0025,
+      "mouthUpperUpRight": 0.0025,
+      "mouthLowerDownLeft": 0.2992,
+      "mouthLowerDownRight": 0.2992,
+      "mouthStretchLeft": 0.0042,
+      "mouthStretchRight": 0.0042
+    },
+    {
+      "jawOpen": 0.5974,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthUpperUpLeft": 0.0014,
+      "mouthUpperUpRight": 0.0014,
+      "mouthLowerDownLeft": 0.2995,
+      "mouthLowerDownRight": 0.2995,
+      "mouthStretchLeft": 0.0023,
+      "mouthStretchRight": 0.0023
+    },
+    {
+      "jawOpen": 0.5984,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.2997,
+      "mouthLowerDownRight": 0.2997,
+      "mouthStretchLeft": 0.0014,
+      "mouthStretchRight": 0.0014
+    },
+    {
+      "jawOpen": 0.5993,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.2999,
+      "mouthLowerDownRight": 0.2999
+    },
+    {
+      "jawOpen": 0.5998,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "Fcl_EYE_Close": 0.4188,
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "Fcl_EYE_Close": 1,
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "Fcl_EYE_Close": 0.585,
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "Fcl_EYE_Close": 0.3042,
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    },
+    {
+      "jawOpen": 0.6,
+      "mouthSmileLeft": 0.3,
+      "mouthSmileRight": 0.3,
+      "mouthLowerDownLeft": 0.3,
+      "mouthLowerDownRight": 0.3
+    }
+  ]
+}

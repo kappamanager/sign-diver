@@ -41,6 +41,12 @@
   <link rel="prefetch" href="./mediapipe/hand_landmarker.task">
   <link rel="prefetch" href="./tfjs_model_official/model.json">
   <link rel="prefetch" href="./tfjs_model_official/group1-shard1of1.bin">
+  <!-- Prefetch: practice_improved.html用アセット -->
+  <link rel="prefetch" href="./glb/sign_poses/manifest.json">
+  <link rel="prefetch" href="./glb/wait_actions/manifest.json">
+  <link rel="prefetch" href="./glb/mouth_profile.json">
+  <link rel="prefetch" href="./glb/special_actions/manifest.json">
+  <link rel="prefetch" href="./data/character_hints.txt">
 
   <!-- 構造化データ JSON-LD -->
   <script type="application/ld+json">
@@ -757,9 +763,14 @@
 
       const practiceAssets = [
         vrmUrl,
-        './glb/01_a.glb',
         './threejs/three.module.min.js',
         './threejs/three-vrm.module.min.js',
+        // practice_improved.html用マニフェスト・設定ファイル
+        './glb/sign_poses/manifest.json',
+        './glb/wait_actions/manifest.json',
+        './glb/mouth_profile.json',
+        './glb/special_actions/manifest.json',
+        './data/character_hints.txt',
       ];
 
       practiceAssets.forEach(url => {

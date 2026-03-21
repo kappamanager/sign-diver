@@ -1942,11 +1942,31 @@
     // ==========================================
     // Load sign poses from sign_poses/ folder (GLB+JSON, same format as idle actions)
     // ==========================================
+    // ── バンドルファイル読み込みユーティリティ ──
+    // フォーマット: [4B headerLen][JSON header][binary data]
+    async function loadBundle(url){
+      const res=await fetch(url);
+      if(!res.ok)throw new Error(`Bundle fetch failed: ${res.status}`);
+      const buf=await res.arrayBuffer();
+      const headerLen=new DataView(buf).getUint32(0,true);
+      const headerBytes=new Uint8Array(buf,4,headerLen);
+      const index=JSON.parse(new TextDecoder().decode(headerBytes));
+      const dataOffset=4+headerLen;
+      // ファイル名→ArrayBuffer のMapを返す
+      const files=new Map();
+      for(const[name,{offset,size}]of Object.entries(index)){
+        files.set(name,buf.slice(dataOffset+offset,dataOffset+offset+size));
+      }
+      return files;
+    }
+
     async function loadSignPoses(){
       if(!vrm)return;
       const THREE=window.THREE;
       const SIGN_DIR='./glb/sign_poses/';
-      // Load manifest: {"a":"a.glb","i":"i.glb",...} or ["a.glb","i.glb",...]
+      const BUNDLE_URL='./glb/sign_poses_bundle.bin';
+
+      // manifest取得
       let manifest=null;
       try{
         const mRes=await fetch(SIGN_DIR+'manifest.json');
@@ -1954,9 +1974,7 @@
       }catch(e){}
       if(!manifest){console.warn('[SignPoses] manifest.json not found in glb/sign_poses/');return;}
 
-      // manifest format: {"a":{"file":"a.glb","type":"static"}, "no":{"file":"no.glb","type":"motion"}, ...}
-      // Also accepts legacy: {"a":"a.glb"} or ["a.glb"]
-      let entries=[]; // [{id, glbFile, mType}]
+      let entries=[];
       if(Array.isArray(manifest)){
         entries=manifest.filter(f=>f.endsWith('.glb')).map(f=>({id:f.replace('.glb',''),glbFile:f,mType:null}));
       }else{
@@ -1971,37 +1989,57 @@
       const valid=new Set();vrm.scene.traverse(o=>{if(o.name)valid.add(o.name);});
       const FPS=30;
       const loader=new GLTFLoader();
-      // HAND_PATS: bones to sample for hand poses (hands + arms + fingers)
       const HAND_PATS=[
         /J_Bip_[LR]_Hand$/,/J_Bip_[LR]_Thumb\d/,/J_Bip_[LR]_Index\d/,
         /J_Bip_[LR]_Middle\d/,/J_Bip_[LR]_Ring\d/,/J_Bip_[LR]_Little\d/,
         /J_Bip_[LR]_UpperArm$/,/J_Bip_[LR]_LowerArm$/,/J_Bip_[LR]_Shoulder$/
       ];
 
-      // ── GLBファイルを並列バッチダウンロード ──
-      // SWキャッシュHIT時は即返却、MISS時もHTTP/2多重化で高速
-      const BATCH_SIZE=20;
       let loadedCount=0;
       const t0=performance.now();
 
-      // Phase 1: 全GLBを並列fetchでArrayBufferとして取得
-      const glbBuffers=new Map(); // id -> ArrayBuffer
-      for(let i=0;i<entries.length;i+=BATCH_SIZE){
-        const batch=entries.slice(i,i+BATCH_SIZE);
-        const results=await Promise.allSettled(
-          batch.map(async({id,glbFile})=>{
-            const res=await fetch(SIGN_DIR+glbFile);
-            if(!res.ok)throw new Error(`HTTP ${res.status}`);
-            return{id,buffer:await res.arrayBuffer()};
-          })
-        );
-        for(const r of results){
-          if(r.status==='fulfilled')glbBuffers.set(r.value.id,r.value.buffer);
-        }
+      // ── バンドルから一括取得（1リクエスト） ──
+      let bundleFiles=null;
+      try{
+        bundleFiles=await loadBundle(BUNDLE_URL);
+        console.log(`[SignPoses] Bundle loaded: ${bundleFiles.size} files in ${(performance.now()-t0).toFixed(0)}ms`);
+      }catch(e){
+        console.warn('[SignPoses] Bundle not available, falling back to individual fetch:',e.message);
       }
-      console.log(`[SignPoses] Fetched ${glbBuffers.size}/${entries.length} GLBs in ${(performance.now()-t0).toFixed(0)}ms`);
 
-      // Phase 2: パース+サンプリング（GLTFLoaderは同期的にボーンを操作するため直列）
+      // バンドルからGLBバッファとexprデータを取得
+      const glbBuffers=new Map();
+      const exprDataMap=new Map();
+      if(bundleFiles){
+        for(const{id,glbFile}of entries){
+          const buf=bundleFiles.get(glbFile);
+          if(buf)glbBuffers.set(id,buf);
+          const exprFile=glbFile.replace('.glb','_expr.json');
+          const exprBuf=bundleFiles.get(exprFile);
+          if(exprBuf){
+            try{exprDataMap.set(id,JSON.parse(new TextDecoder().decode(exprBuf)));}catch(e){}
+          }
+        }
+      }else{
+        // フォールバック: 個別fetch
+        const BATCH_SIZE=20;
+        for(let i=0;i<entries.length;i+=BATCH_SIZE){
+          const batch=entries.slice(i,i+BATCH_SIZE);
+          const results=await Promise.allSettled(
+            batch.map(async({id,glbFile})=>{
+              const res=await fetch(SIGN_DIR+glbFile);
+              if(!res.ok)throw new Error(`HTTP ${res.status}`);
+              return{id,buffer:await res.arrayBuffer()};
+            })
+          );
+          for(const r of results){
+            if(r.status==='fulfilled')glbBuffers.set(r.value.id,r.value.buffer);
+          }
+        }
+        console.log(`[SignPoses] Fetched ${glbBuffers.size}/${entries.length} GLBs in ${(performance.now()-t0).toFixed(0)}ms`);
+      }
+
+      // パース+サンプリング（直列）
       for(const{id,glbFile,mType}of entries){
         const buf=glbBuffers.get(id);
         if(!buf)continue;
@@ -2053,18 +2091,23 @@
           }else{
             handPoses.poses[id]={type:'motion',char:id,fps:FPS,frames};
           }
+          // exprデータ適用（バンドルから取得済み）
+          const expr=exprDataMap.get(id);
+          if(expr)handPoses.poses[id].exprData=expr;
           loadedCount++;
         }catch(e){console.warn('[SignPoses] Failed:',glbFile,e);}
       }
 
-      // _expr.jsonも並列バッチ取得
-      const exprBatch=entries.map(({id,glbFile})=>{
-        const exprFile=glbFile.replace('.glb','_expr.json');
-        return fetch(SIGN_DIR+exprFile).then(r=>r.ok?r.json():null).then(data=>{
-          if(data){const pose=handPoses.poses[id];if(pose)pose.exprData=data;}
-        }).catch(()=>{});
-      });
-      await Promise.allSettled(exprBatch);
+      // フォールバック時のみ個別expr fetch
+      if(!bundleFiles){
+        const exprBatch=entries.map(({id,glbFile})=>{
+          const exprFile=glbFile.replace('.glb','_expr.json');
+          return fetch(SIGN_DIR+exprFile).then(r=>r.ok?r.json():null).then(data=>{
+            if(data){const pose=handPoses.poses[id];if(pose)pose.exprData=data;}
+          }).catch(()=>{});
+        });
+        await Promise.allSettled(exprBatch);
+      }
 
       detectHandSide();
       console.log('[SignPoses] Loaded:',loadedCount+'/'+entries.length,'characters from sign_poses/');
@@ -2076,6 +2119,7 @@
       const valid=new Set();vrm.scene.traverse(o=>{if(o.name)valid.add(o.name);});
       const FPS_SAMPLE=30;
       const WAIT_DIR='./glb/wait_actions/';
+      const BUNDLE_URL='./glb/wait_actions_bundle.bin';
       // Load manifest from wait_actions folder
       let files=[];
       try{
@@ -2088,12 +2132,27 @@
       }catch(e){}
       if(files.length===0){console.log('[IdleAction] No idle GLBs (manifest.json not found or empty in glb/wait_actions/)');return;}
 
+      // バンドルから一括取得を試みる
+      let bundleFiles=null;
+      try{
+        bundleFiles=await loadBundle(BUNDLE_URL);
+        console.log(`[IdleAction] Bundle loaded: ${bundleFiles.size} files`);
+      }catch(e){
+        console.warn('[IdleAction] Bundle not available, falling back to individual fetch');
+      }
+
       const loader=new GLTFLoader();
       for(const fileName of files){
         const name=fileName.replace('.glb','');
         if(idleActions.some(a=>a.name===name))continue;
         try{
-          const gltf=await loader.loadAsync(WAIT_DIR+fileName);
+          let gltf;
+          const bundleBuf=bundleFiles?bundleFiles.get(fileName):null;
+          if(bundleBuf){
+            gltf=await loader.parseAsync(bundleBuf,'');
+          }else{
+            gltf=await loader.loadAsync(WAIT_DIR+fileName);
+          }
           if(!gltf.animations||!gltf.animations.length)continue;
           const allRawTracks=[];let maxDur=0;
           for(const anim of gltf.animations){
@@ -2147,14 +2206,19 @@
           console.log('[IdleAction] Loaded:',name,maxDur.toFixed(1)+'s',frames.length,'frames');
         }catch(e){console.warn('[IdleAction] Failed:',fileName,e);}
       }
-      // Also try to load expr.json files from same folder
+      // expr.jsonをバンドルまたは個別fetchから取得
       for(const a of idleActions){
         try{
-          const res=await fetch(WAIT_DIR+a.name+'_expr.json');
-          if(res.ok){
-            const data=await res.json();
-            attachExpressionData(data);
+          let data=null;
+          const exprFileName=a.name+'_expr.json';
+          const bundleBuf=bundleFiles?bundleFiles.get(exprFileName):null;
+          if(bundleBuf){
+            data=JSON.parse(new TextDecoder().decode(bundleBuf));
+          }else{
+            const res=await fetch(WAIT_DIR+exprFileName);
+            if(res.ok)data=await res.json();
           }
+          if(data)attachExpressionData(data);
         }catch(e){}
       }
     }

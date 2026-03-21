@@ -47,6 +47,8 @@
   <link rel="prefetch" href="./glb/mouth_profile.json">
   <link rel="prefetch" href="./glb/special_actions/manifest.json">
   <link rel="prefetch" href="./data/character_hints.txt">
+  <link rel="prefetch" href="./glb/sign_poses_bundle.bin">
+  <link rel="prefetch" href="./glb/wait_actions_bundle.bin">
 
   <!-- 構造化データ JSON-LD -->
   <script type="application/ld+json">
@@ -709,122 +711,59 @@
     // ═══════════════════════════════════════════════
     // ページを開いた瞬間にTFJSモデル・WASMをキャッシュに先読み
     // ═══════════════════════════════════════════════
-    (function prefetchResources() {
+    (async function prefetchResources() {
       const t0 = performance.now();
       console.log('[PREFETCH] Start prefetching at', t0.toFixed(0), 'ms');
 
-      const targets = [
+      const isMobile = window.innerWidth <= 640 ||
+        /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const vrmUrl = isMobile
+        ? './vrm/Diver_Woman8_compressed_mobile.vrm'
+        : './vrm/Diver_Woman8_compressed.vrm';
+      console.log(`[PREFETCH] Device: ${isMobile ? 'mobile' : 'PC'}, VRM: ${vrmUrl}`);
+
+      const log = (msg) => console.log(`[PREFETCH] ✅ ${msg} in ${(performance.now()-t0).toFixed(0)}ms`);
+      const warn = (msg, e) => console.warn(`[PREFETCH] ⚠️ ${msg}`, e);
+
+      // ═══ Phase 1: マニフェスト等の小さいJSON（帯域を食わない） ═══
+      console.log('[PREFETCH] Phase 1: manifests...');
+      await Promise.allSettled([
+        fetch('./glb/sign_poses/manifest.json').then(() => log('sign_poses/manifest.json')).catch(()=>{}),
+        fetch('./glb/wait_actions/manifest.json').then(() => log('wait_actions/manifest.json')).catch(()=>{}),
+        fetch('./glb/mouth_profile.json').then(() => log('mouth_profile.json')).catch(()=>{}),
+        fetch('./glb/special_actions/manifest.json').then(() => log('special_actions/manifest.json')).catch(()=>{}),
+        fetch('./data/character_hints.txt').then(() => log('character_hints.txt')).catch(()=>{}),
+      ]);
+      log('Phase 1 manifests done');
+
+      // ═══ Phase 2: バンドル + heavy assets を並行開始 ═══
+      // 164個の個別GLBリクエスト → バンドル2個に統合（リクエスト数を激減）
+      console.log('[PREFETCH] Phase 2: bundles + heavy assets...');
+
+      // 大きいファイル群（VRM, Three.js, MediaPipe）
+      const heavyAssets = [
+        vrmUrl,
+        './threejs/three.module.min.js',
+        './threejs/three-vrm.module.min.js',
         './tfjs_model_official/model.json',
         './tfjs_model_official/label_map_unified.json',
+        './tfjs_model_official/group1-shard1of1.bin',
         './mediapipe/hand_landmarker.task',
-        // WASM ファイル（タスク1: ローカル化対応）
         './mediapipe/wasm/vision_wasm_internal.js',
         './mediapipe/wasm/vision_wasm_internal.wasm',
         './mediapipe/wasm/vision_wasm_nosimd_internal.js',
         './mediapipe/wasm/vision_wasm_nosimd_internal.wasm',
       ];
 
-      targets.forEach(url => {
-        fetch(url, { cache: 'force-cache' })
-          .then(() => {
-            const elapsed = (performance.now() - t0).toFixed(0);
-            console.log(`[PREFETCH] ✅ ${url} cached in ${elapsed}ms`);
-          })
-          .catch(e => console.warn('[PREFETCH] ⚠️ Failed:', url, e));
-      });
-
-      // shardファイルも先読み（model.jsonを取得後にURLを特定）
-      fetch('./tfjs_model_official/model.json', { cache: 'force-cache' })
-        .then(r => r.json())
-        .then(json => {
-          const shards = json?.weightsManifest?.[0]?.paths || [];
-          shards.forEach(shard => {
-            const shardUrl = `./tfjs_model_official/${shard}`;
-            fetch(shardUrl, { cache: 'force-cache' })
-              .then(() => {
-                const elapsed = (performance.now() - t0).toFixed(0);
-                console.log(`[PREFETCH] ✅ ${shard} cached in ${elapsed}ms`);
-              })
-              .catch(e => console.warn('[PREFETCH] ⚠️ Shard failed:', shard, e));
-          });
-        })
-        .catch(() => {});
-
-      // ─────────────────────────────────────────────
-      // practice.html用: VRM・GLB・Three.jsライブラリをプリフェッチ
-      // ─────────────────────────────────────────────
-      const isMobile = window.innerWidth <= 640 ||
-        /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      const vrmUrl = isMobile
-        ? './vrm/Diver_Woman8_compressed_mobile.vrm'
-        : './vrm/Diver_Woman8_compressed.vrm';
-
-      console.log(`[PREFETCH] Device: ${isMobile ? 'mobile' : 'PC'}, VRM: ${vrmUrl}`);
-
-      const practiceAssets = [
-        vrmUrl,
-        './threejs/three.module.min.js',
-        './threejs/three-vrm.module.min.js',
-        // practice_improved.html用マニフェスト・設定ファイル
-        './glb/sign_poses/manifest.json',
-        './glb/wait_actions/manifest.json',
-        './glb/mouth_profile.json',
-        './glb/special_actions/manifest.json',
-        './data/character_hints.txt',
-      ];
-
-      practiceAssets.forEach(url => {
-        fetch(url, { cache: 'force-cache' })
-          .then(() => {
-            const elapsed = (performance.now() - t0).toFixed(0);
-            console.log(`[PREFETCH] ✅ ${url} cached in ${elapsed}ms`);
-          })
-          .catch(e => console.warn('[PREFETCH] ⚠️ Failed:', url, e));
-      });
-
-      // ─────────────────────────────────────────────
-      // GLB本体の先読み: manifest.jsonから全GLBファイルを取得してSWキャッシュに入れる
-      // ユーザーがindex.htmlで操作している間にバックグラウンドDL完了を狙う
-      // ─────────────────────────────────────────────
-      const PREFETCH_BATCH = 8; // 同時ダウンロード数
-      async function prefetchGlbsFromManifest(manifestUrl, baseDir) {
-        try {
-          const res = await fetch(manifestUrl, { cache: 'force-cache' });
-          if (!res.ok) return;
-          const manifest = await res.json();
-          // manifest形式: { "a": {"file":"a.glb",...}, ... } または [ {"file":"xxx.glb",...}, ... ]
-          let files = [];
-          if (Array.isArray(manifest)) {
-            files = manifest.map(e => e.file).filter(Boolean);
-          } else {
-            files = Object.values(manifest).map(e => e.file).filter(Boolean);
-          }
-          // GLB + _expr.json を両方先読み
-          const urls = [];
-          for (const f of files) {
-            urls.push(baseDir + f);
-            // _expr.json も先読み（存在しない場合は404で無視される）
-            const exprFile = f.replace(/\.glb$/, '_expr.json');
-            urls.push(baseDir + exprFile);
-          }
-          // バッチ処理で並列DL
-          let done = 0;
-          for (let i = 0; i < urls.length; i += PREFETCH_BATCH) {
-            const batch = urls.slice(i, i + PREFETCH_BATCH);
-            await Promise.allSettled(batch.map(u =>
-              fetch(u, { cache: 'force-cache' }).catch(() => {})
-            ));
-            done += batch.length;
-          }
-          const elapsed = (performance.now() - t0).toFixed(0);
-          console.log(`[PREFETCH] ✅ ${baseDir} GLBs: ${files.length} files prefetched in ${elapsed}ms`);
-        } catch (e) {
-          console.warn('[PREFETCH] ⚠️ GLB prefetch failed:', manifestUrl, e);
-        }
-      }
-      // sign_poses と wait_actions の GLB を並列に先読み開始
-      prefetchGlbsFromManifest('./glb/sign_poses/manifest.json', './glb/sign_poses/');
-      prefetchGlbsFromManifest('./glb/wait_actions/manifest.json', './glb/wait_actions/');
+      // すべて並行フェッチ（バンドル2つ + heavy assets）
+      await Promise.allSettled([
+        // GLBバンドル（sign_poses: ~8.9MB, wait_actions: ~177KB）
+        fetch('./glb/sign_poses_bundle.bin').then(() => log('sign_poses_bundle.bin')).catch(e => warn('sign_poses_bundle.bin', e)),
+        fetch('./glb/wait_actions_bundle.bin').then(() => log('wait_actions_bundle.bin')).catch(e => warn('wait_actions_bundle.bin', e)),
+        // heavy assets
+        ...heavyAssets.map(url => fetch(url).then(() => log(url)).catch(e => warn(url, e))),
+      ]);
+      log('Phase 2 all done');
     })();
 
     let selectedDifficulty = 'easy';

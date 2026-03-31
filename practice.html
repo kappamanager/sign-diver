@@ -1921,7 +1921,7 @@
     let idlePlayTime=0;
     const IDLE_BLEND_IN_MS=500;
     const IDLE_BLEND_OUT_MS=800;
-    const IDLE_INTERVAL_S=8;
+    const IDLE_INTERVAL_S=15;
     function getBlendInMs(){
       // スペシャルアクションは指文字と同じ遷移時間（300ms）
       if(idleActiveAction&&idleActiveAction.name&&idleActiveAction.name.startsWith('special_'))return HAND_TRANSITION_MS;

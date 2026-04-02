@@ -2265,6 +2265,7 @@
       startLoopPerf();
       loopFrameCount = 0;
       frameBuffer = [];
+      staticCache = { sign: null, conf: 0, probs: null, displaySign: null, isStatic: false };
       timeRemaining = timeLimit;
       score = 0;
       clearedCount = 0;
@@ -2377,6 +2378,7 @@
       
       // 前の単語の認識データをリセット（誤認識防止）
       frameBuffer = [];
+      staticCache = { sign: null, conf: 0, probs: null, displaySign: null, isStatic: false };
       skipXStartTime = null;
       
       updateWordDisplay();
@@ -2399,13 +2401,41 @@
       const chars = currentWord.display.split('');
       const hiraganaChars = currentWord.hiragana.split('');
       
-      // ひらがなベースの進捗率（0.0〜1.0）
-      const hiraganaProgress = hiraganaChars.length > 0 ? currentIndex / hiraganaChars.length : 0;
+      // ── ひらがな→漢字表示のインデックスマッピングを構築 ──
+      // 例: display="ぺらぺら話す"(6) / hiragana="ぺらぺらはなす"(7)
+      //   hiraganaToDisplay = [0, 1, 2, 3, 4, 4, 5]
+      //   → hiragana[4]("は"),hiragana[5]("な") は display[4]("話") にマッピング
+      const hiraganaToDisplay = new Array(hiraganaChars.length).fill(0);
       
-      // 漢字表示側の現在位置を進捗率から計算
-      const displayCurrentIndex = Math.floor(hiraganaProgress * chars.length);
+      // 前方一致: 先頭から一致する文字を1:1マッピング
+      let fwdD = 0, fwdH = 0;
+      while (fwdD < chars.length && fwdH < hiraganaChars.length && chars[fwdD] === hiraganaChars[fwdH]) {
+        hiraganaToDisplay[fwdH] = fwdD;
+        fwdD++; fwdH++;
+      }
       
-      // 表示文字（漢字など）- 進捗率ベースで色付け
+      // 後方一致: 末尾から一致する文字を1:1マッピング
+      let bwdD = chars.length - 1, bwdH = hiraganaChars.length - 1;
+      while (bwdD > fwdD && bwdH > fwdH && chars[bwdD] === hiraganaChars[bwdH]) {
+        hiraganaToDisplay[bwdH] = bwdD;
+        bwdD--; bwdH--;
+      }
+      
+      // 中間部分: 残りのひらがなを残りの表示文字に均等マッピング
+      if (fwdH <= bwdH && fwdD <= bwdD) {
+        const remainH = bwdH - fwdH + 1;
+        const remainD = bwdD - fwdD + 1;
+        for (let i = 0; i < remainH; i++) {
+          hiraganaToDisplay[fwdH + i] = fwdD + Math.floor(i * remainD / remainH);
+        }
+      }
+      
+      // 漢字表示側の現在位置を正確なマッピングから取得
+      const displayCurrentIndex = currentIndex < hiraganaToDisplay.length
+        ? hiraganaToDisplay[currentIndex]
+        : chars.length;
+      
+      // 表示文字（漢字など）- マッピングベースで色付け
       displayEl.innerHTML = chars.map((char, i) => {
         let className = 'char';
         if (i < displayCurrentIndex) {
@@ -2788,6 +2818,16 @@
           console.log(`[LOOP] predictSign:    avg=${avg}ms, max=${max}ms (n=${LOOP_PERF.predictTimes.length})`);
           LOOP_PERF.predictTimes = [];
         }
+        // 早期静止判定の発動率
+        const totalInf = earlyStaticCount + normalInferenceCount + skippedInferenceCount;
+        if (totalInf > 0) {
+          const earlyPct = (earlyStaticCount / totalInf * 100).toFixed(0);
+          const skipPct = (skippedInferenceCount / totalInf * 100).toFixed(0);
+          console.log(`[LOOP] earlyStatic: ${earlyStaticCount}, normal: ${normalInferenceCount}, skipped: ${skippedInferenceCount}/${totalInf} (${skipPct}% saved)`);
+          earlyStaticCount = 0;
+          normalInferenceCount = 0;
+          skippedInferenceCount = 0;
+        }
       }, 5000);
     }
 
@@ -2933,6 +2973,37 @@
     const MIN_FRAMES_TO_START = 3;  // パディング付き早期推論（初回遅延対策）
     const RECOGNITION_WINDOW_MS = 500;  // 訓練データと同じ500msウィンドウ
     
+    // ===== 早期静止判定（Early Static Recognition） =====
+    // 直近フレームが静止状態なら、500msウィンドウを無視してクリーンな入力で即推論
+    const STATIC_DIST_THRESHOLD = 0.15;  // 特徴量ベクトル間のユークリッド距離閾値（要チューニング）
+    const STATIC_MIN_FRAMES = 3;         // 静止判定に必要な最小フレーム数
+    let earlyStaticCount = 0;            // デバッグ用: 早期静止判定の発動回数
+    let normalInferenceCount = 0;        // デバッグ用: 通常推論の発動回数
+    let skippedInferenceCount = 0;       // デバッグ用: キャッシュで推論スキップした回数
+    
+    // 静止キャッシュ: 静止状態で同じ結果が出続ける場合、推論自体をスキップ
+    let staticCache = { sign: null, conf: 0, probs: null, displaySign: null, isStatic: false };
+    
+    function featureDistance(a, b) {
+      let sum = 0;
+      for (let i = 0; i < a.length; i++) {
+        const d = a[i] - b[i];
+        sum += d * d;
+      }
+      return Math.sqrt(sum);
+    }
+    
+    function isStaticState() {
+      if (frameBuffer.length < STATIC_MIN_FRAMES) return false;
+      const recent = frameBuffer.slice(-STATIC_MIN_FRAMES);
+      for (let i = 1; i < recent.length; i++) {
+        if (featureDistance(recent[i - 1].features, recent[i].features) >= STATIC_DIST_THRESHOLD) {
+          return false;
+        }
+      }
+      return true;
+    }
+    
     // ===== 動き検出後処理（混同ペア補正） =====
     let wristBuffer = [];
     const WRIST_BUFFER_SIZE = 20;
@@ -3051,13 +3122,43 @@
         frameBuffer.shift();
       }
       
-      // 500ms ウィンドウ内のフレームを取得
-      const windowStart = now - RECOGNITION_WINDOW_MS;
-      const recentFrames = frameBuffer.filter(f => f.timestamp >= windowStart);
+      // ── 入力フレームの選択: 早期静止判定 or 通常ウィンドウ ──
+      let frames15;
+      let isEarlyStatic = false;
+      const currentlyStatic = isStaticState();
       
-      if (recentFrames.length < MIN_FRAMES_TO_START) return;
+      if (currentlyStatic) {
+        // ── 静止キャッシュ: 前回も静止で高確信度なら推論スキップ ──
+        if (staticCache.isStatic && staticCache.conf >= 0.90 && staticCache.sign !== null) {
+          skippedInferenceCount++;
+          // UI更新のみ（テンソル生成なし＝GC圧力ゼロ）
+          _elRecognizedChar.textContent = staticCache.displaySign;
+          _elConfidence.textContent = `${(staticCache.conf * 100).toFixed(1)}% ⚡⚡`;
+          if (staticCache.conf >= 0.80) {
+            onSignRecognized(staticCache.sign);
+          }
+          return;
+        }
+        
+        // 静止状態: 直近フレームだけでクリーンな入力を作成
+        const latestFeatures = frameBuffer[frameBuffer.length - 1].features;
+        frames15 = Array(TARGET_FRAMES).fill(latestFeatures);
+        isEarlyStatic = true;
+        earlyStaticCount++;
+      } else {
+        // 動き検出: キャッシュを無効化
+        staticCache = { sign: null, conf: 0, probs: null, displaySign: null, isStatic: false };
+        
+        // 通常パス: 500ms ウィンドウ内のフレームを取得
+        const windowStart = now - RECOGNITION_WINDOW_MS;
+        const recentFrames = frameBuffer.filter(f => f.timestamp >= windowStart);
+        
+        if (recentFrames.length < MIN_FRAMES_TO_START) return;
+        
+        frames15 = resampleTo15(recentFrames.map(f => f.features));
+        normalInferenceCount++;
+      }
       
-      const frames15 = resampleTo15(recentFrames.map(f => f.features));
       const inputTensor = tf.tensor3d([frames15], [1, TARGET_FRAMES, 63]);
       
       const output = await model.executeAsync(inputTensor);
@@ -3076,6 +3177,12 @@
       
       // 動き検出による混同ペア補正
       const sign = postProcessSign(rawSign, conf, probs);
+      
+      // ── 静止キャッシュ更新 ──
+      if (currentlyStatic) {
+        const displaySign = convertToHiragana(sign);
+        staticCache = { sign, conf, probs: Array.from(probs), displaySign, isStatic: true };
+      }
       
       // ── スキップ判定（Xジェスチャー検知） ──
       if (sign === 'X' && conf >= 0.80) {
@@ -3105,7 +3212,7 @@
       
       // UI更新
       _elRecognizedChar.textContent = displaySign;
-      _elConfidence.textContent = `${(conf * 100).toFixed(1)}%`;
+      _elConfidence.textContent = `${(conf * 100).toFixed(1)}%${isEarlyStatic ? ' ⚡' : ''}`;
       
       // 判定
       if (conf >= 0.80) {

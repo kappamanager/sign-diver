@@ -384,6 +384,46 @@
     .tutorial-skip:hover { color: rgba(255,255,255,0.55); }
     /* ═══════════════════════════════════ */
 
+    /* ═══ カメラ調整画面（ゲーム画面の上にバナー） ═══ */
+    .cam-adjust-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 14, 30, 0.3);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      z-index: 9700;
+      padding-top: 12px;
+    }
+    .cam-adjust-banner {
+      background: linear-gradient(160deg, rgba(10, 25, 55, 0.95), rgba(6, 14, 30, 0.97));
+      border: 1.5px solid rgba(79,172,254,0.4);
+      border-radius: 20px;
+      padding: 20px 28px;
+      max-width: 700px;
+      width: 92%;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      animation: tutBoxIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    .cam-adjust-banner-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #4facfe;
+      margin-bottom: 8px;
+    }
+    .cam-adjust-tips {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+    /* ═══════════════════════════════════ */
+
     .countdown-overlay {
       position: fixed;
       inset: 0;
@@ -1333,6 +1373,34 @@
       <div id="countdownOverlay" class="countdown-overlay" style="display: none;"></div>
 
       <!-- 初回チュートリアルオーバーレイ -->
+      <!-- カメラ調整確認ダイアログ -->
+      <div id="camAdjustDialog" class="tutorial-overlay" style="display:none;">
+        <div class="tutorial-box">
+          <div class="tutorial-icon">📷</div>
+          <div class="tutorial-title">カメラ位置の調整</div>
+          <p style="color:rgba(255,255,255,0.75); font-size:14px; margin-bottom:22px; line-height:1.7;">
+            ゲーム開始前にカメラの映りを確認しますか？<br>
+            手の位置や認識の状態をチェックできます。
+          </p>
+          <button class="tutorial-ok-btn" id="camAdjustYes">調整する</button>
+          <span class="tutorial-skip" id="camAdjustNo" style="font-size:13px; color:rgba(255,255,255,0.45);">スキップしてゲームへ</span>
+        </div>
+      </div>
+
+      <!-- カメラ調整画面（ゲーム画面の上にオーバーレイ） -->
+      <div id="camAdjustScreen" class="cam-adjust-overlay" style="display:none;">
+        <div class="cam-adjust-banner">
+          <div class="cam-adjust-banner-text">
+            <span style="font-size:18px;">📷</span>
+            <span>カメラ位置の調整中 — 下のカメラ映像と認識結果を確認してください</span>
+          </div>
+          <div class="cam-adjust-tips">
+            ✅ 肘まで映る距離（50〜80cm） ✅ 手が中央付近 ✅ 指文字が認識される
+          </div>
+          <button class="tutorial-ok-btn" id="camAdjustOk">OK ゲームを始める</button>
+        </div>
+      </div>
+
       <div id="tutorialOverlay" class="tutorial-overlay" style="display:none;">
         <div class="tutorial-box">
           <div class="tutorial-icon">🤿</div>
@@ -1843,7 +1911,10 @@
       "xwa": "ゎ", "lwa": "ゎ",
       
       // 長音記号（伸ばし棒）
-      "bar": "ー"
+      "bar": "ー",
+
+      // スキップジェスチャー
+      "X": "✕"
     };
     
     // エイリアス定義
@@ -1961,6 +2032,9 @@
         document.getElementById('loadingScreen').style.display = 'none';
         document.getElementById('gameScreen').style.display = 'block';
         requestAnimationFrame(() => { SEA.resize(); });
+
+        // ③-b カメラ調整ステップ
+        await showCamAdjustDialog();
 
         // 初回訪問チェック → チュートリアル表示
         if (!localStorage.getItem('signDiver_seenTutorial')) {
@@ -2340,6 +2414,91 @@
       updateComboDisplay();
     }
     
+    // ═══ カメラ位置調整 ═══
+    function showCamAdjustDialog() {
+      console.log('[CamAdjust] showCamAdjustDialog called');
+      return new Promise(resolve => {
+        const dialog = document.getElementById('camAdjustDialog');
+        console.log('[CamAdjust] dialog element:', dialog, 'display before:', dialog?.style.display);
+        dialog.style.display = 'flex';
+        console.log('[CamAdjust] dialog displayed');
+
+        document.getElementById('camAdjustYes').addEventListener('click', async () => {
+          console.log('[CamAdjust] YES clicked');
+          dialog.style.display = 'none';
+          await showCamAdjustScreen();
+          resolve();
+        }, { once: true });
+
+        document.getElementById('camAdjustNo').addEventListener('click', () => {
+          console.log('[CamAdjust] NO clicked → skip');
+          dialog.style.display = 'none';
+          resolve();
+        }, { once: true });
+      });
+    }
+
+    function showCamAdjustScreen() {
+      return new Promise(resolve => {
+        const screen = document.getElementById('camAdjustScreen');
+        screen.style.display = 'flex';
+
+        // DOM要素キャッシュ（ゲーム本体と同じものを使う）
+        cacheLoopElements();
+        // canvasサイズをvideoに合わせる
+        if (_video && _canvas) {
+          _canvas.width = _video.videoWidth || 640;
+          _canvas.height = _video.videoHeight || 480;
+        }
+
+        let adjustRunning = true;
+
+        // 簡易認識ループ（ゲーム本体と同じvideo/canvas/drawHandsを使う）
+        async function adjustLoop() {
+          if (!adjustRunning) return;
+          try {
+            if (_video && _video.readyState >= 2 && landmarker) {
+              const res = landmarker.detectForVideo(_video, performance.now());
+              drawHands(res);
+
+              // ゲーム本体と全く同じ認識パスを実行
+              if (res?.landmarks?.length > 0) {
+                const targetHand = selectedHand === 'right' ? 'Right' : 'Left';
+                let idx = -1;
+                if (res.handednesses?.length) {
+                  idx = res.handednesses.findIndex(h => h?.[0]?.categoryName === targetHand);
+                }
+                if (idx === -1) {
+                  _elRecognizedChar.textContent = '-';
+                  _elConfidence.textContent = '手が見えません';
+                  _elStatusBox.textContent = '手をカメラに映してください';
+                } else {
+                  const landmarks = res.landmarks[idx];
+                  trackWrist(landmarks);
+                  const features = toFeature63(landmarks);
+                  await predictSign(features);
+                }
+              } else {
+                _elRecognizedChar.textContent = '-';
+                _elConfidence.textContent = '手が見えません';
+                _elStatusBox.textContent = '手をカメラに映してください';
+              }
+            }
+          } catch (e) { /* ignore */ }
+
+          if (adjustRunning) requestAnimationFrame(adjustLoop);
+        }
+        adjustLoop();
+
+        // OKボタンで終了
+        document.getElementById('camAdjustOk').addEventListener('click', () => {
+          adjustRunning = false;
+          screen.style.display = 'none';
+          resolve();
+        }, { once: true });
+      });
+    }
+
     // ゲーム開始
     // チュートリアルオーバーレイ（Promise で待機）
     function showTutorial() {
@@ -3181,6 +3340,23 @@
         // ── 静止キャッシュ: 前回も静止で高確信度なら推論スキップ ──
         if (staticCache.isStatic && staticCache.conf >= 0.90 && staticCache.sign !== null) {
           skippedInferenceCount++;
+
+          // ── スキップ判定（静止キャッシュ内でも実行） ──
+          if (staticCache.sign === 'X' && staticCache.conf >= 0.80) {
+            const now2 = performance.now();
+            if (skipXStartTime === null) skipXStartTime = now2;
+            const held = now2 - skipXStartTime;
+            const progress = Math.min(held / SKIP_HOLD_MS, 1.0);
+            _elRecognizedChar.textContent = '✕';
+            _elConfidence.textContent = `SKIP ${Math.round(progress * 100)}%`;
+            _elStatusBox.textContent = `✕ を出し続けてスキップ（${(SKIP_HOLD_MS / 1000).toFixed(1)}秒）`;
+            if (held >= SKIP_HOLD_MS) {
+              skipXStartTime = null;
+              onWordSkip();
+            }
+            return;
+          }
+
           // UI更新のみ（テンソル生成なし＝GC圧力ゼロ）
           _elRecognizedChar.textContent = staticCache.displaySign;
           _elConfidence.textContent = `${(staticCache.conf * 100).toFixed(1)}% ⚡⚡`;

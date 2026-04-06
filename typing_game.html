@@ -35,16 +35,30 @@
   <!-- 提案3a: DNS解決＋TLS接続を事前確立 -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
+    :root {
+      --card-bg: rgba(255, 255, 255, 0.82);
+      --card-border: rgba(255, 255, 255, 0.5);
+      --card-shadow: rgba(10, 40, 80, 0.15);
+      --text-primary: #0c2d48;
+      --text-secondary: #2e5a78;
+      --text-muted: #5a8aaa;
+      --ogp-blue: #6ab4e2;
+      --ogp-lavender: #b09ddb;
+      --text-on-ocean: rgba(255, 255, 255, 0.65);
+      --text-on-ocean-bright: rgba(255, 255, 255, 0.9);
+    }
     
     body {
-      font-family: 'Segoe UI', 'Arial', sans-serif;
-      background: linear-gradient(135deg, #e0f7ff 0%, #b3e5fc 50%, #81d4fa 100%);
+      font-family: 'Zen Kaku Gothic New', 'Montserrat', sans-serif;
+      background: linear-gradient(180deg, #2980b9 0%, #1a6d8a 15%, #1b5e7a 35%, #17526e 55%, #144a63 75%, #0f3d55 100%);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -56,30 +70,23 @@
       overflow-x: hidden;
     }
     
-    /* 背景の泡アニメーション */
     body::before {
       content: '';
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        radial-gradient(circle at 20% 80%, rgba(255,255,255,0.3) 3px, transparent 3px),
-        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.25) 4px, transparent 4px),
-        radial-gradient(circle at 40% 40%, rgba(255,255,255,0.3) 2px, transparent 2px),
-        radial-gradient(circle at 60% 70%, rgba(255,255,255,0.25) 5px, transparent 5px);
-      background-size: 200px 200px, 300px 300px, 250px 250px, 350px 350px;
-      animation: bubbleFloat 25s ease-in-out infinite;
+      top: -20%; left: -10%;
+      width: 120%; height: 60%;
+      background:
+        radial-gradient(ellipse 50% 40% at 30% 20%, rgba(255,255,255,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 35% at 65% 15%, rgba(255,255,255,0.05) 0%, transparent 65%);
+      animation: caustics 15s ease-in-out infinite;
       pointer-events: none;
       z-index: 0;
     }
-    
-    @keyframes bubbleFloat {
-      0%, 100% { transform: translate(0, 0); }
-      25% { transform: translate(10px, -20px); }
-      50% { transform: translate(-5px, -40px); }
-      75% { transform: translate(15px, -30px); }
+
+    @keyframes caustics {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+      33% { transform: translate(15px, 5px) scale(1.02); opacity: 0.85; }
+      66% { transform: translate(-10px, 8px) scale(0.98); opacity: 0.95; }
     }
     
     /* フッター */
@@ -96,16 +103,16 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      color: #0288d1;
+      color: var(--text-on-ocean);
       text-decoration: none;
       font-size: 13px;
       letter-spacing: 0.5px;
       transition: color 0.2s;
       font-weight: 600;
     }
-    
+
     .site-footer a:hover {
-      color: #0277bd;
+      color: var(--text-on-ocean-bright);
     }
     
     .footer-icon {
@@ -118,13 +125,12 @@
     }
     
     .game-container {
-      background: rgba(255, 255, 255, 0.95);
+      background: var(--card-bg);
       backdrop-filter: blur(20px);
-      border: 2px solid rgba(100, 181, 246, 0.3);
-      border-radius: 30px;
-      box-shadow: 
-        0 10px 40px rgba(100, 181, 246, 0.3),
-        0 0 0 1px rgba(255,255,255,0.8) inset;
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      box-shadow: 0 4px 24px var(--card-shadow);
       max-width: 1000px;
       width: 100%;
       overflow: hidden;
@@ -273,20 +279,45 @@
       z-index: 0;
     }
     
-    /* 深度メーター */
+    /* 深度メーター（テキスト）— 新ゲージに統合したので非表示 */
     .depth-meter {
+      display: none;
+    }
+
+    /* 深度表示（海背景の右下に絶対配置） */
+    .depth-gauge {
       position: absolute;
-      top: 10px;
       right: 14px;
-      font-size: 11px;
-      color: rgba(180, 220, 255, 0.7);
-      letter-spacing: 1px;
+      bottom: 10px;
       z-index: 2;
-      font-family: monospace;
+      pointer-events: none;
+      text-align: right;
+    }
+    .depth-gauge-value {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.3);
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+    .depth-gauge-unit {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: 1px;
+    }
+    .depth-gauge-sub {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.2);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 2px;
     }
     
     /* word-display内コンテンツを前面に */
-    .word-display > :not(#seaCanvas) {
+    .word-display > :not(#seaCanvas):not(.depth-gauge):not(.depth-meter) {
       position: relative;
       z-index: 2;
     }
@@ -956,6 +987,21 @@
         right: 8px;
       }
 
+      .depth-gauge {
+        right: 8px;
+        bottom: 6px;
+      }
+      .depth-gauge-value {
+        font-size: 24px;
+      }
+      .depth-gauge-unit {
+        font-size: 11px;
+      }
+      .depth-gauge-sub {
+        font-size: 7px;
+        letter-spacing: 2px;
+      }
+
       /* ── メインエリア：横並び→縦積み ── */
       .game-main {
         flex-direction: column;
@@ -1306,6 +1352,10 @@
       <div class="word-display">
         <canvas id="seaCanvas"></canvas>
         <div class="depth-meter" id="depthMeter">▼ 0 m</div>
+        <div class="depth-gauge" id="depthGauge">
+          <div class="depth-gauge-value" id="depthGaugeValue">0<span class="depth-gauge-unit">m</span></div>
+          <div class="depth-gauge-sub">DEPTH</div>
+        </div>
         <div class="current-word" id="wordDisplay"></div>
         <div class="hiragana-display" id="hiraganaDisplay"></div>
       </div>
@@ -3245,57 +3295,78 @@
       });
     }
     
+    // ── 連続同一サイン誤マッチ防止 ──
+    // 「ぽつぽつ」等で「ぽ」を維持したまま次の「ぽ」にマッチするのを防ぐ
+    let lastMatchedSign = null;       // 直前に正解したサインのラベル
+    let lastMatchedTime = 0;          // 正解した時刻
+    const SAME_SIGN_COOLDOWN_MS = 400; // 同一サイン再マッチまでの最低待機時間
+
     // 認識結果の処理
     function onSignRecognized(sign) {
       // 英語ラベルを日本語に変換
       const hiraganaSign = convertToHiragana(sign);
       const expectedChar = currentWord.hiragana[currentIndex];
-      
+      const wordStr = Array.isArray(currentWord.hiragana) ? currentWord.hiragana.join('') : currentWord.hiragana;
+
       if (isMatch(hiraganaSign, expectedChar)) {
+        // 同一サインが連続で来た場合、クールダウン中はスキップ
+        if (lastMatchedSign === sign && (performance.now() - lastMatchedTime) < SAME_SIGN_COOLDOWN_MS) {
+          console.log(`[MATCH-BLOCKED] cooldown中 sign=${sign} hira=${hiraganaSign} idx=${currentIndex} word=${wordStr}`);
+          return;
+        }
+        console.log(`%c[MATCH-OK] sign=${sign} hira=${hiraganaSign} expected=${expectedChar} idx=${currentIndex}/${currentWord.hiragana.length} word=${wordStr}`, 'color:#0f0;font-weight:bold');
+        lastMatchedSign = sign;
+        lastMatchedTime = performance.now();
         onCharacterCorrect();
+      } else {
+        // 別のサインが来たらクールダウンをリセット
+        if (lastMatchedSign !== null) {
+          console.log(`[MATCH-MISS] sign=${sign} hira=${hiraganaSign} expected=${expectedChar} idx=${currentIndex} → cooldownリセット`);
+        }
+        lastMatchedSign = null;
       }
     }
     
     // マッチング判定（濁音補正＋文字グループ対応）
     function isMatch(recognized, expected) {
       // 1. 直接一致
-      if (recognized === expected) return true;
-      
+      if (recognized === expected) {
+        console.log(`  [isMatch] 直接一致: "${recognized}" === "${expected}"`);
+        return true;
+      }
+
       // 2. エイリアスチェック（を/小お など）
       if (aliases[expected]) {
         if (aliases[expected].includes(recognized)) {
-
+          console.log(`  [isMatch] エイリアス一致: recognized="${recognized}" expected="${expected}" aliases=${JSON.stringify(aliases[expected])}`);
           return true;
         }
       }
-      
+
       // 3. 濁音→清音の補正
-      // 例: 認識「ば」→ 清音「は」→ 期待「は」なら OK
       if (dakuonToSeion[recognized]) {
         const seion = dakuonToSeion[recognized];
         if (seion === expected) {
-
+          console.log(`  [isMatch] 濁音補正: recognized="${recognized}" → seion="${seion}" === expected="${expected}"`);
           return true;
         }
       }
-      
+
       // 4. 小さい文字→大きい文字の補正（一方向のみ）
-      // 例: 認識「ぁ」→ 大文字「あ」→ 期待「あ」なら OK
       if (komojiToOmoji[recognized]) {
         const omoji = komojiToOmoji[recognized];
         if (omoji === expected) {
-
+          console.log(`  [isMatch] 小文字補正: recognized="${recognized}" → omoji="${omoji}" === expected="${expected}"`);
           return true;
         }
       }
-      
-      // 5. 文字グループチェック（相互認識）
-      // 例: グループ["は", "ば", "ぱ"] → 認識「ば」、期待「は」でも OK
-      if (isInSameGroup(recognized, expected)) {
 
+      // 5. 文字グループチェック（相互認識）
+      if (isInSameGroup(recognized, expected)) {
+        console.log(`  [isMatch] グループ一致: recognized="${recognized}" expected="${expected}"`);
         return true;
       }
-      
+
       return false;
     }
     
@@ -3623,6 +3694,7 @@
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d');
         this._depthMeter = document.getElementById('depthMeter');
+        this._depthGaugeValue = document.getElementById('depthGaugeValue');
         this.resize();
         window.addEventListener('resize', () => this.resize());
         
@@ -3966,7 +4038,12 @@
           
           // 深度メーター更新
           if (this._depthMeter) this._depthMeter.textContent = '▼ ' + Math.round(this.currentDepth) + ' m';
-          
+
+          // 深度数値表示更新
+          if (this._depthGaugeValue) {
+            this._depthGaugeValue.innerHTML = Math.round(this.currentDepth) + '<span class="depth-gauge-unit">m</span>';
+          }
+
           this.draw();
           this.update();
         } catch(e) {

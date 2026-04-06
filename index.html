@@ -50,6 +50,8 @@
   <link rel="prefetch" href="./glb/sign_poses_bundle.bin">
   <link rel="prefetch" href="./glb/wait_actions_bundle.bin">
 
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+
   <!-- 構造化データ JSON-LD -->
   <script type="application/ld+json">
   {
@@ -84,468 +86,379 @@
     data-website-id="627936e6-b8fd-4d77-92f5-4f2f4f357b5b">
   </script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
+    :root {
+      --card-bg: rgba(255, 255, 255, 0.82);
+      --card-border: rgba(255, 255, 255, 0.5);
+      --card-hover-border: rgba(255, 255, 255, 0.7);
+      --card-shadow: rgba(10, 40, 80, 0.15);
+      --text-primary: #0c2d48;
+      --text-secondary: #2e5a78;
+      --text-muted: #5a8aaa;
+      --ogp-blue: #6ab4e2;
+      --ogp-mint: #7ae0c4;
+      --ogp-lavender: #b09ddb;
+      --ogp-title-left: #88cfef;
+      --ogp-title-mid: #b8e8e0;
+      --ogp-title-right: #c9a8e8;
+      --btn-game: linear-gradient(135deg, var(--ogp-blue), #5a9fd0);
+      --btn-game-shadow: rgba(106, 180, 226, 0.35);
+      --btn-practice: linear-gradient(135deg, var(--ogp-lavender), #9580c8);
+      --btn-practice-shadow: rgba(176, 157, 219, 0.3);
+      --highlight-text: #0e7c86;
+      --highlight-bg: linear-gradient(135deg, rgba(122,224,196,0.18), rgba(106,180,226,0.12));
+      --text-on-ocean: rgba(255, 255, 255, 0.65);
+      --text-on-ocean-bright: rgba(255, 255, 255, 0.9);
+    }
+
     body {
-      font-family: 'Segoe UI', 'Arial', 'Hiragino Sans', 'Meiryo', sans-serif;
-      background: linear-gradient(135deg, #e0f7ff 0%, #b3e5fc 50%, #81d4fa 100%);
+      font-family: 'Zen Kaku Gothic New', 'Montserrat', sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text-primary);
+      background: #091428;
+    }
+
+    /* ===== Page wrapper ===== */
+    .page-wrapper {
+      position: relative;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       padding: 20px;
-      position: relative;
-      overflow-x: hidden;
+      overflow: hidden;
+      background: linear-gradient(
+        180deg,
+        #091428 0%,
+        #0c1e3a 8%,
+        #102a4e 16%,
+        #143862 22%,
+        #1a5278 26%,
+        #2e8ab8 29%,
+        #3498c8 31%,
+        #2d8dba 34%,
+        #2580a8 38%,
+        #1e7298 45%,
+        #1a6488 55%,
+        #165878 68%,
+        #134c68 80%,
+        #0f3d55 100%
+      );
     }
-    
-    /* 背景の泡アニメーション */
-    body::before {
-      content: '';
-      position: fixed;
+
+    /* ===== Stars ===== */
+    .stars-layer {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 420px;
+      background-image:
+        radial-gradient(circle at 8% 15%, #fff 1.2px, transparent 1.2px),
+        radial-gradient(circle at 22% 25%, #fff 0.5px, transparent 0.5px),
+        radial-gradient(circle at 38% 8%, rgba(176,157,219,0.95) 1.4px, transparent 1.4px),
+        radial-gradient(circle at 52% 20%, #fff 0.8px, transparent 0.8px),
+        radial-gradient(circle at 65% 5%, #fff 0.9px, transparent 0.9px),
+        radial-gradient(circle at 78% 30%, rgba(106,180,226,0.9) 1.1px, transparent 1.1px),
+        radial-gradient(circle at 90% 12%, #fff 0.6px, transparent 0.6px),
+        radial-gradient(circle at 15% 40%, #fff 0.5px, transparent 0.5px),
+        radial-gradient(circle at 30% 35%, rgba(122,224,196,0.7) 0.8px, transparent 0.8px),
+        radial-gradient(circle at 48% 42%, #fff 0.4px, transparent 0.4px),
+        radial-gradient(circle at 60% 32%, #fff 0.6px, transparent 0.6px),
+        radial-gradient(circle at 72% 18%, #fff 1px, transparent 1px),
+        radial-gradient(circle at 85% 38%, rgba(176,157,219,0.6) 0.7px, transparent 0.7px),
+        radial-gradient(circle at 5% 28%, #fff 0.7px, transparent 0.7px),
+        radial-gradient(circle at 42% 30%, #fff 0.3px, transparent 0.3px),
+        radial-gradient(circle at 95% 22%, #fff 0.5px, transparent 0.5px),
+        radial-gradient(circle at 18% 10%, rgba(106,180,226,0.8) 0.9px, transparent 0.9px),
+        radial-gradient(circle at 55% 38%, #fff 0.4px, transparent 0.4px);
+      background-size: 100% 100%;
+      animation: starsTwinkle 8s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0.3) 85%, transparent 100%);
+      -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0.3) 85%, transparent 100%);
+    }
+    @keyframes starsTwinkle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* ===== Surface waves ===== */
+    .surface-waves {
+      position: absolute;
+      top: 310px;
+      left: 0; right: 0;
+      height: 100px;
+      overflow: hidden;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .surface-waves svg {
+      position: absolute;
       top: 0;
-      left: 0;
-      width: 100%;
+      width: 200%;
       height: 100%;
-      background-image: 
-        radial-gradient(circle at 20% 80%, rgba(255,255,255,0.4) 3px, transparent 3px),
-        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.3) 4px, transparent 4px),
-        radial-gradient(circle at 40% 40%, rgba(255,255,255,0.35) 2px, transparent 2px),
-        radial-gradient(circle at 60% 70%, rgba(255,255,255,0.3) 5px, transparent 5px),
-        radial-gradient(circle at 90% 50%, rgba(255,255,255,0.25) 3px, transparent 3px);
-      background-size: 200px 200px, 300px 300px, 250px 250px, 350px 350px, 280px 280px;
-      animation: bubbleFloat 25s ease-in-out infinite;
+      animation: surfaceWaveSlide 18s linear infinite;
+    }
+    .surface-waves svg:nth-child(2) {
+      animation: surfaceWaveSlide2 22s linear infinite;
+      opacity: 0.7;
+    }
+    @keyframes surfaceWaveSlide {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    @keyframes surfaceWaveSlide2 {
+      0% { transform: translateX(-25%); }
+      100% { transform: translateX(-75%); }
+    }
+
+    .surface-glow {
+      position: absolute;
+      top: 360px;
+      left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(180deg, rgba(52,152,200,0.25) 0%, rgba(106,180,226,0.15) 30%, rgba(255,255,255,0.08) 60%, transparent 100%);
+      z-index: 0;
+      pointer-events: none;
+      animation: glowPulse 5s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* Caustics */
+    .caustics-layer {
+      position: absolute;
+      top: 300px; left: -10%;
+      width: 120%; height: 500px;
+      background:
+        radial-gradient(ellipse 45% 30% at 30% 20%, rgba(255,255,255,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 55% 25% at 65% 15%, rgba(255,255,255,0.08) 0%, transparent 65%),
+        radial-gradient(ellipse 35% 20% at 50% 40%, rgba(106,180,226,0.06) 0%, transparent 60%);
+      animation: caustics 15s ease-in-out infinite;
       pointer-events: none;
       z-index: 0;
     }
-    
-    @keyframes bubbleFloat {
-      0%, 100% { transform: translate(0, 0); }
-      25% { transform: translate(10px, -20px); }
-      50% { transform: translate(-5px, -40px); }
-      75% { transform: translate(15px, -30px); }
+    @keyframes caustics {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+      33% { transform: translate(15px, 5px) scale(1.02); opacity: 0.85; }
+      66% { transform: translate(-10px, 8px) scale(0.98); opacity: 0.95; }
     }
-    
+
+    /* Bubbles */
+    .bubbles-layer {
+      position: absolute;
+      top: 400px; left: 0; width: 100%; height: 800px;
+      background-image:
+        radial-gradient(circle at 18% 20%, rgba(255,255,255,0.35) 2px, transparent 2px),
+        radial-gradient(circle at 78% 15%, rgba(255,255,255,0.25) 3px, transparent 3px),
+        radial-gradient(circle at 42% 40%, rgba(255,255,255,0.2) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 88% 55%, rgba(255,255,255,0.3) 2.5px, transparent 2.5px),
+        radial-gradient(circle at 28% 10%, rgba(106,180,226,0.2) 2px, transparent 2px),
+        radial-gradient(circle at 65% 70%, rgba(176,157,219,0.15) 1.5px, transparent 1.5px);
+      background-size: 260px 260px, 340px 340px, 300px 300px, 380px 380px, 320px 320px, 280px 280px;
+      animation: bubbleDrift 28s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes bubbleDrift {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(6px, -12px); }
+      50% { transform: translate(-3px, -25px); }
+      75% { transform: translate(10px, -18px); }
+    }
+
+    /* ===== Content ===== */
     .container {
       max-width: 700px;
       width: 100%;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(20px);
-      border-radius: 40px;
-      padding: 50px 40px;
-      box-shadow: 
-        0 8px 32px rgba(100, 181, 246, 0.3),
-        0 0 0 1px rgba(255,255,255,0.8) inset;
       position: relative;
-      z-index: 1;
+      z-index: 2;
+      padding-top: 20px;
     }
-    
-    .title-container {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    
+
+    .title-container { text-align: center; margin-bottom: 40px; }
+
     .game-title {
-      font-size: 56px;
-      font-weight: 800;
-      color: #1a237e;
-      margin-bottom: 12px;
-      letter-spacing: 4px;
-      text-shadow: 
-        2px 2px 0 rgba(100,181,246,0.3),
-        4px 4px 0 rgba(100,181,246,0.15);
-      animation: gentle Pulse 3s ease-in-out infinite;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 56px; font-weight: 900; letter-spacing: 5px;
+      background: linear-gradient(90deg, var(--ogp-title-left) 0%, var(--ogp-title-mid) 45%, var(--ogp-title-right) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      filter: drop-shadow(0 2px 10px rgba(0,0,0,0.2));
+      margin-bottom: 8px;
     }
-    
-    @keyframes gentlePulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-    }
-    
+
     .game-subtitle {
-      font-size: 18px;
-      color: #0288d1;
-      font-weight: 500;
-      letter-spacing: 1px;
-      opacity: 0.85;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px; color: rgba(255,255,255,0.6); letter-spacing: 5px;
+      text-transform: uppercase; font-weight: 600;
     }
-    
+
+    /* Description card */
     .description-box {
-      background: linear-gradient(135deg, rgba(179,229,252,0.3), rgba(129,212,250,0.3));
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 32px;
-      border: 2px solid rgba(100,181,246,0.3);
-      line-height: 1.8;
-      color: #1a237e;
+      background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border); border-radius: 24px; padding: 24px 28px;
+      margin-bottom: 20px; box-shadow: 0 4px 24px var(--card-shadow);
+      line-height: 1.9; font-size: 14.5px; color: var(--text-secondary);
     }
-    
-    .description-box p {
-      margin-bottom: 12px;
-    }
-    
+    .description-box p { margin-bottom: 12px; }
+    .description-box p:last-child { margin-bottom: 0; }
     .highlight-word {
-      color: #0277bd;
-      font-weight: 700;
-      text-shadow: 0 0 8px rgba(206,147,216,0.4);
-      background: linear-gradient(135deg, rgba(206,147,216,0.15), rgba(186,104,200,0.15));
-      padding: 0 8px;
-      border-radius: 8px;
+      color: var(--highlight-text); font-weight: 700; padding: 1px 8px;
+      background: var(--highlight-bg); border-radius: 6px;
     }
-    
     .description-box a {
-      color: #0277bd;
-      font-weight: 600;
-      text-decoration: none;
-      border-bottom: 2px solid rgba(206,147,216,0.5);
-      transition: all 0.3s;
+      color: var(--ogp-blue); font-weight: 600; text-decoration: none;
+      border-bottom: 2px solid rgba(106,180,226,0.4); transition: all 0.3s;
     }
-    
-    .description-box a:hover {
-      border-bottom-color: #0277bd;
-      background: rgba(206,147,216,0.1);
+    .description-box a:hover { border-bottom-color: var(--ogp-blue); background: rgba(106,180,226,0.08); }
+
+    /* Options zone */
+    .options-zone {
+      border: 1.5px dashed rgba(255,255,255,0.35); border-radius: 24px;
+      padding: 24px 24px 12px; margin-bottom: 20px;
+      background: rgba(255,255,255,0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     }
-    
-    /* 2大モード カード */
-    .mode-cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
+    .options-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .options-label { font-size: 14px; font-weight: 700; color: white; letter-spacing: 0.5px; }
+    .options-badge { font-size: 11px; color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.15); border-radius: 20px; padding: 3px 12px; }
+
+    /* Hand/camera option groups */
+    .hand-select, .camera-display-select {
+      background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.4); border-radius: 18px;
+      padding: 18px 22px; margin-bottom: 12px; box-shadow: 0 2px 12px var(--card-shadow);
     }
+    .hand-select h2, .camera-display-select h2 {
+      color: var(--text-primary); font-weight: 700; font-size: 16px;
+      letter-spacing: 0.5px; white-space: nowrap; margin: 0;
+    }
+    .hand-buttons, .camera-display-buttons { display: flex; gap: 10px; flex: 1; width: 100%; }
+    .hand-btn, .camera-display-btn {
+      flex: 1; padding: 12px 16px; border: 2px solid rgba(106,180,226,0.25); border-radius: 14px;
+      background: rgba(106,180,226,0.06); color: var(--text-secondary); font-family: inherit;
+      font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.25s; text-align: center;
+    }
+    .hand-btn:hover, .camera-display-btn:hover { border-color: rgba(106,180,226,0.4); background: rgba(106,180,226,0.1); }
+    .hand-btn.selected, .camera-display-btn.selected {
+      background: linear-gradient(135deg, rgba(106,180,226,0.18), rgba(122,224,196,0.12));
+      border-color: var(--ogp-blue); color: var(--text-primary); box-shadow: 0 2px 12px rgba(106,180,226,0.15);
+    }
+
+    /* Mode cards */
+    .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
     .mode-card {
-      background: rgba(255,255,255,0.75);
-      border-radius: 24px;
-      padding: 24px 20px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      border: 2px solid transparent;
-      box-shadow: 0 4px 20px rgba(0,0,100,0.07);
-      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-      cursor: pointer;
+      background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border); border-radius: 24px; padding: 24px 20px 20px;
+      display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: all 0.25s;
+      box-shadow: 0 4px 20px var(--card-shadow);
     }
-    .mode-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 28px rgba(0,0,100,0.12);
-    }
-    .mode-card.active {
-      box-shadow: 0 8px 28px rgba(0,0,100,0.15);
-      transform: translateY(-2px);
-    }
-    .mode-card--practice {
-      border-color: rgba(206,147,216,0.4);
-      background: linear-gradient(160deg, rgba(255,255,255,0.9), rgba(243,229,245,0.6));
-    }
-    .mode-card--practice.active {
-      border-color: rgba(186,104,200,0.9);
-    }
-    .mode-card--game {
-      border-color: rgba(100,181,246,0.4);
-      background: linear-gradient(160deg, rgba(255,255,255,0.9), rgba(227,242,253,0.6));
-    }
-    .mode-card--game.active {
-      border-color: rgba(25,118,210,0.8);
-    }
-    .mode-card-label {
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      opacity: 0.45;
-      color: #1a237e;
-    }
-    .mode-card-title {
-      font-size: 20px;
-      font-weight: 900;
-      color: #1a237e;
-      line-height: 1.2;
-    }
-    .mode-card-desc {
-      font-size: 12px;
-      color: #5c6bc0;
-      font-weight: 600;
-      line-height: 1.6;
-      flex: 1;
-    }
+    .mode-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(10,40,80,0.2); }
+    .mode-card.active { transform: translateY(-2px); }
+    .mode-card--practice.active { border-color: var(--ogp-lavender); box-shadow: 0 6px 28px rgba(176,157,219,0.2); }
+    .mode-card--game.active { border-color: var(--ogp-blue); box-shadow: 0 6px 28px rgba(106,180,226,0.2); }
+    .mode-card-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--text-muted); }
+    .mode-card-title { font-size: 19px; font-weight: 800; color: var(--text-primary); }
+    .mode-card-desc { font-size: 12px; color: var(--text-secondary); font-weight: 500; line-height: 1.7; flex: 1; }
     .mode-card-select-btn {
-      width: 100%;
-      padding: 11px;
-      border: none;
-      border-radius: 50px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: rgba(100,181,246,0.15);
-      color: #1a237e;
-      margin-top: 4px;
+      width: 100%; padding: 11px; border: 1.5px solid rgba(106,180,226,0.25); border-radius: 50px;
+      background: rgba(106,180,226,0.06); color: var(--text-secondary); font-family: inherit;
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s;
     }
-    .mode-card--practice .mode-card-select-btn {
-      background: rgba(206,147,216,0.2);
-    }
-    .mode-card.active .mode-card-select-btn {
-      background: linear-gradient(135deg, #64b5f6, #1976d2);
-      color: white;
-    }
-    .mode-card--practice.active .mode-card-select-btn {
-      background: linear-gradient(135deg, #ce93d8, #ba68c8);
-      color: white;
-    }
-    /* 展開エリア */
+    .mode-card--practice.active .mode-card-select-btn { background: linear-gradient(135deg, rgba(176,157,219,0.2), rgba(176,157,219,0.1)); border-color: var(--ogp-lavender); color: #6b4ea0; }
+    .mode-card--game.active .mode-card-select-btn { background: linear-gradient(135deg, rgba(106,180,226,0.2), rgba(122,224,196,0.1)); border-color: var(--ogp-blue); color: #1a6a9a; }
+
+    /* Mode detail */
     .mode-detail {
-      background: rgba(255,255,255,0.75);
-      border-radius: 24px;
-      padding: 24px;
-      margin-bottom: 24px;
-      border: 2px solid rgba(100,181,246,0.3);
-      animation: detailFadeIn 0.25s ease;
+      background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border); border-radius: 24px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 4px 24px var(--card-shadow); animation: detailFadeIn 0.25s ease;
     }
     @keyframes detailFadeIn {
       from { opacity: 0; transform: translateY(-8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     .mode-detail-header {
-      font-size: 16px;
-      font-weight: 800;
-      color: #1a237e;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid rgba(100,181,246,0.2);
+      font-size: 16px; font-weight: 800; color: var(--text-primary);
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1.5px solid rgba(106,180,226,0.2);
     }
-    .mode-detail-header--practice {
-      border-bottom-color: rgba(206,147,216,0.3);
-    }
-    .start-button--practice {
-      background: linear-gradient(135deg, #ce93d8, #ba68c8) !important;
-      box-shadow: 0 6px 20px rgba(206,147,216,0.4) !important;
-    }
-    @media (max-width: 600px) {
-      .mode-cards { grid-template-columns: 1fr; }
-    }
+    .mode-detail-header--practice { border-bottom-color: rgba(176,157,219,0.25); }
 
-    .difficulty-select {
-      background: rgba(255, 255, 255, 0.6);
-      border-radius: 24px;
-      padding: 28px;
-      margin-bottom: 24px;
-      border: 2px solid rgba(100,181,246,0.3);
-    }
-    
-    .difficulty-select h2 {
-      color: #1a237e;
-      margin-bottom: 20px;
-      font-weight: 700;
-      font-size: 20px;
-      text-align: center;
-      letter-spacing: 1px;
-    }
-    
-    .difficulty-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    
+    /* Difficulty */
+    .difficulty-select { margin-bottom: 20px; }
+    .difficulty-select h2 { color: var(--text-primary); margin-bottom: 16px; font-weight: 700; font-size: 17px; text-align: center; }
+    .difficulty-buttons { display: flex; gap: 10px; justify-content: center; }
     .difficulty-btn {
-      flex: 1;
-      min-width: 140px;
-      padding: 20px 16px;
-      border: 3px solid transparent;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #64b5f6, #42a5f5);
-      color: white;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-      box-shadow: 0 4px 16px rgba(100,181,246,0.4);
+      flex: 1; min-width: 120px; padding: 18px 14px; border: 2px solid rgba(106,180,226,0.25); border-radius: 18px;
+      background: rgba(106,180,226,0.06); color: var(--text-secondary); font-family: inherit;
+      font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.25s; text-align: center;
     }
-    
-    .difficulty-btn:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(100,181,246,0.5);
-    }
-    
+    .difficulty-btn:hover { border-color: rgba(106,180,226,0.4); transform: translateY(-2px); }
     .difficulty-btn.selected {
-      background: linear-gradient(135deg, #ce93d8, #ba68c8);
-      box-shadow: 0 6px 20px rgba(206,147,216,0.6);
-      border-color: #0277bd;
+      background: linear-gradient(135deg, rgba(106,180,226,0.18), rgba(122,224,196,0.12));
+      border-color: var(--ogp-blue); color: var(--text-primary); box-shadow: 0 4px 16px rgba(106,180,226,0.15);
     }
-    
-    .difficulty-label {
-      font-size: 22px;
-      display: block;
-      margin-bottom: 8px;
-    }
-    
-    .difficulty-desc {
-      font-size: 13px;
-      opacity: 0.95;
-      font-weight: 500;
-    }
-    
-    .action-buttons {
-      display: flex;
-      gap: 16px;
-      margin-top: 24px;
-    }
-    
-    .start-button {
-      flex: 1;
-      padding: 20px 32px;
-      background: linear-gradient(135deg, #66bb6a, #4caf50);
-      color: white;
-      border: none;
-      border-radius: 50px;
-      font-size: 22px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.3s;
-      letter-spacing: 2px;
-      box-shadow: 0 6px 20px rgba(76,175,80,0.4);
-    }
-    
-    .start-button:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 28px rgba(76,175,80,0.5);
-    }
-    
-    .history-button {
-      padding: 20px 28px;
-      background: rgba(255,255,255,0.8);
-      color: #1a237e;
-      border: 2px solid rgba(100,181,246,0.4);
-      border-radius: 50px;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      white-space: nowrap;
-    }
-    
-    .history-button:hover {
-      background: rgba(255,255,255,1);
-      border-color: #64b5f6;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(100,181,246,0.3);
-    }
-    
-    .site-footer {
-      text-align: center;
-      margin-top: 32px;
-      position: relative;
-      z-index: 1;
-    }
-    
-    .site-footer a {
-      color: #0288d1;
-      text-decoration: none;
-      font-size: 14px;
-      transition: color 0.2s;
-      margin: 0 10px;
-      font-weight: 600;
-    }
-    
-    .site-footer a:hover {
-      color: #0277bd;
-    }
-    
-    .footer-icon {
-      color: #ef5350;
-      font-size: 12px;
-      margin-right: 4px;
-    }
-    
-    /* 利き手選択 */
-    .hand-select {
-      background: rgba(255,255,255,0.6);
-      border-radius: 20px;
-      padding: 20px 28px;
-      margin-bottom: 12px;
-      border: 2px solid rgba(100,181,246,0.3);
-    }
-    .hand-select h2 {
-      color: #1a237e;
-      font-weight: 700;
-      font-size: 18px;
-      letter-spacing: 1px;
-      white-space: nowrap;
-      margin: 0;
-    }
-    .hand-buttons { display: flex; gap: 10px; flex: 1; width: 100%; }
-    .hand-btn {
-      flex: 1;
-      padding: 12px 16px;
-      border: 3px solid transparent;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #64b5f6, #42a5f5);
-      color: white;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(100,181,246,0.3);
-    }
-    .hand-btn:hover { transform: translateY(-2px); }
-    .hand-btn.selected {
-      background: linear-gradient(135deg, #ce93d8, #ba68c8);
-      box-shadow: 0 6px 18px rgba(206,147,216,0.5);
-      border-color: #0277bd;
-    }
+    .difficulty-label { font-size: 20px; display: block; margin-bottom: 6px; }
+    .difficulty-desc { font-size: 12px; color: var(--text-muted); font-weight: 500; }
 
-    /* カメラ映像表示選択 */
-    .camera-display-select {
-      background: rgba(255,255,255,0.6);
-      border-radius: 20px;
-      padding: 20px 28px;
-      margin-bottom: 24px;
-      border: 2px solid rgba(100,181,246,0.3);
+    /* Action buttons */
+    .action-buttons { display: flex; gap: 14px; }
+    .start-button {
+      flex: 1; padding: 18px 28px; background: var(--btn-game); color: white; border: none;
+      border-radius: 50px; font-family: inherit; font-size: 20px; font-weight: 800;
+      cursor: pointer; transition: all 0.3s; letter-spacing: 2px; box-shadow: 0 6px 24px var(--btn-game-shadow);
     }
-    .camera-display-select h2 {
-      color: #1a237e;
-      font-weight: 700;
-      font-size: 18px;
-      letter-spacing: 1px;
-      white-space: nowrap;
-      margin: 0;
+    .start-button:hover { transform: translateY(-3px); box-shadow: 0 10px 32px var(--btn-game-shadow); }
+    .start-button--practice { background: var(--btn-practice) !important; box-shadow: 0 6px 24px var(--btn-practice-shadow) !important; }
+    .start-button--practice:hover { box-shadow: 0 10px 32px var(--btn-practice-shadow) !important; }
+    .history-button {
+      padding: 18px 24px; background: rgba(255,255,255,0.75); color: var(--text-secondary);
+      border: 1px solid rgba(255,255,255,0.5); border-radius: 50px; font-family: inherit;
+      font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s;
+      white-space: nowrap; box-shadow: 0 2px 12px var(--card-shadow);
     }
-    .camera-display-buttons { display: flex; gap: 10px; flex: 1; width: 100%; }
-    .camera-display-btn {
-      flex: 1;
-      padding: 12px 16px;
-      border: 3px solid transparent;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #64b5f6, #42a5f5);
-      color: white;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(100,181,246,0.3);
-    }
-    .camera-display-btn:hover { transform: translateY(-2px); }
-    .camera-display-btn.selected {
-      background: linear-gradient(135deg, #ce93d8, #ba68c8);
-      box-shadow: 0 6px 18px rgba(206,147,216,0.5);
-      border-color: #0277bd;
-    }
+    .history-button:hover { background: rgba(255,255,255,0.9); border-color: rgba(255,255,255,0.7); transform: translateY(-2px); }
+
+    /* Footer */
+    .site-footer { text-align: center; margin-top: 32px; position: relative; z-index: 2; padding-bottom: 20px; }
+    .site-footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; margin: 0 8px; font-weight: 500; transition: color 0.2s; }
+    .site-footer a:hover { color: rgba(255,255,255,0.9); }
+    .footer-sep { color: rgba(255,255,255,0.2); }
+    .footer-icon { color: #ef5350; font-size: 12px; margin-right: 4px; }
 
     @media (max-width: 600px) {
-      .game-title { font-size: 36px; }
+      .game-title { font-size: 36px; letter-spacing: 3px; }
+      .mode-cards { grid-template-columns: 1fr; }
       .difficulty-buttons { flex-direction: column; }
-      .difficulty-btn { min-width: auto; }
       .action-buttons { flex-direction: column; }
-      .hand-select { flex-direction: column; align-items: stretch; gap: 10px; flex-wrap: nowrap; padding: 16px; }
-      .hand-buttons { flex: none; width: 100%; }
+      .hand-select, .camera-display-select { padding: 16px; }
+      .container { padding-top: 10px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="page-wrapper">
+    <!-- Effect layers -->
+    <div class="stars-layer"></div>
+    <div class="surface-waves">
+      <svg viewBox="0 0 2880 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0,50 C120,20 240,70 360,45 C480,20 600,65 720,50 C840,35 960,70 1080,45 C1200,20 1320,65 1440,50 C1560,35 1680,70 1800,45 C1920,20 2040,65 2160,50 C2280,35 2400,70 2520,45 C2640,20 2760,65 2880,50 L2880,100 L0,100 Z" fill="rgba(46, 138, 184, 0.35)"/>
+        <path d="M0,50 C120,20 240,70 360,45 C480,20 600,65 720,50 C840,35 960,70 1080,45 C1200,20 1320,65 1440,50 C1560,35 1680,70 1800,45 C1920,20 2040,65 2160,50 C2280,35 2400,70 2520,45 C2640,20 2760,65 2880,50" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+      </svg>
+      <svg viewBox="0 0 2880 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0,55 C160,30 320,75 480,50 C640,25 800,70 960,55 C1120,40 1280,75 1440,50 C1600,25 1760,70 1920,55 C2080,40 2240,75 2400,50 C2560,25 2720,70 2880,55 L2880,100 L0,100 Z" fill="rgba(37, 128, 168, 0.2)"/>
+        <path d="M0,55 C160,30 320,75 480,50 C640,25 800,70 960,55 C1120,40 1280,75 1440,50 C1600,25 1760,70 1920,55 C2080,40 2240,75 2400,50 C2560,25 2720,70 2880,55" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="surface-glow"></div>
+    <div class="caustics-layer"></div>
+    <div class="bubbles-layer"></div>
+
+    <!-- Content -->
+    <div class="container">
     <div class="title-container">
       <div class="game-title">SIGN DIVER</div>
       <div class="game-subtitle">Type with Your Hands</div>
@@ -558,35 +471,18 @@
     </div>
     
     <!-- オプションゾーン -->
-    <div style="
-      background: linear-gradient(135deg, rgba(100,181,246,0.12), rgba(206,147,216,0.12));
-      border: 2px dashed rgba(100,181,246,0.4);
-      border-radius: 24px;
-      padding: 20px 24px 8px;
-      margin-bottom: 24px;
-    ">
-      <div style="
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 16px;
-      ">
+    <div class="options-zone">
+      <div class="options-header">
         <span style="font-size: 18px;">⚙️</span>
-        <span style="font-size: 14px; font-weight: 700; color: #1a237e; letter-spacing: 0.5px;">オプション</span>
-        <span style="
-          font-size: 12px; color: #5c6bc0;
-          background: rgba(100,181,246,0.15);
-          border-radius: 20px;
-          padding: 2px 10px;
-          margin-left: 4px;
-        ">プレイ前に確認してください</span>
+        <span class="options-label">オプション</span>
+        <span class="options-badge">プレイ前に確認してください</span>
       </div>
 
       <!-- 利き手設定 -->
       <div class="hand-select">
         <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
           <h2 style="margin:0;">🖐️ 利き手設定</h2>
-          <span style="font-size:11px; color:#5c6bc0; font-weight:600;">指文字を表現する手を選択します</span>
+          <span style="font-size:11px; color:var(--text-muted); font-weight:500;">指文字を表現する手を選択します</span>
         </div>
         <div class="hand-buttons">
           <button class="hand-btn" data-hand="right">右手</button>
@@ -598,7 +494,7 @@
       <div class="camera-display-select">
         <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
           <h2 style="margin:0;">📷 カメラ映像</h2>
-          <span style="font-size:11px; color:#5c6bc0; font-weight:600;">画面に自分の姿を映すか選択します</span>
+          <span style="font-size:11px; color:var(--text-muted); font-weight:500;">画面に自分の姿を映すか選択します</span>
         </div>
         <div class="camera-display-buttons">
           <button class="camera-display-btn" data-show="true">表示する</button>
@@ -621,7 +517,7 @@
       <!-- タイピングゲームカード -->
       <div class="mode-card mode-card--game" id="cardGame">
         <div class="mode-card-label">TYPING GAME</div>
-        <div class="mode-card-title">タイピングゲーム</div>
+        <div class="mode-card-title">タイピングモード</div>
         <div class="mode-card-desc">制限時間内に指文字でタイピング。深海までたどり着けるか！</div>
         <button class="mode-card-select-btn" id="selectGame">選ぶ</button>
       </div>
@@ -648,7 +544,7 @@
       <!-- タイピングゲーム詳細 -->
       <div id="detailGame" style="display:none;">
         <div class="mode-detail-header mode-detail-header--game">
-          🎮 タイピングゲーム
+          🎮 タイピングモード
         </div>
         <div class="difficulty-select">
           <h2>難易度を選択</h2>
@@ -678,19 +574,20 @@
   
   <footer class="site-footer">
     <div style="margin-bottom: 8px; text-align: center;">
-      <a href="about_yubimoji.html" style="margin: 0 12px;">指文字とは？</a>
-      <span style="color: rgba(74,20,140,0.3);">|</span>
-      <a href="about_signdiver.html" style="margin: 0 12px;">Sign Diverとは？</a>
-      <span style="color: rgba(74,20,140,0.3);">|</span>
-      <a href="terms.html" style="margin: 0 12px;">利用規約</a>
-      <span style="color: rgba(74,20,140,0.3);">|</span>
-      <a href="privacy.html" style="margin: 0 12px;">プライバシーポリシー</a>
+      <a href="about_yubimoji.html">指文字とは？</a>
+      <span class="footer-sep">|</span>
+      <a href="about_signdiver.html">Sign Diverとは？</a>
+      <span class="footer-sep">|</span>
+      <a href="terms.html">利用規約</a>
+      <span class="footer-sep">|</span>
+      <a href="privacy.html">プライバシーポリシー</a>
     </div>
     <a href="https://www.youtube.com/@Katsuo_Shuwa_Doga" target="_blank" rel="noopener noreferrer">
       <span class="footer-icon">▶</span>
       <span>@KatsuoShuwaDoga</span>
     </a>
   </footer>
+  </div>
 
   <script>
     // ═══════════════════════════════════════════════

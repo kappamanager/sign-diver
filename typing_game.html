@@ -384,6 +384,51 @@
     .tutorial-skip:hover { color: rgba(255,255,255,0.55); }
     /* ═══════════════════════════════════ */
 
+    /* ═══ スマホ横向き促進オーバーレイ ═══ */
+    .rotate-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 14, 30, 0.96);
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      padding: 24px;
+    }
+    .rotate-overlay-icon {
+      font-size: 64px;
+      animation: rotatePhone 2s ease-in-out infinite;
+    }
+    @keyframes rotatePhone {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-90deg); }
+      50%, 75% { transform: rotate(-90deg); }
+    }
+    .rotate-overlay-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #4facfe;
+      letter-spacing: 2px;
+    }
+    .rotate-overlay-text {
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.8;
+      max-width: 320px;
+    }
+    .rotate-overlay-text strong {
+      color: #4facfe;
+    }
+    /* portrait + mobile のときだけ表示 */
+    @media (max-width: 640px) and (orientation: portrait) {
+      .rotate-overlay { display: flex; }
+    }
+    /* ═══════════════════════════════════ */
+
     /* ═══ カメラ調整画面（ゲーム画面の上にバナー） ═══ */
     .cam-adjust-overlay {
       position: fixed;
@@ -1256,6 +1301,224 @@
       box-shadow: 0 20px 60px rgba(0,0,100,0.3);
       border: 2px solid rgba(100,181,246,0.4);
     }
+    /* スマホ横向き: モーダルを一画面に収める */
+    /* ═══ スマホ横向き全画面対応 ═══ */
+    @media (max-width: 900px) and (max-height: 450px) {
+
+      /* --- 全体: スクロール禁止 --- */
+      body {
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      /* --- カメラ選択モーダル --- */
+      .cam-modal-box {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      /* --- ローディング画面 --- */
+      .loading-screen {
+        padding: 12px 20px;
+        min-height: 100vh;
+        height: 100vh;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .loading-title { font-size: 12px; margin-bottom: 10px; }
+      .tips-card {
+        padding: 10px 20px;
+        min-height: auto;
+        margin-bottom: 10px;
+        gap: 4px;
+      }
+      .tips-emoji { display: none; }
+      .tips-text { font-size: 12px; }
+      .tips-counter { margin-bottom: 6px; font-size: 10px; }
+      .loading-progress { font-size: 11px; }
+      .loading-bar-wrap { margin-top: 8px; }
+
+      /* --- フッター: 横向きでは非表示 --- */
+      .site-footer { display: none; }
+
+      /* --- チュートリアル / カメラ調整ダイアログ --- */
+      .tutorial-overlay {
+        align-items: center;
+      }
+      .tutorial-box {
+        padding: 12px 20px 10px;
+        border-radius: 16px;
+        max-width: 500px;
+      }
+      .tutorial-icon { display: none; }
+      .tutorial-title { font-size: 14px; margin-bottom: 8px; letter-spacing: 1px; }
+      .tutorial-tips { margin-bottom: 10px; }
+      .tutorial-tips li { font-size: 12px; margin-bottom: 4px; line-height: 1.5; gap: 6px; }
+      .tutorial-tips li .ti { font-size: 14px; }
+      .tutorial-ok-btn { padding: 10px 36px; font-size: 14px; }
+      .tutorial-skip { margin-top: 6px; font-size: 10px; }
+
+      /* --- カメラ調整バナー --- */
+      .cam-adjust-banner {
+        padding: 10px 16px;
+        border-radius: 12px;
+      }
+      .cam-adjust-banner-text { font-size: 12px; margin-bottom: 4px; }
+      .cam-adjust-tips { font-size: 10px; margin-bottom: 8px; }
+
+      /* --- カウントダウン --- */
+      .countdown-number { font-size: 72px; }
+      .countdown-number.start { font-size: 48px; }
+
+      /* --- プレイ画面: 左カメラ / 右海背景 --- */
+      .game-container {
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        overflow: hidden;
+      }
+      #gameScreen {
+        grid-template-columns: 70% 30%;
+        grid-template-rows: auto 1fr auto;
+        grid-template-areas:
+          "header  header"
+          "camera  word"
+          "camera  wordtimer";
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* ヘッダー（通常フロー、上部に残す） */
+      .game-header {
+        grid-area: header;
+        padding: 3px 10px 0;
+      }
+      .game-header-top { margin-bottom: 2px; }
+      .timer, .score { font-size: 14px; }
+      .stats { font-size: 10px; }
+      .total-timer-bar-wrap { height: 4px; }
+
+      /* 海の背景+単語 → 右側、やや上寄りの中央 */
+      .word-display {
+        grid-area: word;
+        height: 100% !important;
+        padding: 0 8px 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .current-word {
+        font-size: 24px;
+        letter-spacing: 2px;
+        min-height: 28px;
+        margin-bottom: 4px;
+      }
+      .hiragana-display { font-size: 14px; }
+      .depth-gauge { right: 6px; bottom: 4px; }
+      .depth-gauge-value { font-size: 16px; }
+      .depth-gauge-unit { font-size: 8px; }
+      .depth-gauge-sub { font-size: 5px; }
+
+      /* 単語タイマーバー → 右下 */
+      .word-timer-bar-wrap {
+        grid-area: wordtimer;
+        height: 5px;
+      }
+
+      /* game-main → display:contentsで子をgridに直接配置 */
+      .game-main {
+        display: contents !important;
+      }
+
+      /* カメラ → 左側全体（認識結果を内部にオーバーレイ） */
+      .camera-area {
+        grid-area: camera;
+        position: relative;
+        overflow: hidden;
+      }
+      /* カメラOFF時: カメラ非表示、海背景を全幅に */
+      .camera-area.hidden {
+        display: none !important;
+      }
+      #gameScreen.no-camera {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "word"
+          "wordtimer";
+      }
+      #gameScreen.no-camera .recognition-area {
+        position: fixed;
+        bottom: 4px; left: 4px;
+        z-index: 9999;
+      }
+      #gameScreen.no-camera .word-display {
+        padding-bottom: 40px;
+      }
+      #gameScreen.no-camera .current-word {
+        font-size: 48px;
+      }
+      #gameScreen.no-camera .hiragana-display {
+        font-size: 28px;
+      }
+      .camera-area canvas:not(#seaCanvas),
+      .camera-area video {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        object-fit: cover;
+        border-radius: 0;
+        border: none;
+      }
+
+      /* 認識結果+中断 → カメラ左下に縦積みオーバーレイ */
+      .recognition-area {
+        position: absolute;
+        bottom: 4px; left: 4px;
+        z-index: 20;
+        flex-direction: column;
+        gap: 2px;
+        padding: 0;
+        align-items: stretch;
+        width: 56px;
+      }
+      .recognition-result {
+        padding: 4px 0;
+        border-radius: 8px;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(6px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .recognized-char {
+        font-size: 22px;
+        margin-bottom: 0;
+        color: white;
+        text-align: center;
+      }
+      .confidence {
+        font-size: 7px;
+        color: rgba(255,255,255,0.6);
+      }
+      .status-box {
+        display: none;
+      }
+      .abort-btn {
+        padding: 3px 0;
+        font-size: 8px;
+        writing-mode: horizontal-tb;
+        border-radius: 8px;
+        background: rgba(239,83,80,0.6);
+        color: white;
+        border-color: transparent;
+        text-align: center;
+        width: 100%;
+      }
+    }
+    /* ═══ スマホ横向き対応ここまで ═══ */
     .cam-modal-icon { font-size: 48px; margin-bottom: 12px; }
     .cam-modal-title {
       font-size: 18px; font-weight: 800;
@@ -1312,6 +1575,16 @@
     }
   </style></head>
 <body>
+  <!-- スマホ横向き促進オーバーレイ -->
+  <div class="rotate-overlay" id="rotateOverlay">
+    <div class="rotate-overlay-icon">📱</div>
+    <div class="rotate-overlay-title">横向きにしてください</div>
+    <div class="rotate-overlay-text">
+      指文字の<strong>濁点（横の動き）</strong>を認識するために、<br>
+      スマホを横向きにしてプレイしてください。
+    </div>
+  </div>
+
   <!-- カメラエラーモーダル -->
   <div id="cameraErrorModal">
     <div class="cam-modal-box">
@@ -1391,7 +1664,7 @@
       <div id="camAdjustScreen" class="cam-adjust-overlay" style="display:none;">
         <div class="cam-adjust-banner">
           <div class="cam-adjust-banner-text">
-            <span style="font-size:18px;">📷</span>
+            <!-- <span style="font-size:18px;">📷</span> -->
             <span>カメラ位置の調整中 — 下のカメラ映像と認識結果を確認してください</span>
           </div>
           <div class="cam-adjust-tips">
@@ -1525,10 +1798,7 @@
       <span style="color: rgba(2,136,209,0.3);">|</span>
       <a href="privacy.html" style="margin: 0 12px; color: #0288d1; text-decoration: none; font-size: 13px; transition: color 0.2s;">プライバシーポリシー</a>
     </div>
-    <a href="https://www.youtube.com/@Katsuo_Shuwa_Doga" target="_blank" rel="noopener noreferrer">
-      <span class="footer-icon">▶</span>
-      <span class="footer-name">@KatsuoShuwaDoga</span>
-    </a>
+    <a href="index.html">Sign Diver</a>
   </footer>
   
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
@@ -2030,11 +2300,22 @@
         //    これでloadingScreen → カウントダウンがシームレスに見える
         stopTipsRotation();
         document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('gameScreen').style.display = 'block';
+        // カメラ映像表示設定
+        const showCameraForAdjust = localStorage.getItem('signDiver_showCamera') !== 'false';
+        // スマホ横向きではgridレイアウト、それ以外はblock
+        const isLandscapeMobile = window.matchMedia('(max-width: 900px) and (max-height: 450px)').matches;
+        const gameScreen = document.getElementById('gameScreen');
+        gameScreen.style.display = isLandscapeMobile ? 'grid' : 'block';
+        // カメラOFF + 横向き: 海背景を全幅に
+        if (isLandscapeMobile && !showCameraForAdjust) {
+          gameScreen.classList.add('no-camera');
+        }
         requestAnimationFrame(() => { SEA.resize(); });
 
-        // ③-b カメラ調整ステップ
-        await showCamAdjustDialog();
+        // ③-b カメラ調整ステップ（カメラ映像表示時のみ）
+        if (showCameraForAdjust) {
+          await showCamAdjustDialog();
+        }
 
         // 初回訪問チェック → チュートリアル表示
         if (!localStorage.getItem('signDiver_seenTutorial')) {
@@ -3899,7 +4180,9 @@
         this.fadeFrom2 = this.LEVELS[0].bg2;
         this.fadeFromRay = this.LEVELS[0].rays;
         
-        this.diverY = this.H * 0.5;
+        // スマホ横向き: ダイバーを上寄りに
+        const isLM = window.matchMedia('(max-width: 900px) and (max-height: 450px)').matches;
+        this.diverY = isLM ? this.H * 0.25 : this.H * 0.5;
         this.spawnInitial();
         this.animate();
       },
@@ -3912,7 +4195,9 @@
         this.H = wrap.clientHeight || wrap.offsetHeight || 200;
         this.canvas.width  = this.W;
         this.canvas.height = this.H;
-        this.diverY = this.H * 0.5;
+        // スマホ横向き: ダイバーを上寄りに（テキストと被らないように）
+        const isLandscapeMobile = window.matchMedia('(max-width: 900px) and (max-height: 450px)').matches;
+        this.diverY = isLandscapeMobile ? this.H * 0.25 : this.H * 0.5;
       },
       
       // 累計クリア文字数からレベルを取得
@@ -4960,7 +5245,7 @@
         const { ctx, W, H, time } = this;
         // ダイバーはcanvas中央右寄りに配置
         const dx = W * 0.72;
-        const dy = H * 0.5 + Math.sin(time * 0.6) * 6;
+        const dy = this.diverY + Math.sin(time * 0.6) * 6;
         
         ctx.save();
         ctx.globalAlpha = 0.8;

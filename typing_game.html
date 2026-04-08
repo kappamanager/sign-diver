@@ -398,6 +398,7 @@
       text-align: center;
       padding: 24px;
     }
+    .rotate-overlay.show { display: flex; }
     .rotate-overlay-icon {
       font-size: 64px;
       animation: rotatePhone 2s ease-in-out infinite;
@@ -423,9 +424,24 @@
     .rotate-overlay-text strong {
       color: #4facfe;
     }
-    /* portrait + mobile のときだけ表示 */
-    @media (max-width: 640px) and (orientation: portrait) {
-      .rotate-overlay { display: flex; }
+    .rotate-overlay-tap {
+      display: none;
+      padding: 16px 48px;
+      background: linear-gradient(135deg, #4facfe 0%, #1976d2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 6px 22px rgba(79,172,254,0.45);
+      animation: tapPulse 1.5s ease-in-out infinite;
+    }
+    .rotate-overlay-tap.show { display: block; }
+    @keyframes tapPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
     /* ═══════════════════════════════════ */
 
@@ -1578,11 +1594,13 @@
   <!-- スマホ横向き促進オーバーレイ -->
   <div class="rotate-overlay" id="rotateOverlay">
     <div class="rotate-overlay-icon">📱</div>
-    <div class="rotate-overlay-title">横向きにしてください</div>
+    <div class="rotate-overlay-title">横向き推奨</div>
     <div class="rotate-overlay-text">
-      指文字の<strong>濁点（横の動き）</strong>を認識するために、<br>
-      スマホを横向きにしてプレイしてください。
+      スマートフォンでは<strong>横向き</strong>にしてプレイが可能です。<br>
+      横向きモードにするためには<strong>自動回転をON</strong>にして横向きにしてください。<br>
+      縦のままでもプレイできます。
     </div>
+    <button class="rotate-overlay-tap show" id="rotateTapBtn">OK</button>
   </div>
 
   <!-- カメラエラーモーダル -->
@@ -5394,8 +5412,27 @@
     };
     
     // 起動
-    SEA.init();
-    init();
+    // スマホ判定 → 横向き促進オーバーレイ
+    (async function boot() {
+      const isMobile = window.innerWidth <= 640 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (isMobile) {
+        await showRotatePrompt();
+      }
+      SEA.init();
+      init();
+    })();
+
+    function showRotatePrompt() {
+      return new Promise(resolve => {
+        const overlay = document.getElementById('rotateOverlay');
+        overlay.classList.add('show');
+
+        document.getElementById('rotateTapBtn').addEventListener('click', () => {
+          overlay.classList.remove('show');
+          resolve();
+        }, { once: true });
+      });
+    }
 
     // 中断botan
     document.getElementById('abortBtn').addEventListener('click', () => {

@@ -2653,8 +2653,8 @@
             perfTier = 'mid'; detectInterval = 2;
             console.log(`[PERF] Tier: MID (avg ${avgDetect.toFixed(0)}ms < 60ms) → 480x360, detect every 2 frames`);
           } else {
-            perfTier = 'low'; detectInterval = 3;
-            console.log(`[PERF] Tier: LOW (avg ${avgDetect.toFixed(0)}ms >= 60ms) → 320x240, detect every 3 frames`);
+            perfTier = 'low'; detectInterval = 2;
+            console.log(`[PERF] Tier: LOW (avg ${avgDetect.toFixed(0)}ms >= 60ms) → 320x240, detect every 2 frames`);
           }
           tierDetermined = true;
           // [v5] DIAG用にティア判定値を保存

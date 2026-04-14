@@ -1816,6 +1816,9 @@
         <div style="font-size: 11px; color: #999; margin-top: 4px;">
           ※テスト用：認識ログをJSONで出力します
         </div>
+        <div style="font-size: 10px; color: #bbb; margin-top: 2px; font-family: monospace;">
+          DIAG-v5d
+        </div>
       </div>
     </div>
   </div>
@@ -1834,6 +1837,8 @@
   </footer>
   
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+  <!-- [v5c] TFJS WASMバックエンド: 低スペックGPUではWebGLよりWASM+SIMDが速い可能性 -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.11.0/dist/tf-backend-wasm.js"></script>
   <script type="module">
     import { HandLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs';
     
@@ -2015,9 +2020,16 @@
             delegate: 'GPU'
           },
           runningMode: "VIDEO",
-          numHands: 1
+          numHands: 1,
+          // [v5c] パーム検出の頻度を下げてdetect時間を短縮
+          // トラッキング信頼度を下げると、前フレームの位置を信用して重いパーム検出をスキップしやすくなる
+          // Sign Diverでは手が常にカメラ前にあるため、トラッキングが多少甘くても問題ない
+          minHandDetectionConfidence: 0.5,
+          minHandPresenceConfidence: 0.3,   // デフォルト0.5→0.3に下げる
+          minTrackingConfidence: 0.3         // デフォルト0.5→0.3に下げる
         });
         console.log('[PERF] HandLandmarker delegate: GPU（非対応環境では自動CPU fallback）');
+        console.log('[PERF] minHandPresenceConfidence: 0.3, minTrackingConfidence: 0.3');
         PERF.mark('mediapipe_ready');
         PERF.elapsed('task_init_start', 'mediapipe_ready');
         PERF.elapsed('mediapipe_start', 'mediapipe_ready');
@@ -2580,8 +2592,9 @@
       for (let i = seconds; i >= 1; i--) counts.push(String(i));
       counts.push('Start!');
 
-      // [v5] 性能計測: 毎ゲーム実行（バッテリー残量やバックグラウンド負荷の変動に対応）
-      // 旧コードは !tierDetermined && seconds >= 5 で2回目以降をスキップしていた
+      // [v5] 性能計測: 毎ゲーム実行してDIAGに記録するが、解像度やdetectIntervalは変更しない
+      // 10年前PC検証でMID/LOWへの切り替えが逆効果（detect時間が増加）と判明したため
+      // カメラ解像度は常に640x480、detectInterval=2で固定
       const needsTierCheck = true;
       const tierDetectTimes = [];
       
@@ -2661,26 +2674,35 @@
           window._tierAvgDetect = +avgDetect.toFixed(1);
           window._tierSampleCount = tierDetectTimes.length;
 
-          // MID/LOW: カメラを低解像度で再起動（カウントダウン中なのでプレイヤーに見えない）
-          if (perfTier !== 'high') {
-            const newW = perfTier === 'mid' ? 480 : 320;
-            const newH = perfTier === 'mid' ? 360 : 240;
-            console.log(`[PERF] Restarting camera at ${newW}x${newH}...`);
-            if (stream) { stream.getTracks().forEach(t => t.stop()); }
-            video.srcObject = null;
-            stream = await startCameraWithHandling(video, newW, newH, true); // skipSelect=true
-            if (stream) {
-              if (video.readyState < 1) {
-                await new Promise(r => { video.onloadedmetadata = r; });
-              }
-              await video.play();
-              const canvas = document.getElementById('canvas');
-              canvas.width = video.videoWidth || newW;
-              canvas.height = video.videoHeight || newH;
-              cacheLoopElements();
-              console.log(`[PERF] Camera restarted: ${video.videoWidth}x${video.videoHeight}`);
+          // [v5c] LOW端末: TFJSバックエンドをWebGL→WASMに切り替え
+          // 軽量モデルではWASM+SIMDがWebGLより速い可能性がある（GPUシェーダーの固定オーバーヘッド回避）
+          if (perfTier === 'low' || perfTier === 'mid') {
+            try {
+              console.log(`[PERF] TFJS backend切り替え: webgl → wasm (tier=${perfTier})`);
+              const prevBackend = tf.getBackend();
+              await tf.setBackend('wasm');
+              await tf.ready();
+              console.log(`[PERF] TFJS backend: ${prevBackend} → ${tf.getBackend()} ✅`);
+              
+              // WASMバックエンドではモデルを再ロードする必要がある
+              console.log('[PERF] WASMバックエンドでモデル再ロード中...');
+              model = await tf.loadGraphModel('./tfjs_model_official/model.json');
+              // ウォームアップ
+              const wi = tf.zeros([1, 15, 63]);
+              const wo = await model.executeAsync(wi);
+              if (Array.isArray(wo)) wo.forEach(t => t.dispose());
+              else wo.dispose();
+              wi.dispose();
+              console.log('[PERF] WASMモデル再ロード+ウォームアップ完了 ✅');
+            } catch (e) {
+              console.warn('[PERF] WASM切り替え失敗、WebGLのまま続行:', e.message);
             }
           }
+
+          // [v5] カメラ解像度変更を無効化
+          // 10年前PC検証で解像度を下げてもdetect時間が短縮されず逆効果と判明
+          // 計測結果はDIAGに記録するが、カメラは640x480のまま維持
+          // if (perfTier !== 'high') { ... カメラ再起動 ... }
         }
       }
       
@@ -3597,7 +3619,7 @@
         return {
           meta: {
             date: new Date().toISOString(),
-            version: 'diag-v5',
+            version: 'diag-v5d',
             ...meta
           },
           // [v5] 環境情報
@@ -4221,6 +4243,7 @@
         score, clearedCount, totalChars, missedWords, maxCombo,
         earlyStaticCount, normalInferenceCount, skippedInferenceCount,
         selectedHand,
+        tfjsBackend: tf.getBackend(),  // [v5c] WebGL or wasm
         frameCount: DIAG.frames.length,
         eventCount: DIAG.events.length
       });

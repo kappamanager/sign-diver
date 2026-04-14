@@ -1,0 +1,5757 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign Diverのタイピングゲームモード。表示される単語を指文字で素早く入力。ゲーム感覚で指文字のスピードと正確さを鍛えよう。">
+  <meta name="keywords" content="指文字,タイピングゲーム,手話,カメラ認識,AI,Sign Diver">
+  <title>タイピングゲーム [DIAG-v5] - Sign Diver｜指文字でタイピング練習</title>
+
+
+  <meta name="author" content="Sign Diver Project">
+  <link rel="canonical" href="https://signdiver.com/typing_game.html">
+
+  <!-- OGP -->
+  <meta property="og:title" content="タイピングゲーム - Sign Diver">
+  <meta property="og:description" content="表示される単語を指文字で素早く入力。ゲーム感覚で指文字を鍛えよう。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://signdiver.com/typing_game.html">
+  <meta property="og:site_name" content="Sign Diver">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:image" content="https://signdiver.com/asset/sign_diver_ogp.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="タイピングゲーム - Sign Diver">
+  <meta name="twitter:description" content="指文字でタイピング！ゲーム感覚で指文字のスピードと正確さを鍛えよう。">
+  <meta name="twitter:image" content="https://signdiver.com/asset/sign_diver_ogp.jpg">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="./asset/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./asset/favicon-16.png">
+  <link rel="apple-touch-icon" href="./asset/sign_diver_favicon_512.png">
+  <!-- 提案3a: DNS解決＋TLS接続を事前確立 -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --card-bg: rgba(255, 255, 255, 0.82);
+      --card-border: rgba(255, 255, 255, 0.5);
+      --card-shadow: rgba(10, 40, 80, 0.15);
+      --text-primary: #0c2d48;
+      --text-secondary: #2e5a78;
+      --text-muted: #5a8aaa;
+      --ogp-blue: #6ab4e2;
+      --ogp-lavender: #b09ddb;
+      --text-on-ocean: rgba(255, 255, 255, 0.65);
+      --text-on-ocean-bright: rgba(255, 255, 255, 0.9);
+    }
+    
+    body {
+      font-family: 'Zen Kaku Gothic New', 'Montserrat', sans-serif;
+      background: linear-gradient(180deg, #2980b9 0%, #1a6d8a 15%, #1b5e7a 35%, #17526e 55%, #144a63 75%, #0f3d55 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      gap: 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: -20%; left: -10%;
+      width: 120%; height: 60%;
+      background:
+        radial-gradient(ellipse 50% 40% at 30% 20%, rgba(255,255,255,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 35% at 65% 15%, rgba(255,255,255,0.05) 0%, transparent 65%);
+      animation: caustics 15s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes caustics {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+      33% { transform: translate(15px, 5px) scale(1.02); opacity: 0.85; }
+      66% { transform: translate(-10px, 8px) scale(0.98); opacity: 0.95; }
+    }
+    
+    /* フッター */
+    .site-footer {
+      width: 100%;
+      max-width: 1000px;
+      text-align: center;
+      padding: 10px 0 4px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .site-footer a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-on-ocean);
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+      font-weight: 600;
+    }
+
+    .site-footer a:hover {
+      color: var(--text-on-ocean-bright);
+    }
+    
+    .footer-icon {
+      font-size: 11px;
+      color: #ef5350;
+    }
+    
+    .footer-name {
+      font-weight: 500;
+    }
+    
+    .game-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      box-shadow: 0 4px 24px var(--card-shadow);
+      max-width: 1000px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* ヘッダー */
+    .game-header {
+      background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
+      color: white;
+      padding: 14px 20px 0;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+    }
+    
+    .game-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .timer {
+      font-size: 22px;
+      font-weight: bold;
+    }
+    
+    .score {
+      font-size: 22px;
+      font-weight: bold;
+    }
+    
+    .stats {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+    
+    /* 全体タイマーバー */
+    .total-timer-bar-wrap {
+      position: relative;
+      height: 10px;
+      background: rgba(0,0,0,0.3);
+    }
+    
+    .total-timer-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #a8edea, #fed6e3);
+      transition: width 1s linear, background 1s;
+      transform-origin: left;
+    }
+    
+    .total-timer-bar.warning {
+      background: linear-gradient(90deg, #f7971e, #ffd200);
+    }
+    
+    .total-timer-bar.danger {
+      background: linear-gradient(90deg, #f44336, #ff6b6b);
+      animation: barPulse 0.5s ease-in-out infinite alternate;
+    }
+    
+    /* 単語タイマーバー */
+    .word-timer-bar-wrap {
+      position: relative;
+      height: 12px;
+      background: rgba(0,0,0,0.4);
+    }
+    
+    .word-timer-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+      transition: width 1s linear, background 0.5s;
+    }
+    
+    .word-timer-bar.warning {
+      background: linear-gradient(90deg, #f7971e, #ffd200);
+    }
+    
+    .word-timer-bar.danger {
+      background: linear-gradient(90deg, #f44336, #ff6b6b);
+      animation: barPulse 0.4s ease-in-out infinite alternate;
+    }
+    
+    /* コンボ基準マーカー（50%位置） */
+    .combo-marker {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 3px;
+      background: #ffd700;
+      box-shadow: 0 0 6px rgba(255, 215, 0, 0.9), 0 0 12px rgba(255, 215, 0, 0.5);
+      z-index: 2;
+      pointer-events: none;
+    }
+    
+    /* マーカーの上の三角ラベル */
+    .combo-marker::before {
+      content: 'COMBO';
+      position: absolute;
+      bottom: calc(100% + 3px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      font-weight: bold;
+      color: #ffd700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      text-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+    }
+    
+    /* マーカーの下三角 */
+    .combo-marker::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid #ffd700;
+    }
+    
+    @keyframes barPulse {
+      from { opacity: 1; }
+      to   { opacity: 0.5; }
+    }
+    
+    /* 問題表示エリア */
+    .word-display {
+      padding: 40px 20px;
+      text-align: center;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+      height: 200px;      /* min-heightからheightに変更して縦サイズを固定 */
+      box-sizing: border-box;
+    }
+    
+    /* 深海キャンバス */
+    #seaCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    
+    /* 深度メーター（テキスト）— 新ゲージに統合したので非表示 */
+    .depth-meter {
+      display: none;
+    }
+
+    /* 深度表示（海背景の右下に絶対配置） */
+    .depth-gauge {
+      position: absolute;
+      right: 14px;
+      bottom: 10px;
+      z-index: 2;
+      pointer-events: none;
+      text-align: right;
+    }
+    .depth-gauge-value {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.3);
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+    .depth-gauge-unit {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: 1px;
+    }
+    .depth-gauge-sub {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.2);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    
+    /* word-display内コンテンツを前面に */
+    .word-display > :not(#seaCanvas):not(.depth-gauge):not(.depth-meter) {
+      position: relative;
+      z-index: 2;
+    }
+    
+    /* ═══ チュートリアルオーバーレイ ═══ */
+    .tutorial-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 14, 30, 0.92);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9800;
+    }
+    .tutorial-box {
+      background: linear-gradient(160deg, rgba(20,40,80,0.95), rgba(10,25,55,0.98));
+      border: 2px solid rgba(79,172,254,0.45);
+      border-radius: 28px;
+      padding: 40px 44px 32px;
+      max-width: 460px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(79,172,254,0.15), 0 24px 48px rgba(0,0,0,0.6);
+      animation: tutBoxIn 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    @keyframes tutBoxIn {
+      0%   { transform: translateY(28px) scale(0.97); opacity: 0; }
+      100% { transform: translateY(0)    scale(1);    opacity: 1; }
+    }
+    .tutorial-icon  { font-size: 44px; margin-bottom: 10px; }
+    .tutorial-title {
+      font-size: 19px; font-weight: 800; color: #4facfe;
+      letter-spacing: 3px; margin-bottom: 22px;
+    }
+    .tutorial-tips {
+      list-style: none; margin: 0 0 26px; padding: 0; text-align: left;
+    }
+    .tutorial-tips li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 14.5px; color: rgba(255,255,255,0.86);
+      line-height: 1.65; margin-bottom: 13px;
+    }
+    .tutorial-tips li .ti { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .tutorial-tips strong { color: #4facfe; }
+    .tutorial-ok-btn {
+      padding: 14px 52px;
+      background: linear-gradient(135deg, #4facfe 0%, #1976d2 100%);
+      color: #fff; border: none; border-radius: 50px;
+      font-size: 17px; font-weight: 800; cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 6px 22px rgba(79,172,254,0.45);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .tutorial-ok-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(79,172,254,0.55);
+    }
+    .tutorial-skip {
+      display: block; margin-top: 13px;
+      font-size: 11.5px; color: rgba(255,255,255,0.28);
+      cursor: pointer; letter-spacing: 0.5px; transition: color .2s;
+    }
+    .tutorial-skip:hover { color: rgba(255,255,255,0.55); }
+    /* ═══════════════════════════════════ */
+
+    /* ═══ スマホ横向き促進オーバーレイ ═══ */
+    .rotate-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 14, 30, 0.96);
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      padding: 24px;
+    }
+    .rotate-overlay.show { display: flex; }
+    .rotate-overlay-icon {
+      font-size: 64px;
+      animation: rotatePhone 2s ease-in-out infinite;
+    }
+    @keyframes rotatePhone {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-90deg); }
+      50%, 75% { transform: rotate(-90deg); }
+    }
+    .rotate-overlay-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #4facfe;
+      letter-spacing: 2px;
+    }
+    .rotate-overlay-text {
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.8;
+      max-width: 320px;
+    }
+    .rotate-overlay-text strong {
+      color: #4facfe;
+    }
+    .rotate-overlay-tap {
+      display: none;
+      padding: 16px 48px;
+      background: linear-gradient(135deg, #4facfe 0%, #1976d2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 6px 22px rgba(79,172,254,0.45);
+      animation: tapPulse 1.5s ease-in-out infinite;
+    }
+    .rotate-overlay-tap.show { display: block; }
+    @keyframes tapPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    /* ═══════════════════════════════════ */
+
+    /* ═══ カメラ調整画面（ゲーム画面の上にバナー） ═══ */
+    .cam-adjust-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 14, 30, 0.3);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      z-index: 9700;
+      padding-top: 12px;
+    }
+    .cam-adjust-banner {
+      background: linear-gradient(160deg, rgba(10, 25, 55, 0.95), rgba(6, 14, 30, 0.97));
+      border: 1.5px solid rgba(79,172,254,0.4);
+      border-radius: 20px;
+      padding: 20px 28px;
+      max-width: 700px;
+      width: 92%;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      animation: tutBoxIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    .cam-adjust-banner-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #4facfe;
+      margin-bottom: 8px;
+    }
+    .cam-adjust-tips {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+    /* ═══════════════════════════════════ */
+
+    .countdown-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 20, 40, 0.82);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9000;
+      /* 背景自体はアニメーションしない */
+    }
+    
+    /* 数字部分だけアニメーション */
+    .countdown-number {
+      font-size: 120px;
+      font-weight: 900;
+      color: #4facfe;
+      letter-spacing: 4px;
+      animation: countdownPulse 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    
+    .countdown-number.start {
+      color: #4caf50;
+      font-size: 80px;
+      letter-spacing: 8px;
+      animation: startBurst 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    
+    @keyframes countdownPulse {
+      0%   { transform: scale(0.3); opacity: 0; }
+      60%  { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1);   opacity: 1; }
+    }
+    
+    @keyframes startBurst {
+      0%   { transform: scale(0.6) translateY(20px); opacity: 0; }
+      100% { transform: scale(1)   translateY(0);    opacity: 1; }
+    }
+    
+    .current-word {
+      font-size: 48px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      min-height: 60px;
+      margin-bottom: 15px;
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.8), 0 0 30px rgba(0,0,0,0.5);
+    }
+    
+    .hiragana-display {
+      font-size: 24px;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: normal;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+    }
+    
+    .hiragana-char {
+      display: inline-block;
+      margin: 0 1px;
+      transition: all 0.2s;
+    }
+    
+    /* 入力済み：暗めの白で目立たせない */
+    .hiragana-char.completed {
+      color: rgba(255, 255, 255, 0.3);
+      opacity: 0.5;
+    }
+    
+    /* 現在入力中：黄色＋発光 → どの背景でも最も目立つ */
+    .hiragana-char.current {
+      color: #ffe066;
+      font-weight: bold;
+      border-bottom: 3px solid #ffe066;
+      text-shadow: 0 0 10px rgba(255,220,50,0.9), 0 0 20px rgba(255,180,0,0.6);
+      animation: pulse 1s infinite;
+    }
+    
+    /* 未入力：白＋影で背景から浮かせる */
+    .hiragana-char.pending {
+      color: #fff;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.9);
+    }
+    
+    .char {
+      display: inline-block;
+      margin: 0 2px;
+      transition: all 0.2s;
+    }
+    
+    /* 入力済み：黄緑ではなく白系にして青背景でも見える */
+    .char.completed {
+      color: rgba(255, 255, 255, 0.45);
+      text-shadow: none;
+    }
+    
+    /* 現在入力中：黄色発光 */
+    .char.current {
+      color: #ffe066;
+      text-shadow: 0 0 12px rgba(255,220,50,0.9), 0 0 24px rgba(255,180,0,0.5);
+    }
+    
+    /* 未入力：白＋影 */
+    .char.pending {
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    @keyframes comboPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes comboEffect {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+      50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8) translateY(-50px);
+      }
+    }
+    
+    @keyframes ngEffect {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+      40% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+    
+    /* 削除: ngFlashは使わない（パフォーマンス改善） */
+    
+    /* カメラ＆認識エリア */
+    .game-main {
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+    }
+    
+    .camera-area {
+      flex: 2;
+    }
+    .camera-area.hidden {
+      display: none;
+    }
+    
+    video {
+      display: none;
+    }
+    
+    /* カメラ用canvas（seaCanvasは除外） */
+    canvas:not(#seaCanvas) {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 12px;
+      border: 2px solid #ddd;
+      background: #000;
+    }
+    
+    /* 深海キャンバスは親要素を完全に埋める */
+    #seaCanvas {
+      display: block;
+      width: 100% !important;
+      max-width: none !important;
+      border: none !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+    }
+    
+    .recognition-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .recognition-result {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .recognized-char {
+      font-size: 64px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .confidence {
+      font-size: 18px;
+      color: #666;
+    }
+    
+    .status-box {
+      background: #e3f2fd;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    /* 結果画面 */
+    .result-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .result-screen.show {
+      display: flex;
+    }
+    
+    .result-content {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .result-title {
+      font-size: 36px;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    
+    .result-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-item {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .title-display {
+      background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .title-emoji {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    
+    .title-text {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    /* 到達ステージ表示 */
+    .stage-result {
+      background: linear-gradient(135deg, rgba(79,172,254,0.15), rgba(0,180,220,0.12));
+      border: 1px solid rgba(79,172,254,0.3);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      gap: 12px 16px;
+      align-items: center;
+    }
+    
+    .stage-result-icon {
+      grid-row: 1 / 3;
+      font-size: 56px;
+      text-align: center;
+    }
+    
+    .stage-result-info {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    
+    .stage-result-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #4facfe;
+      text-shadow: 0 0 12px rgba(79,172,254,0.5);
+    }
+    
+    .stage-result-depth {
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(0,0,0,0.6);
+    }
+    
+    .stage-result-comment {
+      grid-column: 2;
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(0,0,0,0.7);
+    }
+    
+    .high-score-notice {
+      background: #fff3cd;
+      color: #856404;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    
+    .result-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+    
+    .result-btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+    
+    .retry-btn {
+      background: #4caf50;
+      color: white;
+    }
+    
+    .retry-btn:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+    }
+    
+    .share-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .share-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .share-btn-x {
+      background: #000;
+      color: #fff;
+    }
+
+    .share-btn-x:hover {
+      background: #333;
+    }
+
+    .share-btn-line {
+      background: #06C755;
+      color: #fff;
+    }
+
+    .share-btn-line:hover {
+      background: #05a847;
+    }
+
+    .menu-btn {
+      background: #757575;
+      color: white;
+    }
+
+    /* 中断ボタン */
+ .abort-btn {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.6);
+      color: #555;
+      border: 1.5px solid #ccc;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .abort-btn:hover {
+      background: rgba(255,255,255,0.9);
+      border-color: #aaa;
+      color: #333;
+    }
+    
+    .menu-btn:hover {
+      background: #616161;
+      transform: translateY(-2px);
+    }
+    
+    /* ローディング */
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 40px 24px;
+      background: linear-gradient(160deg, #0a1628 0%, #0d2140 50%, #0a1628 100%);
+      color: #fff;
+    }
+
+    .loading-title {
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .tips-card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 28px 32px;
+      max-width: 480px;
+      width: 100%;
+      margin-bottom: 32px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: opacity 0.4s ease;
+    }
+
+    .tips-emoji {
+      font-size: 40px;
+      line-height: 1;
+    }
+
+    .tips-text {
+      font-size: 15px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.7;
+      font-weight: 500;
+    }
+
+    .tips-counter {
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .loading-progress {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.5px;
+    }
+
+    .loading-bar-wrap {
+      width: 200px;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      margin-top: 16px;
+      overflow: hidden;
+    }
+
+    .loading-bar {
+      height: 100%;
+      width: 30%;
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+      border-radius: 2px;
+      animation: loadingPulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes loadingPulse {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(400%); }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       スマホ対応 (max-width: 640px)
+    ═══════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+
+      /* ── ボディ・全体 ── */
+      body {
+        padding: 0;
+        align-items: stretch;
+      }
+
+      .game-container {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        max-width: 100%;
+      }
+
+      /* ── ヘッダー ── */
+      .game-header {
+        padding: 10px 12px 0;
+      }
+
+      .game-header-top {
+        margin-bottom: 8px;
+      }
+
+      .timer, .score {
+        font-size: 17px;
+      }
+
+      .stats {
+        font-size: 11px;
+      }
+
+      /* ── 問題表示エリア ── */
+      .word-display {
+        height: 140px;
+        padding: 20px 12px;
+      }
+
+      .current-word {
+        font-size: 28px;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+        min-height: 36px;
+        /* 長い文字列が画面外に出ないよう折り返し */
+        white-space: normal;
+        word-break: break-all;
+        line-height: 1.2;
+      }
+
+      .hiragana-display {
+        font-size: 16px;
+        letter-spacing: 1px;
+        white-space: normal;
+        word-break: break-all;
+        line-height: 1.4;
+      }
+
+      .depth-meter {
+        font-size: 9px;
+        top: 6px;
+        right: 8px;
+      }
+
+      .depth-gauge {
+        right: 8px;
+        bottom: 6px;
+      }
+      .depth-gauge-value {
+        font-size: 24px;
+      }
+      .depth-gauge-unit {
+        font-size: 11px;
+      }
+      .depth-gauge-sub {
+        font-size: 7px;
+        letter-spacing: 2px;
+      }
+
+      /* ── メインエリア：横並び→縦積み ── */
+      .game-main {
+        flex-direction: column;
+        padding: 10px 10px 12px;
+        gap: 10px;
+      }
+
+      .camera-area {
+        flex: none;
+        width: 100%;
+      }
+
+      /* カメラcanvasをフル幅に */
+      canvas:not(#seaCanvas) {
+        max-width: 100%;
+        border-radius: 8px;
+      }
+
+      /* ── 認識エリア：横並びでコンパクトに ── */
+      .recognition-area {
+        flex-direction: row;
+        gap: 8px;
+      }
+
+      .recognition-result {
+        flex: 1;
+        padding: 10px 8px;
+        border-radius: 8px;
+      }
+
+      .recognized-char {
+        font-size: 44px;
+        margin-bottom: 4px;
+      }
+
+      .confidence {
+        font-size: 13px;
+      }
+
+      .status-box {
+        flex: 1;
+        padding: 10px 8px;
+        font-size: 12px;
+        border-radius: 8px;
+        line-height: 1.5;
+      }
+
+      .abort-btn {
+        flex: none;
+        width: auto;
+        padding: 10px 14px;
+        font-size: 12px;
+        writing-mode: vertical-rl;
+      }
+
+      /* ── 結果画面 ── */
+      .result-content {
+        padding: 24px 16px;
+        border-radius: 16px;
+        width: 94%;
+        max-height: 92vh;
+        overflow-y: auto;
+      }
+
+      .result-title {
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+
+      .result-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .stat-item {
+        padding: 12px 8px;
+        border-radius: 8px;
+      }
+
+      .stat-label {
+        font-size: 11px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+      }
+
+      .title-display {
+        padding: 14px 10px;
+        margin-bottom: 12px;
+        border-radius: 12px;
+      }
+
+      .title-emoji {
+        font-size: 36px;
+        margin-bottom: 6px;
+      }
+
+      .title-text {
+        font-size: 20px;
+      }
+
+      .stage-result {
+        padding: 14px 10px;
+        gap: 8px 10px;
+        margin-bottom: 12px;
+      }
+
+      .stage-result-icon {
+        font-size: 40px;
+      }
+
+      .stage-result-name {
+        font-size: 18px;
+      }
+
+      .stage-result-depth {
+        font-size: 13px;
+      }
+
+      .stage-result-comment {
+        font-size: 12px;
+      }
+
+      .result-actions {
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .result-btn {
+        padding: 12px 20px;
+        font-size: 15px;
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .share-btns {
+        gap: 8px;
+      }
+
+      .share-btn {
+        padding: 9px 14px;
+        font-size: 13px;
+        flex: 1;
+      }
+
+      .high-score-notice {
+        padding: 10px;
+        font-size: 13px;
+        margin-bottom: 12px;
+      }
+
+      /* ── チュートリアル ── */
+      .tutorial-box {
+        padding: 28px 20px 24px;
+        border-radius: 20px;
+      }
+
+      .tutorial-title {
+        font-size: 16px;
+        margin-bottom: 16px;
+      }
+
+      .tutorial-tips li {
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+
+      .tutorial-ok-btn {
+        padding: 12px 32px;
+        font-size: 15px;
+      }
+
+      /* ── カウントダウン ── */
+      .countdown-number {
+        font-size: 80px;
+      }
+
+      .countdown-number.start {
+        font-size: 56px;
+      }
+
+      /* ── フッター ── */
+      .site-footer {
+        padding: 8px 0 6px;
+        font-size: 12px;
+      }
+    }
+  
+    /* カメラエラー・選択モーダル */
+    #cameraErrorModal, #cameraSelectModal {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(10, 20, 60, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    #cameraErrorModal.show, #cameraSelectModal.show {
+      display: flex;
+    }
+    .cam-modal-box {
+      background: white;
+      border-radius: 20px;
+      padding: 32px 28px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,100,0.3);
+      border: 2px solid rgba(100,181,246,0.4);
+    }
+    /* スマホ横向き: モーダルを一画面に収める */
+    /* ═══ スマホ横向き全画面対応 ═══ */
+    @media (max-width: 900px) and (max-height: 450px) {
+
+      /* --- 全体: スクロール禁止 --- */
+      body {
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      /* --- カメラ選択モーダル --- */
+      .cam-modal-box {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      /* --- ローディング画面 --- */
+      .loading-screen {
+        padding: 12px 20px;
+        min-height: 100vh;
+        height: 100vh;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .loading-title { font-size: 12px; margin-bottom: 10px; }
+      .tips-card {
+        padding: 10px 20px;
+        min-height: auto;
+        margin-bottom: 10px;
+        gap: 4px;
+      }
+      .tips-emoji { display: none; }
+      .tips-text { font-size: 12px; }
+      .tips-counter { margin-bottom: 6px; font-size: 10px; }
+      .loading-progress { font-size: 11px; }
+      .loading-bar-wrap { margin-top: 8px; }
+
+      /* --- フッター: 横向きでは非表示 --- */
+      .site-footer { display: none; }
+
+      /* --- チュートリアル / カメラ調整ダイアログ --- */
+      .tutorial-overlay {
+        align-items: center;
+      }
+      .tutorial-box {
+        padding: 12px 20px 10px;
+        border-radius: 16px;
+        max-width: 500px;
+      }
+      .tutorial-icon { display: none; }
+      .tutorial-title { font-size: 14px; margin-bottom: 8px; letter-spacing: 1px; }
+      .tutorial-tips { margin-bottom: 10px; }
+      .tutorial-tips li { font-size: 12px; margin-bottom: 4px; line-height: 1.5; gap: 6px; }
+      .tutorial-tips li .ti { font-size: 14px; }
+      .tutorial-ok-btn { padding: 10px 36px; font-size: 14px; }
+      .tutorial-skip { margin-top: 6px; font-size: 10px; }
+
+      /* --- カメラ調整バナー --- */
+      .cam-adjust-banner {
+        padding: 10px 16px;
+        border-radius: 12px;
+      }
+      .cam-adjust-banner-text { font-size: 12px; margin-bottom: 4px; }
+      .cam-adjust-tips { font-size: 10px; margin-bottom: 8px; }
+
+      /* --- カウントダウン --- */
+      .countdown-number { font-size: 72px; }
+      .countdown-number.start { font-size: 48px; }
+
+      /* --- プレイ画面: 左カメラ / 右海背景 --- */
+      .game-container {
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        overflow: hidden;
+      }
+      #gameScreen {
+        grid-template-columns: 70% 30%;
+        grid-template-rows: auto 1fr auto;
+        grid-template-areas:
+          "header  header"
+          "camera  word"
+          "camera  wordtimer";
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* ヘッダー（通常フロー、上部に残す） */
+      .game-header {
+        grid-area: header;
+        padding: 3px 10px 0;
+      }
+      .game-header-top { margin-bottom: 2px; }
+      .timer, .score { font-size: 14px; }
+      .stats { font-size: 10px; }
+      .total-timer-bar-wrap { height: 4px; }
+
+      /* 海の背景+単語 → 右側、やや上寄りの中央 */
+      .word-display {
+        grid-area: word;
+        height: 100% !important;
+        padding: 0 8px 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .current-word {
+        font-size: 24px;
+        letter-spacing: 2px;
+        min-height: 28px;
+        margin-bottom: 4px;
+      }
+      .hiragana-display { font-size: 14px; }
+      .depth-gauge { right: 6px; bottom: 4px; }
+      .depth-gauge-value { font-size: 16px; }
+      .depth-gauge-unit { font-size: 8px; }
+      .depth-gauge-sub { font-size: 5px; }
+
+      /* 単語タイマーバー → 右下 */
+      .word-timer-bar-wrap {
+        grid-area: wordtimer;
+        height: 5px;
+      }
+
+      /* game-main → display:contentsで子をgridに直接配置 */
+      .game-main {
+        display: contents !important;
+      }
+
+      /* カメラ → 左側全体（認識結果を内部にオーバーレイ） */
+      .camera-area {
+        grid-area: camera;
+        position: relative;
+        overflow: hidden;
+      }
+      /* カメラOFF時: カメラ非表示、海背景を全幅に */
+      .camera-area.hidden {
+        display: none !important;
+      }
+      #gameScreen.no-camera {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "word"
+          "wordtimer";
+      }
+      #gameScreen.no-camera .recognition-area {
+        position: fixed;
+        bottom: 4px; left: 4px;
+        z-index: 9999;
+      }
+      #gameScreen.no-camera .word-display {
+        padding-bottom: 40px;
+      }
+      #gameScreen.no-camera .current-word {
+        font-size: 48px;
+      }
+      #gameScreen.no-camera .hiragana-display {
+        font-size: 28px;
+      }
+      .camera-area canvas:not(#seaCanvas),
+      .camera-area video {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        object-fit: cover;
+        border-radius: 0;
+        border: none;
+      }
+
+      /* 認識結果+中断 → カメラ左下に縦積みオーバーレイ */
+      .recognition-area {
+        position: absolute;
+        bottom: 4px; left: 4px;
+        z-index: 20;
+        flex-direction: column;
+        gap: 2px;
+        padding: 0;
+        align-items: stretch;
+        width: 56px;
+      }
+      .recognition-result {
+        padding: 4px 0;
+        border-radius: 8px;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(6px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .recognized-char {
+        font-size: 22px;
+        margin-bottom: 0;
+        color: white;
+        text-align: center;
+      }
+      .confidence {
+        font-size: 7px;
+        color: rgba(255,255,255,0.6);
+      }
+      .status-box {
+        display: none;
+      }
+      .abort-btn {
+        padding: 3px 0;
+        font-size: 8px;
+        writing-mode: horizontal-tb;
+        border-radius: 8px;
+        background: rgba(239,83,80,0.6);
+        color: white;
+        border-color: transparent;
+        text-align: center;
+        width: 100%;
+      }
+    }
+    /* ═══ スマホ横向き対応ここまで ═══ */
+    .cam-modal-icon { font-size: 48px; margin-bottom: 12px; }
+    .cam-modal-title {
+      font-size: 18px; font-weight: 800;
+      color: #1a237e; margin-bottom: 12px;
+    }
+    .cam-modal-body {
+      font-size: 13px; color: #37474f;
+      line-height: 1.8; margin-bottom: 20px;
+      text-align: left;
+    }
+    .cam-modal-body b { color: #1565c0; }
+    .cam-modal-btn {
+      padding: 11px 28px;
+      border: none; border-radius: 50px;
+      cursor: pointer; font-size: 14px;
+      font-weight: 700; margin: 4px;
+      transition: all 0.2s;
+    }
+    .cam-modal-btn.primary {
+      background: linear-gradient(135deg, #64b5f6, #1976d2);
+      color: white;
+      box-shadow: 0 4px 14px rgba(25,118,210,0.4);
+    }
+    .cam-modal-btn.secondary {
+      background: white; color: #555;
+      border: 2px solid #ccc;
+    }
+    .cam-select-list {
+      display: flex; flex-direction: column;
+      gap: 8px; margin-bottom: 20px;
+    }
+    .cam-select-item {
+      padding: 12px 16px;
+      border: 2px solid rgba(100,181,246,0.3);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px; font-weight: 600;
+      color: #1a237e;
+      background: rgba(100,181,246,0.08);
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .cam-select-item:hover {
+      background: rgba(100,181,246,0.2);
+      border-color: rgba(100,181,246,0.6);
+    }
+    .cam-select-item.recommended {
+      border: 2px dashed rgba(233,30,99,0.6);
+      background: rgba(233,30,99,0.06);
+    }
+    .cam-select-item.recommended:hover {
+      background: rgba(233,30,99,0.12);
+      border-color: rgba(233,30,99,0.9);
+    }
+  </style></head>
+<body>
+  <!-- スマホ横向き促進オーバーレイ -->
+  <div class="rotate-overlay" id="rotateOverlay">
+    <div class="rotate-overlay-icon">📱</div>
+    <div class="rotate-overlay-title">横向き推奨</div>
+    <div class="rotate-overlay-text">
+      スマートフォンでは<strong>横向き</strong>にしてプレイが可能です。<br>
+      横向きモードにするためには<strong>自動回転をON</strong>にして横向きにしてください。<br>
+      縦のままでもプレイできます。
+    </div>
+    <button class="rotate-overlay-tap show" id="rotateTapBtn">OK</button>
+  </div>
+
+  <!-- カメラエラーモーダル -->
+  <div id="cameraErrorModal">
+    <div class="cam-modal-box">
+      <div class="cam-modal-icon" id="camErrIcon">⚠️</div>
+      <div class="cam-modal-title" id="camErrTitle">カメラエラー</div>
+      <div class="cam-modal-body" id="camErrBody"></div>
+      <button class="cam-modal-btn primary" id="camErrRetry">再試行</button>
+      <button class="cam-modal-btn secondary" id="camErrSkip">ゲームを終了する</button>
+    </div>
+  </div>
+
+  <!-- カメラ選択モーダル -->
+  <div id="cameraSelectModal">
+    <div class="cam-modal-box">
+      <div class="cam-modal-icon">📷</div>
+      <div class="cam-modal-title">カメラを選択してください</div>
+      <div class="cam-modal-body">複数のカメラが検出されました。使用するカメラを選択してください。</div>
+      <div class="cam-select-list" id="camSelectList"></div>
+      <button class="cam-modal-btn secondary" id="camSelectSkip">ゲームを終了する</button>
+    </div>
+  </div>
+
+  <div class="game-container">
+    <!-- ローディング画面 -->
+    <div id="loadingScreen" class="loading-screen">
+      <p class="loading-title">💡 指文字の豆知識</p>
+      <div class="tips-card" id="tipsCard">
+        <span class="tips-emoji" id="tipsEmoji">📖</span>
+        <span class="tips-text" id="tipsText">読み込み中...</span>
+      </div>
+      <p class="tips-counter" id="tipsCounter"></p>
+      <p class="loading-progress" id="loadingProgress">準備しています...</p>
+      <div class="loading-bar-wrap">
+        <div class="loading-bar"></div>
+      </div>
+    </div>
+    
+    <!-- ゲーム画面 -->
+    <div id="gameScreen" style="display: none;">
+      <!-- ヘッダー -->
+      <div class="game-header">
+        <div class="game-header-top">
+          <div>
+            <div class="timer">⏱️ <span id="timeRemaining">60</span>秒</div>
+            <div class="stats">クリア: <span id="clearedCount">0</span>問 ／ 速度: <span id="speedDisplay">0.0</span> 文字/秒</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="score">🏆 <span id="currentScore">0</span>点 <span id="comboDisplay" style="display:none;"></span></div>
+            <div class="stats">単語残り: <span id="wordTimeDisplay">-</span>秒</div>
+          </div>
+        </div>
+        <!-- 全体タイマーバー -->
+        <div class="total-timer-bar-wrap" title="全体残り時間">
+          <div class="total-timer-bar" id="totalTimerBar"></div>
+        </div>
+      </div>
+      
+      <!-- カウントダウンオーバーレイ（画面全体） -->
+      <div id="countdownOverlay" class="countdown-overlay" style="display: none;"></div>
+
+      <!-- 初回チュートリアルオーバーレイ -->
+      <!-- カメラ調整確認ダイアログ -->
+      <div id="camAdjustDialog" class="tutorial-overlay" style="display:none;">
+        <div class="tutorial-box">
+          <div class="tutorial-icon">📷</div>
+          <div class="tutorial-title">カメラ位置の調整</div>
+          <p style="color:rgba(255,255,255,0.75); font-size:14px; margin-bottom:22px; line-height:1.7;">
+            ゲーム開始前にカメラの映りを確認しますか？<br>
+            手の位置や認識の状態をチェックできます。
+          </p>
+          <button class="tutorial-ok-btn" id="camAdjustYes">調整する</button>
+          <span class="tutorial-skip" id="camAdjustNo" style="font-size:13px; color:rgba(255,255,255,0.45);">スキップしてゲームへ</span>
+        </div>
+      </div>
+
+      <!-- カメラ調整画面（ゲーム画面の上にオーバーレイ） -->
+      <div id="camAdjustScreen" class="cam-adjust-overlay" style="display:none;">
+        <div class="cam-adjust-banner">
+          <div class="cam-adjust-banner-text">
+            <!-- <span style="font-size:18px;">📷</span> -->
+            <span>カメラ位置の調整中 — 下のカメラ映像と認識結果を確認してください</span>
+          </div>
+          <div class="cam-adjust-tips">
+            ✅ 肘まで映る距離（50〜80cm） ✅ 手が中央付近 ✅ 指文字が認識される
+          </div>
+          <button class="tutorial-ok-btn" id="camAdjustOk">OK ゲームを始める</button>
+        </div>
+      </div>
+
+      <div id="tutorialOverlay" class="tutorial-overlay" style="display:none;">
+        <div class="tutorial-box">
+          <div class="tutorial-icon">🤿</div>
+          <div class="tutorial-title">プレイ前のチェック</div>
+          <ul class="tutorial-tips">
+            <li><span class="ti">📷</span><span>カメラから <strong>50〜80cm</strong> ほど離れて座りましょう。近すぎると手全体が映りません。</span></li>
+            <li><span class="ti">💪</span><span>手を挙げたとき <strong>肘まで映る</strong> 位置が理想。認識精度が大きく上がります。</span></li>
+            <li><span class="ti">💡</span><span>手の背景は <strong>明るくシンプル</strong> なほど読み取りやすくなります。</span></li>
+            <li><span class="ti">🖐️</span><span>指文字はカメラに対して <strong>正面から</strong> 表現してください。</span></li>
+          </ul>
+          <button class="tutorial-ok-btn" id="tutorialOkBtn">OK 開始する!</button>
+          <span class="tutorial-skip" id="tutorialSkipBtn">OK 開始する!(次回から表示しない)</span>
+        </div>
+      </div>
+      
+      <!-- 問題表示 -->
+      <div class="word-display">
+        <canvas id="seaCanvas"></canvas>
+        <div class="depth-meter" id="depthMeter">▼ 0 m</div>
+        <div class="depth-gauge" id="depthGauge">
+          <div class="depth-gauge-value" id="depthGaugeValue">0<span class="depth-gauge-unit">m</span></div>
+          <div class="depth-gauge-sub">DEPTH</div>
+        </div>
+        <div class="current-word" id="wordDisplay"></div>
+        <div class="hiragana-display" id="hiraganaDisplay"></div>
+      </div>
+      <!-- 単語タイマーバー（問題表示直下） -->
+      <div class="word-timer-bar-wrap" title="単語残り時間">
+        <div class="word-timer-bar" id="wordTimerBar"></div>
+        <div class="combo-marker" id="comboMarker"></div>
+      </div>
+      
+      <!-- メインエリア -->
+      <div class="game-main">
+        <div class="camera-area">
+          <video id="video" playsinline autoplay muted></video>
+          <canvas id="canvas"></canvas>
+        </div>
+        
+        <div class="recognition-area">
+          <div class="recognition-result">
+            <div class="recognized-char" id="recognizedChar">-</div>
+            <div class="confidence" id="confidenceDisplay">-</div>
+          </div>
+          
+          <div class="status-box" id="statusBox">
+            手をカメラに映してください
+          </div>
+          <button class="abort-btn" id="abortBtn">⏹ 中断する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 結果画面 -->
+  <div class="result-screen" id="resultScreen">
+    <div class="result-content">
+      <h2 class="result-title">🎉 お疲れ様でした！</h2>
+      
+      <div class="result-stats">
+        <div class="stat-item">
+          <div class="stat-label">スコア</div>
+          <div class="stat-value" id="finalScore">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">クリア数</div>
+          <div class="stat-value" id="finalCleared">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">総文字数</div>
+          <div class="stat-value" id="finalChars">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">平均速度</div>
+          <div class="stat-value" id="finalSpeed">0.0</div>
+        </div>
+      </div>
+      
+      <div class="title-display">
+        <div class="title-emoji" id="titleEmoji">⭐</div>
+        <div class="title-text" id="titleText">初心者</div>
+      </div>
+      
+      <div class="stage-result" id="stageResult">
+        <div class="stage-result-icon" id="stageResultIcon">🏖️</div>
+        <div class="stage-result-info">
+          <div class="stage-result-name" id="stageResultName">浅瀬</div>
+          <div class="stage-result-depth" id="stageResultDepth">▼ 0m</div>
+        </div>
+        <div class="stage-result-comment" id="stageResultComment">まだまだ陸に近い場所。これから深海へ向かおう！</div>
+      </div>
+      
+      <div class="high-score-notice" id="highScoreNotice" style="display: none;">
+        ✨ ハイスコア更新！
+      </div>
+      
+      <div class="result-actions">
+        <button class="result-btn retry-btn" onclick="retry()">もう一度</button>
+        <button class="result-btn menu-btn" onclick="backToMenu()">メニューへ</button>
+      </div>
+
+      <div class="share-btns">
+        <button class="share-btn share-btn-x" onclick="shareToX()">
+          <svg width="14" height="14" viewBox="0 0 1200 1227" fill="currentColor"><path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.163 519.284ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.828Z"/></svg>
+          でシェア
+        </button>
+        <button class="share-btn share-btn-line" onclick="shareToLINE()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+          でシェア
+        </button>
+      </div>
+      
+      <!-- DIAG: 診断データ出力ボタン -->
+      <div style="margin-top: 12px; text-align: center;">
+        <button onclick="exportDiagnostics()" style="
+          background: linear-gradient(135deg, #ff9800, #f57c00);
+          color: white; border: none; border-radius: 12px;
+          padding: 10px 24px; font-size: 14px; font-weight: 700;
+          cursor: pointer; letter-spacing: 0.5px;
+          box-shadow: 0 2px 8px rgba(245,124,0,0.3);
+        ">🔬 診断データを保存</button>
+        <div style="font-size: 11px; color: #999; margin-top: 4px;">
+          ※テスト用：認識ログをJSONで出力します
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="site-footer">
+    <div style="margin-bottom: 8px; text-align: center;">
+      <a href="about_yubimoji.html" style="margin: 0 12px; color: #0288d1; text-decoration: none; font-size: 13px; transition: color 0.2s;">指文字とは？</a>
+      <span style="color: rgba(2,136,209,0.3);">|</span>
+      <a href="about_signdiver.html" style="margin: 0 12px; color: #0288d1; text-decoration: none; font-size: 13px; transition: color 0.2s;">Sign Diverとは？</a>
+      <span style="color: rgba(2,136,209,0.3);">|</span>
+      <a href="terms.html" style="margin: 0 12px; color: #0288d1; text-decoration: none; font-size: 13px; transition: color 0.2s;">利用規約</a>
+      <span style="color: rgba(2,136,209,0.3);">|</span>
+      <a href="privacy.html" style="margin: 0 12px; color: #0288d1; text-decoration: none; font-size: 13px; transition: color 0.2s;">プライバシーポリシー</a>
+    </div>
+    <a href="index.html">Sign Diver</a>
+  </footer>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+  <script type="module">
+    import { HandLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs';
+    
+    const WASM_BASE = "./mediapipe/wasm";
+    const MODEL_URL = "./mediapipe/hand_landmarker.task";
+
+    // ═══════════════════════════════════════════════
+    // パフォーマンス計測ユーティリティ
+    // ═══════════════════════════════════════════════
+    const PERF = {
+      marks: {},
+      mark(name) {
+        this.marks[name] = performance.now();
+        console.log(`[PERF] ${name}: ${this.marks[name].toFixed(0)}ms (page open)`);
+      },
+      elapsed(from, to) {
+        const ms = (this.marks[to] - this.marks[from]);
+        console.log(`[PERF] ${from} → ${to}: ${ms.toFixed(0)}ms`);
+        return ms;
+      }
+    };
+
+    // ═══════════════════════════════════════════════
+    // IndexedDB キャッシュヘルパー（モデルファイル用）
+    // ═══════════════════════════════════════════════
+    const IDB_NAME = 'SignDiverCache';
+    const IDB_STORE = 'models';
+    const IDB_VERSION = 1;
+
+    function idbOpen() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(IDB_STORE)) {
+            db.createObjectStore(IDB_STORE);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbGet(key) {
+      const db = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, 'readonly');
+        const req = tx.objectStore(IDB_STORE).get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function idbSet(key, value) {
+      const db = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(IDB_STORE, 'readwrite');
+        tx.objectStore(IDB_STORE).put(value, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    // ═══════════════════════════════════════════════
+    // ページを開いた瞬間からバックグラウンドでロード開始
+    // ═══════════════════════════════════════════════
+    let bgLoadPromise = null;
+    let model = null, labelMap = null, landmarker = null, stream = null;
+
+    // ── 性能ティア（#12: デバイス性能自動検出） ──
+    let perfTier = 'high';    // 'high' | 'mid' | 'low'
+    let detectInterval = 2;   // 何フレームに1回detectForVideoを実行するか
+    let selectedDeviceId = null; // 選択済みカメラのdeviceId（再起動時に再利用）
+
+    (function startBackgroundLoad() {
+      PERF.mark('bg_load_start');
+
+      // ═══════════════════════════════════════════════
+      // 初回 / リピーター判定（デバッグ用）
+      // ═══════════════════════════════════════════════
+      (async () => {
+        const checks = { sw: false, idb: false };
+
+        // Service Worker チェック
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+          checks.sw = !!(reg && reg.active);
+        }
+
+        // IndexedDB モデルキャッシュチェック
+        try {
+          const cached = await idbGet('hand_landmarker_task_v0.10.21');
+          checks.idb = !!cached;
+        } catch (e) { /* ignore */ }
+
+        if (checks.sw && checks.idb) {
+          console.log('%c[SESSION] 🔁 リピーター（SW: ✅ active, IndexedDB: ✅ cached）', 'color: #4CAF50; font-weight: bold; font-size: 14px');
+        } else if (checks.sw || checks.idb) {
+          console.log('%c[SESSION] 🔄 準リピーター（SW: ' + (checks.sw ? '✅' : '❌') + ', IndexedDB: ' + (checks.idb ? '✅' : '❌') + '）', 'color: #FF9800; font-weight: bold; font-size: 14px');
+        } else {
+          console.log('%c[SESSION] 🆕 初回ユーザー（SW: ❌, IndexedDB: ❌）', 'color: #F44336; font-weight: bold; font-size: 14px');
+        }
+        console.log('[SESSION] Detail:', checks);
+      })();
+
+      // ══════════════════════════════════════════════════
+      // 提案1: TFJSとMediaPipeを並列ロード
+      //   直列: TFJS(~1.5s) → MediaPipe(~9s) = ~10.5s
+      //   並列: max(TFJS, MediaPipe)          = ~9s
+      // ══════════════════════════════════════════════════
+
+      // ── TFJS: モデル → ウォームアップ → ラベルマップ ──
+      const tfPromise = (async () => {
+        updateLoadingProgress('AIモデルを読み込んでいます...');
+        PERF.mark('tf_model_fetch_start');
+        model = await tf.loadGraphModel('./tfjs_model_official/model.json');
+        PERF.mark('tf_model_ready');
+        PERF.elapsed('tf_model_fetch_start', 'tf_model_ready');
+
+        PERF.mark('warmup_start');
+        const warmupInput = tf.zeros([1, 15, 63]);
+        const warmupOutput = await model.executeAsync(warmupInput);
+        if (Array.isArray(warmupOutput)) warmupOutput.forEach(t => t.dispose());
+        else warmupOutput.dispose();
+        warmupInput.dispose();
+        PERF.mark('warmup_done');
+        PERF.elapsed('warmup_start', 'warmup_done');
+
+        const labelResponse = await fetch('./tfjs_model_official/label_map_unified.json');
+        labelMap = await labelResponse.json();
+        PERF.mark('labelmap_ready');
+      })();
+
+      // ── MediaPipe: TFJSと並列で開始 ──
+      const mediapipePromise = (async () => {
+        updateLoadingProgress('手の認識エンジンを準備しています...');
+        PERF.mark('mediapipe_start');
+        const fileset = await FilesetResolver.forVisionTasks(WASM_BASE);
+        PERF.mark('wasm_compile_done');
+        PERF.elapsed('mediapipe_start', 'wasm_compile_done');
+
+        // ── IndexedDB キャッシュ付きモデル取得 ──
+        const MODEL_CACHE_KEY = 'hand_landmarker_task_v0.10.21';
+        let modelBuffer = null;
+
+        // キャッシュから取得を試みる
+        try {
+          PERF.mark('idb_read_start');
+          modelBuffer = await idbGet(MODEL_CACHE_KEY);
+          if (modelBuffer) {
+            PERF.mark('idb_read_done');
+            PERF.elapsed('idb_read_start', 'idb_read_done');
+            console.log(`[PERF] IndexedDB cache HIT (${(modelBuffer.byteLength / 1024 / 1024).toFixed(1)}MB)`);
+          }
+        } catch (e) {
+          console.warn('[PERF] IndexedDB read failed:', e);
+        }
+
+        // キャッシュなし → ネットワークから取得して保存
+        if (!modelBuffer) {
+          PERF.mark('task_model_download_start');
+          const modelResponse = await fetch(MODEL_URL);
+          modelBuffer = await modelResponse.arrayBuffer();
+          PERF.mark('task_model_download_done');
+          PERF.elapsed('task_model_download_start', 'task_model_download_done');
+          console.log(`[PERF] IndexedDB cache MISS → fetched (${(modelBuffer.byteLength / 1024 / 1024).toFixed(1)}MB)`);
+
+          // バックグラウンドでキャッシュ保存（失敗しても続行）
+          idbSet(MODEL_CACHE_KEY, modelBuffer).catch(e =>
+            console.warn('[PERF] IndexedDB write failed:', e)
+          );
+        }
+
+        // ── modelAssetBuffer で初期化（二重DL修正済み） ──
+        PERF.mark('task_init_start');
+        landmarker = await HandLandmarker.createFromOptions(fileset, {
+          baseOptions: {
+            modelAssetBuffer: new Uint8Array(modelBuffer),
+            delegate: 'GPU'
+          },
+          runningMode: "VIDEO",
+          numHands: 1
+        });
+        console.log('[PERF] HandLandmarker delegate: GPU（非対応環境では自動CPU fallback）');
+        PERF.mark('mediapipe_ready');
+        PERF.elapsed('task_init_start', 'mediapipe_ready');
+        PERF.elapsed('mediapipe_start', 'mediapipe_ready');
+      })();
+
+      // ── 両方完了を待つ ──
+      bgLoadPromise = Promise.all([tfPromise, mediapipePromise])
+        .then(() => {
+          PERF.mark('all_ready');
+          PERF.elapsed('bg_load_start', 'all_ready');
+          console.log('[PERF] 並列ロード完了 ✅');
+        })
+        .catch(e => {
+          console.error('[PERF] Background load error:', e);
+          throw e;
+        });
+    })();
+    
+    // ═══════════════════════════════════════════════
+    // ティップスローテーション
+    // ═══════════════════════════════════════════════
+    let tipsTimer = null;
+
+    async function startTipsRotation() {
+      try {
+        const res = await fetch('./data/tips.json');
+        const tips = await res.json();
+        if (!tips.length) return;
+
+        let idx = Math.floor(Math.random() * tips.length);
+
+        function showTip(tip, index) {
+          const card = document.getElementById('tipsCard');
+          const emoji = document.getElementById('tipsEmoji');
+          const text = document.getElementById('tipsText');
+          const counter = document.getElementById('tipsCounter');
+          if (!card) return;
+          card.style.opacity = '0';
+          setTimeout(() => {
+            emoji.textContent = tip.emoji;
+            text.textContent = tip.text;
+            counter.textContent = `${index + 1} / ${tips.length}`;
+            card.style.opacity = '1';
+          }, 400);
+        }
+
+        // 最初の1枚を即表示
+        showTip(tips[idx], idx);
+
+        // 4秒ごとに次のティップスへ
+        tipsTimer = setInterval(() => {
+          idx = (idx + 1) % tips.length;
+          showTip(tips[idx], idx);
+        }, 4000);
+
+      } catch(e) {
+        // tips.jsonが読めなくても無視（ロードには影響しない）
+      }
+    }
+
+    function stopTipsRotation() {
+      if (tipsTimer) {
+        clearInterval(tipsTimer);
+        tipsTimer = null;
+      }
+    }
+
+    // ページを開いた瞬間からティップス開始
+    startTipsRotation();
+
+    // URLパラメータ取得
+    const params = new URLSearchParams(window.location.search);
+    const difficulty = params.get('difficulty') || 'easy';
+    // URLパラメータ優先 → localStorage → デフォルトright
+    const selectedHand = params.get('hand') || localStorage.getItem('signDiver_hand') || 'right';
+    const timeLimit = parseInt(params.get('time')) || 60;
+
+    // カメラ映像表示設定（localStorage）
+    const showCamera = localStorage.getItem('signDiver_showCamera') !== 'false';
+    if (!showCamera) {
+      document.querySelectorAll('.camera-area').forEach(el => el.classList.add('hidden'));
+    }
+
+    
+    // グローバル変数（model/labelMap/landmarker/streamは上部で宣言済み）
+    let rafId = null;
+    
+    let wordList = [];
+    let remainingWords = [];
+    let currentWord = null;
+    let currentIndex = 0;
+    let currentWordId = 0;  // 単語遷移ごとにインクリメント（タイムアウト競合防止）
+    
+    let isPlaying = false;
+    let timeRemaining = timeLimit;
+    let score = 0;
+    let clearedCount = 0;
+    let totalChars = 0;
+    let totalTime = 0;
+    let charStartTime = 0;
+    
+    let timerInterval = null;
+    
+    // 単語毎のタイマー
+    let wordTimeRemaining = 0;      // 現在の単語の残り時間
+
+    // ── スキップシステム（Xジェスチャー） ──
+    const SKIP_HOLD_MS = 1500;        // X を検知し続ける必要がある時間
+    const SKIP_PENALTY = -30;         // スキップ時のペナルティ
+    let skipXStartTime = null;        // X 検知開始時刻（null = 非検知中）
+    let wordTimeLimit = 0;          // 現在の単語の制限時間
+    let wordTimerInterval = null;   // 単語タイマーのインターバル
+    let missedWords = 0;            // タイムアウトした単語数
+    
+    // ── 画面スリープ防止（Wake Lock API） ──
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('[WakeLock] ✅ 画面スリープ防止 ON');
+          wakeLock.addEventListener('release', () => {
+            console.log('[WakeLock] 解放されました');
+          });
+        }
+      } catch (e) {
+        console.warn('[WakeLock] 取得失敗:', e.message);
+      }
+    }
+    function releaseWakeLock() {
+      if (wakeLock) {
+        wakeLock.release();
+        wakeLock = null;
+        console.log('[WakeLock] ✅ 画面スリープ防止 OFF');
+      }
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && isPlaying && !wakeLock) {
+        requestWakeLock();
+      }
+    });
+    
+    // コンボシステム
+    let combo = 0;                  // 現在のコンボ数（表示用・途切れるまで増加）
+    let maxCombo = 0;               // 最大コンボ数
+    let bonusCombo = 0;             // ボーナス判定用コンボ（10達成でリセット）
+    let comboThreshold = 0;         // コンボ判定の閾値（制限時間の50%）
+    
+    // 英語ラベルから日本語への変換マップ（完全版）
+    const romajiToHiragana = {
+      // 清音
+      "a": "あ", "i": "い", "u": "う", "e": "え", "o": "お",
+      "ka": "か", "ki": "き", "ku": "く", "ke": "け", "ko": "こ",
+      "sa": "さ", "si": "し", "shi": "し", "su": "す", "se": "せ", "so": "そ",
+      "ta": "た", "ti": "ち", "chi": "ち", "tu": "つ", "tsu": "つ", "te": "て", "to": "と",
+      "na": "な", "ni": "に", "nu": "ぬ", "ne": "ね", "no": "の",
+      "ha": "は", "hi": "ひ", "hu": "ふ", "fu": "ふ", "he": "へ", "ho": "ほ",
+      "ma": "ま", "mi": "み", "mu": "む", "me": "め", "mo": "も",
+      "ya": "や", "yu": "ゆ", "yo": "よ",
+      "ra": "ら", "ri": "り", "ru": "る", "re": "れ", "ro": "ろ",
+      "wa": "わ", "wo": "を", "n": "ん", "nn": "ん",
+      
+      // 濁音
+      "ga": "が", "gi": "ぎ", "gu": "ぐ", "ge": "げ", "go": "ご",
+      "za": "ざ", "zi": "じ", "ji": "じ", "zu": "ず", "ze": "ぜ", "zo": "ぞ",
+      "da": "だ", "di": "ぢ", "du": "づ", "de": "で", "do": "ど",
+      "ba": "ば", "bi": "び", "bu": "ぶ", "be": "べ", "bo": "ぼ",
+      
+      // 半濁音
+      "pa": "ぱ", "pi": "ぴ", "pu": "ぷ", "pe": "ぺ", "po": "ぽ",
+      
+      // 拗音
+      "kya": "きゃ", "kyu": "きゅ", "kyo": "きょ",
+      "sha": "しゃ", "shu": "しゅ", "sho": "しょ",
+      "cha": "ちゃ", "chu": "ちゅ", "cho": "ちょ",
+      "nya": "にゃ", "nyu": "にゅ", "nyo": "にょ",
+      "hya": "ひゃ", "hyu": "ひゅ", "hyo": "ひょ",
+      "mya": "みゃ", "myu": "みゅ", "myo": "みょ",
+      "rya": "りゃ", "ryu": "りゅ", "ryo": "りょ",
+      "gya": "ぎゃ", "gyu": "ぎゅ", "gyo": "ぎょ",
+      "ja": "じゃ", "ju": "じゅ", "jo": "じょ",
+      "bya": "びゃ", "byu": "びゅ", "byo": "びょ",
+      "pya": "ぴゃ", "pyu": "ぴゅ", "pyo": "ぴょ",
+      
+      // 小文字ひらがな単体（x表記・l表記どちらも対応）
+      // モデルが「ょ」をxyo、「ゃ」をxya などと出力するケースに対応
+      "xa": "ぁ",  "xi": "ぃ",  "xu": "ぅ",  "xe": "ぇ",  "xo": "ぉ",
+      "la": "ぁ",  "li": "ぃ",  "lu": "ぅ",  "le": "ぇ",  "lo": "ぉ",
+      "xya": "ゃ", "xyu": "ゅ", "xyo": "ょ",
+      "lya": "ゃ", "lyu": "ゅ", "lyo": "ょ",
+      "xtu": "っ", "xtsu": "っ",
+      "ltu": "っ", "ltsu": "っ",
+      "xwa": "ゎ", "lwa": "ゎ",
+      
+      // 長音記号（伸ばし棒）
+      "bar": "ー",
+
+      // スキップジェスチャー
+      "X": "✕"
+    };
+    
+    // エイリアス定義
+    const aliases = {
+      "を": ["お", "ぉ"],  // をは「お」「ぉ」でもOK
+      "お": ["を", "ぉ"],  // おは「を」「ぉ」でもOK
+      "ぉ": ["を", "お"]   // ぉは「を」「お」でもOK
+    };
+    
+    // 濁音→清音の変換マップ（補正用）
+    const dakuonToSeion = {
+      // 濁音→清音
+      "が": "か", "ぎ": "き", "ぐ": "く", "げ": "け", "ご": "こ",
+      "ざ": "さ", "じ": "し", "ず": "す", "ぜ": "せ", "ぞ": "そ",
+      "だ": "た", "ぢ": "ち", "づ": "つ", "で": "て", "ど": "と",
+      "ば": "は", "び": "ひ", "ぶ": "ふ", "べ": "へ", "ぼ": "ほ",
+      
+      // 半濁音→清音
+      "ぱ": "は", "ぴ": "ひ", "ぷ": "ふ", "ぺ": "へ", "ぽ": "ほ"
+    };
+    
+    // 小さい文字→大きい文字の変換マップ（補正用）
+    const komojiToOmoji = {
+      // あ行
+      "ぁ": "あ", "ぃ": "い", "ぅ": "う", "ぇ": "え", "ぉ": "お",
+      
+      // や行
+      "ゃ": "や", "ゅ": "ゆ", "ょ": "よ",
+      
+      // わ行
+      "ゎ": "わ",
+      
+      // つ（促音）
+      "っ": "つ"
+    };
+    
+    // ========================================
+    // 文字グループ（相互認識）
+    // ========================================
+    // 同じグループ内の文字は互いに認識可能
+    // 例: ["は", "ば", "ぱ"] → は・ば・ぱを相互に認識
+    // 
+    // 注意: 小さい文字（ぁぃぅぇぉゃゅょゎっ）は一方向補正（komojiToOmoji）で処理
+    //      相互認識ではないため、charGroupsには含めない
+    // ========================================
+    const charGroups = [
+      // グループ1: は と その濁音・半濁音（MediaPipeで認識しづらいため相互認識）
+      ["は", "ば", "ぱ"],
+    ];
+    
+    // 文字グループをチェックする関数
+    function isInSameGroup(char1, char2) {
+      for (const group of charGroups) {
+        if (group.includes(char1) && group.includes(char2)) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+    // ========================================
+    // 指文字の「形」として同一かを判定する正規化関数
+    // 濁点・半濁点は清音と同じ形なので、清音に変換して比較する
+    // 小さい文字も大きい文字と同じ形として扱う
+    // charGroupsで同グループの場合はグループ代表(先頭)に統一
+    // ========================================
+    function toSignForm(char) {
+      // Step1: 濁音・半濁音 → 清音
+      let normalized = dakuonToSeion[char] || char;
+      
+      // Step2: 小さい文字 → 大きい文字
+      normalized = komojiToOmoji[normalized] || normalized;
+      
+      // Step3: charGroupsで同グループなら先頭文字に統一
+      for (const group of charGroups) {
+        if (group.includes(normalized)) {
+          return group[0];
+        }
+      }
+      
+      return normalized;
+    }
+    
+    // 認識結果を日本語に変換
+    function convertToHiragana(sign) {
+      // すでに日本語の場合はそのまま
+      if (romajiToHiragana[sign]) {
+        return romajiToHiragana[sign];
+      }
+      return sign;
+    }
+    
+    // 初期化
+    async function init() {
+      try {
+        // ① 単語データ読み込み（ロード画面のまま）
+        updateLoadingProgress('単語データを読み込んでいます...');
+        await loadWords();
+
+        const isFirstLoad = !localStorage.getItem('signDiver_loaded');
+        if (isFirstLoad) localStorage.setItem('signDiver_loaded', '1');
+
+        PERF.mark('start_btn_pressed');
+
+        // ② 重い初期化（バックグラウンドロードが終わっていれば即通過）
+        //    この間もloadingScreenを表示したまま待機
+        PERF.mark('parallel_start');
+        await initHeavy();
+        PERF.mark('parallel_done');
+        PERF.elapsed('start_btn_pressed', 'parallel_done');
+
+        // ③ ロード完了 → gameScreenを表示すると同時にカウントダウンを即表示
+        //    これでloadingScreen → カウントダウンがシームレスに見える
+        stopTipsRotation();
+        document.getElementById('loadingScreen').style.display = 'none';
+        // カメラ映像表示設定
+        const showCameraForAdjust = localStorage.getItem('signDiver_showCamera') !== 'false';
+        // スマホ横向きではgridレイアウト、それ以外はblock
+        const isLandscapeMobile = window.matchMedia('(max-width: 900px) and (max-height: 450px)').matches;
+        const gameScreen = document.getElementById('gameScreen');
+        gameScreen.style.display = isLandscapeMobile ? 'grid' : 'block';
+        // カメラOFF + 横向き: 海背景を全幅に
+        if (isLandscapeMobile && !showCameraForAdjust) {
+          gameScreen.classList.add('no-camera');
+        }
+        requestAnimationFrame(() => { SEA.resize(); });
+
+        // ③-b カメラ調整ステップ（カメラ映像表示時のみ）
+        if (showCameraForAdjust) {
+          await showCamAdjustDialog();
+        }
+
+        // 初回訪問チェック → チュートリアル表示
+        if (!localStorage.getItem('signDiver_seenTutorial')) {
+          await showTutorial();
+        }
+
+        // ④ ゲーム開始（startGame内でカウントダウンを表示）
+        startGame(isFirstLoad);
+
+      } catch (error) {
+        console.error('初期化エラー:', error);
+        alert('初期化に失敗しました: ' + error.message);
+      }
+    }
+
+    // 重い初期化処理：バックグラウンドロードとカメラを並列で待つ
+    // ==========================================
+    // カメラ起動ヘルパー（エラーハンドリング・複数カメラ対応）
+    // ==========================================
+    function showCameraError(type) {
+      const modal = document.getElementById('cameraErrorModal');
+      const icon  = document.getElementById('camErrIcon');
+      const title = document.getElementById('camErrTitle');
+      const body  = document.getElementById('camErrBody');
+
+      if (type === 'busy') {
+        icon.textContent  = '🔒';
+        title.textContent = 'カメラが使用中です';
+        body.innerHTML    =
+          'ZoomやTeams、他のブラウザタブなど、別のアプリがカメラを使用しています。<br><br>' +
+          '<b>対処方法:</b><br>' +
+          '① 他のアプリ・タブでカメラを使用している場合は終了してください<br>' +
+          '② その後「再試行」ボタンを押してください';
+      } else if (type === 'denied') {
+        icon.textContent  = '🚫';
+        title.textContent = 'カメラの使用が許可されていません';
+        body.innerHTML    =
+          'ブラウザがカメラへのアクセスをブロックしています。<br><br>' +
+          '<b>許可の方法:</b><br>' +
+          '· <b>Chrome</b>: アドレスバー左の 🔒 → 「カメラ」→「許可」<br>' +
+          '· <b>Edge</b>: アドレスバー左の 🔒 → 「カメラ」→「許可」<br>' +
+          '· <b>Safari</b>: 設定 → Safari → カメラ → 許可<br><br>' +
+          '許可後に「再試行」を押してください。';
+      } else {
+        icon.textContent  = '❌';
+        title.textContent = 'カメラが見つかりません';
+        body.innerHTML    =
+          'カメラデバイスが検出されませんでした。<br><br>' +
+          '· カメラが正しく接続されているか確認してください<br>' +
+          '· 内蔵カメラがある場合はドライバーを確認してください';
+      }
+
+      modal.classList.add('show');
+      return new Promise(resolve => {
+        document.getElementById('camErrRetry').onclick = () => { modal.classList.remove('show'); resolve('retry'); };
+        document.getElementById('camErrSkip').onclick  = () => { modal.classList.remove('show'); resolve('skip'); };
+      });
+    }
+
+    function showCameraSelect(devices) {
+      const modal = document.getElementById('cameraSelectModal');
+      const list  = document.getElementById('camSelectList');
+      list.innerHTML = '';
+
+      devices.forEach((device, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'cam-select-item' + (i === 0 ? ' recommended' : '');
+        btn.textContent = device.label || `カメラ ${i + 1}`;
+        list.appendChild(btn);
+      });
+      modal.classList.add('show');
+      return new Promise(resolve => {
+        list.querySelectorAll('.cam-select-item').forEach((btn, i) => {
+          btn.onclick = () => { modal.classList.remove('show'); resolve(devices[i].deviceId); };
+        });
+        document.getElementById('camSelectSkip').onclick = () => { modal.classList.remove('show'); resolve(null); };
+      });
+    }
+
+    async function startCameraWithHandling(videoEl, maxW = 640, maxH = 480, skipSelect = false) {
+      while (true) {
+        try {
+          let deviceId = selectedDeviceId; // 前回選択済みなら再利用
+
+          if (!skipSelect && !deviceId) {
+            const devices = (await navigator.mediaDevices.enumerateDevices())
+              .filter(d => d.kind === 'videoinput');
+
+            if (devices.length > 1 && devices[0].label) {
+              deviceId = await showCameraSelect(devices);
+              if (deviceId === null) return null;
+            }
+          }
+
+          // 選択結果を記憶
+          if (deviceId) selectedDeviceId = deviceId;
+
+          const videoConstraint = deviceId
+            ? { deviceId: { exact: deviceId }, width: { ideal: maxW, max: maxW }, height: { ideal: maxH, max: maxH } }
+            : { facingMode: 'user', width: { ideal: maxW, max: maxW }, height: { ideal: maxH, max: maxH } };
+          const constraints = { video: videoConstraint, audio: false };
+          console.log(`[PERF] Camera requesting: ${maxW}x${maxH}${skipSelect ? ' (reuse device)' : ''}`);
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          videoEl.srcObject = stream;
+          return stream;
+
+        } catch (err) {
+          let errorType = 'unknown';
+          if (err.name === 'NotReadableError' || err.name === 'AbortError') errorType = 'busy';
+          else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') errorType = 'denied';
+          else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') errorType = 'notfound';
+          const action = await showCameraError(errorType);
+          if (action === 'skip') return null;
+        }
+      }
+    }
+
+    async function initHeavy() {
+      PERF.mark('init_heavy_start');
+
+      // カメラ起動をbgLoadPromiseと並列で開始
+      // （bgLoadPromiseはすでにページ開時から走っているため実質的に並列）
+      updateLoadingProgress('カメラを起動しています...');
+      PERF.mark('camera_start');
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+
+      // bgLoadPromiseと並列でカメラ起動（複数カメラ対応·エラーハンドリング付き）
+      const waitStart = performance.now();
+      const [s] = await Promise.all([
+        startCameraWithHandling(video),
+        bgLoadPromise,
+      ]);
+      stream = s;
+      const waited = (performance.now() - waitStart).toFixed(0);
+
+      PERF.mark('camera_ready');
+      PERF.elapsed('camera_start', 'camera_ready');
+      if (Number(waited) < 50) {
+        console.log(`[PERF] bg_load: already done when start pressed ✅`);
+      } else {
+        console.log(`[PERF] bg_load: had to wait ${waited}ms after start pressed ⚠️`);
+      }
+
+      if (!stream) {
+        // カメラスキップ（ゲームを終了）
+        window.location.href = './index.html';
+        return;
+      }
+
+      // readyState >= 1 ならloadedmetadata発火済み → awaitしない
+      if (video.readyState < 1) {
+        console.log('[PERF] loadedmetadata: waiting (readyState=' + video.readyState + ')');
+        await new Promise(resolve => {
+          video.addEventListener('loadedmetadata', resolve, { once: true });
+        });
+      } else {
+        console.log('[PERF] loadedmetadata: already fired (readyState=' + video.readyState + ') ✅ skip await');
+      }
+      await video.play();
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+
+      // 画面スリープ防止
+      await requestWakeLock();
+
+      // ループ中に使うDOM要素をキャッシュ
+      cacheLoopElements();
+
+      // ── MediaPipe 最低限ウォームアップ（シェーダーコンパイルのみ） ──
+      // 性能計測とティア判定はカウントダウン中に行う（GPUが十分温まった状態で計測するため）
+      if (landmarker) {
+        PERF.mark('mediapipe_warmup_start');
+        updateLoadingProgress('認識エンジンをウォームアップ中...');
+        for (let i = 0; i < 3; i++) {
+          try {
+            landmarker.detectForVideo(video, performance.now());
+          } catch (e) { /* 初回フレームエラーは無視 */ }
+          await new Promise(r => requestAnimationFrame(r));
+        }
+        PERF.mark('mediapipe_warmup_done');
+        PERF.elapsed('mediapipe_warmup_start', 'mediapipe_warmup_done');
+      }
+
+      PERF.mark('bg_load_awaited');
+      PERF.elapsed('init_heavy_start', 'bg_load_awaited');
+    }
+    
+    function updateLoadingProgress(text) {
+      document.getElementById('loadingProgress').textContent = text;
+    }
+    
+    // 単語データ読み込み
+    async function loadWords() {
+      // キャッシュ無効化: タイムスタンプをURLに付加してブラウザキャッシュをバイパス
+      const cacheBuster = `?v=${Date.now()}`;
+      const response = await fetch(`./data/words_${difficulty}.txt${cacheBuster}`);
+      const text = await response.text();
+      
+      wordList = text
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0 && line.includes('|'))
+        .map(line => {
+          const [display, hiragana] = line.split('|');
+          return {
+            display: display.trim(),
+            hiragana: hiragana.trim()
+          };
+        });
+      
+      remainingWords = [...wordList];
+
+    }
+    
+    // カウントダウン表示（seconds: カウント開始秒数、デフォルト3）
+    // 初回ゲーム（5秒）時はカウントダウン前半でGPU性能計測→ティア判定→必要ならカメラ再起動
+    let tierDetermined = false; // 初回のみ判定
+    async function showCountdown(seconds = 3) {
+      const overlay = document.getElementById('countdownOverlay');
+      const video = _video || document.getElementById('video');
+      
+      // オーバーレイを最初に1回だけ表示（以降は消さない）
+      overlay.style.display = 'flex';
+      overlay.style.flexDirection = 'column';
+      overlay.style.gap = '40px';
+      
+      // 指定秒数からカウントダウン
+      const counts = [];
+      for (let i = seconds; i >= 1; i--) counts.push(String(i));
+      counts.push('Start!');
+
+      // 性能計測用（初回のみ）
+      const needsTierCheck = !tierDetermined && seconds >= 5;
+      const tierDetectTimes = [];
+      
+      for (let i = 0; i < counts.length; i++) {
+        // 古い内容を削除
+        overlay.innerHTML = '';
+        
+        // 数字spanを作成
+        const span = document.createElement('span');
+        span.className = 'countdown-number' + (i === 3 ? ' start' : '');
+        span.textContent = counts[i];
+        overlay.appendChild(span);
+        
+        // Start!以外の時はEscキーガイダンスを表示
+        if (i < 3) {
+          const guide = document.createElement('div');
+          guide.style.fontSize = '16px';
+          guide.style.fontWeight = '500';
+          guide.style.color = 'rgba(255,255,255,0.5)';
+          guide.style.letterSpacing = '1px';
+          guide.textContent = 'Escキーで中断';
+          overlay.appendChild(guide);
+        }
+        
+        // ── 待機中にMediaPipe + TFJSウォームアップ ──
+        const waitMs = i === 3 ? 600 : 900;
+        const warmupEnd = performance.now() + waitMs;
+        let warmupCount = 0, warmupMpCount = 0, warmupTfCount = 0;
+        while (performance.now() < warmupEnd) {
+          try {
+            if (landmarker && video.readyState >= 2) {
+              const t0 = performance.now();
+              const res = landmarker.detectForVideo(video, performance.now());
+              const elapsed = performance.now() - t0;
+              warmupMpCount++;
+
+              // 初回判定時：最初の2ステップで計測（GPUが温まった状態）
+              if (needsTierCheck && i < 2) {
+                tierDetectTimes.push(elapsed);
+              }
+
+              if (res?.landmarks?.length > 0 && model) {
+                const lm = res.landmarks[0];
+                const features = toFeature63(lm);
+                const input = tf.tensor3d([Array(15).fill(features)]);
+                const output = await model.executeAsync(input);
+                if (Array.isArray(output)) output.forEach(t => t.dispose());
+                else output.dispose();
+                input.dispose();
+                warmupTfCount++;
+              }
+            }
+          } catch (e) { /* ウォームアップエラーは無視 */ }
+          warmupCount++;
+          await new Promise(r => requestAnimationFrame(r));
+        }
+        console.log(`[WARMUP] "${counts[i]}" → loops=${warmupCount}, MP=${warmupMpCount}, TFJS=${warmupTfCount}`);
+
+        // ── ティア判定（最初の2ステップ完了後に1回だけ） ──
+        if (needsTierCheck && i === 1) {
+          const avgDetect = tierDetectTimes.length > 0
+            ? tierDetectTimes.reduce((a,b) => a+b, 0) / tierDetectTimes.length : 30;
+          console.log(`[PERF] Countdown detect avg: ${avgDetect.toFixed(1)}ms (n=${tierDetectTimes.length}, samples: ${tierDetectTimes.slice(-6).map(t=>t.toFixed(0)).join(',')})`);
+
+          if (avgDetect < 35) {
+            perfTier = 'high'; detectInterval = 2;
+            console.log(`[PERF] Tier: HIGH (avg ${avgDetect.toFixed(0)}ms < 35ms) → 640x480, detect every 2 frames`);
+          } else if (avgDetect < 60) {
+            perfTier = 'mid'; detectInterval = 2;
+            console.log(`[PERF] Tier: MID (avg ${avgDetect.toFixed(0)}ms < 60ms) → 480x360, detect every 2 frames`);
+          } else {
+            perfTier = 'low'; detectInterval = 3;
+            console.log(`[PERF] Tier: LOW (avg ${avgDetect.toFixed(0)}ms >= 60ms) → 320x240, detect every 3 frames`);
+          }
+          tierDetermined = true;
+          // [v5] DIAG用にティア判定値を保存
+          window._tierAvgDetect = +avgDetect.toFixed(1);
+          window._tierSampleCount = tierDetectTimes.length;
+
+          // MID/LOW: カメラを低解像度で再起動（カウントダウン中なのでプレイヤーに見えない）
+          if (perfTier !== 'high') {
+            const newW = perfTier === 'mid' ? 480 : 320;
+            const newH = perfTier === 'mid' ? 360 : 240;
+            console.log(`[PERF] Restarting camera at ${newW}x${newH}...`);
+            if (stream) { stream.getTracks().forEach(t => t.stop()); }
+            video.srcObject = null;
+            stream = await startCameraWithHandling(video, newW, newH, true); // skipSelect=true
+            if (stream) {
+              if (video.readyState < 1) {
+                await new Promise(r => { video.onloadedmetadata = r; });
+              }
+              await video.play();
+              const canvas = document.getElementById('canvas');
+              canvas.width = video.videoWidth || newW;
+              canvas.height = video.videoHeight || newH;
+              cacheLoopElements();
+              console.log(`[PERF] Camera restarted: ${video.videoWidth}x${video.videoHeight}`);
+            }
+          }
+        }
+      }
+      
+      // フェードアウト
+      overlay.style.transition = 'opacity 0.3s';
+      overlay.style.opacity = '0';
+      await new Promise(resolve => setTimeout(resolve, 300));
+      overlay.style.display = 'none';
+      overlay.style.opacity = '1';
+      overlay.style.transition = '';
+      overlay.innerHTML = '';
+      overlay.style.flexDirection = '';
+      overlay.style.gap = '';
+    }
+    
+    // ゲーム状態リセット
+    function resetGameState() {
+      // 結果画面を非表示
+      document.getElementById('resultScreen').classList.remove('show');
+      
+      // DIAG: リセット
+      DIAG.reset();
+      
+      // ゲーム状態をリセット
+      isPlaying = true;
+      startLoopPerf();
+      loopFrameCount = 0;
+      frameBuffer = [];
+      staticCache = { sign: null, conf: 0, probs: null, displaySign: null, isStatic: false };
+      timeRemaining = timeLimit;
+      score = 0;
+      clearedCount = 0;
+      totalChars = 0;
+      totalTime = 0;
+      missedWords = 0;
+      combo = 0;
+      bonusCombo = 0;
+      maxCombo = 0;
+      skipXStartTime = null;
+      
+      // 単語リストをリセット
+      remainingWords = [...wordList];
+      currentWord = null;
+      
+      // UI更新
+      document.getElementById('timeRemaining').textContent = timeRemaining;
+      document.getElementById('currentScore').textContent = score;
+      document.getElementById('clearedCount').textContent = clearedCount;
+      document.getElementById('speedDisplay').textContent = '0.0';
+      document.getElementById('wordTimeDisplay').textContent = '-';
+      updateComboDisplay();
+    }
+    
+    // ═══ カメラ位置調整 ═══
+    function showCamAdjustDialog() {
+      console.log('[CamAdjust] showCamAdjustDialog called');
+      return new Promise(resolve => {
+        const dialog = document.getElementById('camAdjustDialog');
+        console.log('[CamAdjust] dialog element:', dialog, 'display before:', dialog?.style.display);
+        dialog.style.display = 'flex';
+        console.log('[CamAdjust] dialog displayed');
+
+        document.getElementById('camAdjustYes').addEventListener('click', async () => {
+          console.log('[CamAdjust] YES clicked');
+          dialog.style.display = 'none';
+          await showCamAdjustScreen();
+          resolve();
+        }, { once: true });
+
+        document.getElementById('camAdjustNo').addEventListener('click', () => {
+          console.log('[CamAdjust] NO clicked → skip');
+          dialog.style.display = 'none';
+          resolve();
+        }, { once: true });
+      });
+    }
+
+    function showCamAdjustScreen() {
+      return new Promise(resolve => {
+        const screen = document.getElementById('camAdjustScreen');
+        screen.style.display = 'flex';
+
+        // DOM要素キャッシュ（ゲーム本体と同じものを使う）
+        cacheLoopElements();
+        // canvasサイズをvideoに合わせる
+        if (_video && _canvas) {
+          _canvas.width = _video.videoWidth || 640;
+          _canvas.height = _video.videoHeight || 480;
+        }
+
+        let adjustRunning = true;
+
+        // 簡易認識ループ（ゲーム本体と同じvideo/canvas/drawHandsを使う）
+        async function adjustLoop() {
+          if (!adjustRunning) return;
+          try {
+            if (_video && _video.readyState >= 2 && landmarker) {
+              const res = landmarker.detectForVideo(_video, performance.now());
+              drawHands(res);
+
+              // ゲーム本体と全く同じ認識パスを実行
+              if (res?.landmarks?.length > 0) {
+                const targetHand = selectedHand === 'right' ? 'Right' : 'Left';
+                let idx = -1;
+                if (res.handednesses?.length) {
+                  idx = res.handednesses.findIndex(h => h?.[0]?.categoryName === targetHand);
+                }
+                if (idx === -1) {
+                  _elRecognizedChar.textContent = '-';
+                  _elConfidence.textContent = '手が見えません';
+                  _elStatusBox.textContent = '手をカメラに映してください';
+                } else {
+                  const landmarks = res.landmarks[idx];
+                  trackWrist(landmarks);
+                  const features = toFeature63(landmarks);
+                  await predictSign(features);
+                }
+              } else {
+                _elRecognizedChar.textContent = '-';
+                _elConfidence.textContent = '手が見えません';
+                _elStatusBox.textContent = '手をカメラに映してください';
+              }
+            }
+          } catch (e) { /* ignore */ }
+
+          if (adjustRunning) requestAnimationFrame(adjustLoop);
+        }
+        adjustLoop();
+
+        // OKボタンで終了
+        document.getElementById('camAdjustOk').addEventListener('click', () => {
+          adjustRunning = false;
+          screen.style.display = 'none';
+          resolve();
+        }, { once: true });
+      });
+    }
+
+    // ゲーム開始
+    // チュートリアルオーバーレイ（Promise で待機）
+    function showTutorial() {
+      return new Promise(resolve => {
+        const overlay = document.getElementById('tutorialOverlay');
+        overlay.style.display = 'flex';
+
+        // 「準備OK」→ 次回も表示
+        document.getElementById('tutorialOkBtn').addEventListener('click', () => {
+          overlay.style.display = 'none';
+          resolve();
+        }, { once: true });
+
+        // 「次回から表示しない」→ フラグを立てて閉じる
+        document.getElementById('tutorialSkipBtn').addEventListener('click', () => {
+          localStorage.setItem('signDiver_seenTutorial', '1');
+          overlay.style.display = 'none';
+          resolve();
+        }, { once: true });
+      });
+    }
+
+    async function startGame(isFirst = false) {
+      console.log(`%c[STARTUP] showCountdown開始`, 'color:#FF9800;font-weight:bold');
+      const cdStart = performance.now();
+      // カウントダウン表示（初回は5秒・2回目以降は3秒）
+      await showCountdown(isFirst ? 5 : 3);
+      console.log(`[STARTUP] showCountdown完了: ${(performance.now()-cdStart).toFixed(0)}ms`);
+      
+      const t0 = performance.now();
+      // ゲーム状態リセット
+      resetGameState();
+      console.log(`[STARTUP] resetGameState: ${(performance.now()-t0).toFixed(1)}ms`);
+      
+      SEA.renderBg1 = SEA.LEVELS[0].bg1;
+      SEA.renderBg2 = SEA.LEVELS[0].bg2;
+      SEA.renderRays = SEA.LEVELS[0].rays;
+      SEA.updateScore(0);  // 深海をリセット
+      
+      nextWord();
+      startTimer();
+      console.log(`%c[STARTUP] 合計 startGame内処理: ${(performance.now()-t0).toFixed(0)}ms → loop開始 (tier=${perfTier}, detectInterval=${detectInterval})`, 'color:#4CAF50;font-weight:bold');
+      rafId = requestAnimationFrame(loop);
+    }
+    
+    // 次の問題（単語連続防止付き）
+    function nextWord() {
+      // 全問題使い切ったらリセット
+      if (remainingWords.length === 0) {
+        remainingWords = [...wordList];
+      }
+      
+      // 前の単語の最後の文字
+      const prevLastChar = currentWord ? currentWord.hiragana[currentWord.hiragana.length - 1] : null;
+      const prevLastForm = prevLastChar ? toSignForm(prevLastChar) : null;
+      
+      // 候補をフィルタリング
+      let candidates = remainingWords;
+      
+      if (prevLastForm && remainingWords.length > 1) {
+        // 指文字の「形」が同じになる組み合わせを除外
+        // 例: ご(こ)→こあら、は→ばなな、つ→っぱい など
+        candidates = remainingWords.filter(word => {
+          const firstForm = toSignForm(word.hiragana[0]);
+          return firstForm !== prevLastForm;
+        });
+        
+        // フィルタ後に候補がない場合は全体から選択
+        if (candidates.length === 0) {
+          candidates = remainingWords;
+        }
+      }
+      
+      // ランダム選択
+      const index = Math.floor(Math.random() * candidates.length);
+      const selectedWord = candidates[index];
+      
+      // remainingWordsから削除
+      const originalIndex = remainingWords.indexOf(selectedWord);
+      remainingWords.splice(originalIndex, 1);
+      
+      currentWord = selectedWord;
+      currentIndex = 0;
+      currentWordId++;  // 単語遷移（タイムアウト競合防止）
+      charStartTime = performance.now();
+      
+      // 前の単語の認識データをリセット（誤認識防止）
+      frameBuffer = [];
+      staticCache = { sign: null, conf: 0, probs: null, displaySign: null, isStatic: false };
+      skipXStartTime = null;
+      
+      updateWordDisplay();
+
+      
+      if (prevLastChar) {
+        const nextFirstChar = currentWord.hiragana[0];
+        const nextFirstForm = toSignForm(nextFirstChar);
+
+      }
+      
+      // 単語タイマー初期化
+      startWordTimer();
+      
+      // DIAG: 単語開始イベント
+      DIAG.pushEvent('word_start', {
+        word: currentWord.display,
+        hiragana: currentWord.hiragana,
+        wordTimeLimit: wordTimeLimit
+      });
+    }
+    
+    // 単語表示更新
+    function updateWordDisplay() {
+      const displayEl = document.getElementById('wordDisplay');
+      const hiraganaEl = document.getElementById('hiraganaDisplay');
+      const chars = currentWord.display.split('');
+      const hiraganaChars = currentWord.hiragana.split('');
+      
+      // ── ひらがな→漢字表示のインデックスマッピングを構築 ──
+      // 例: display="ぺらぺら話す"(6) / hiragana="ぺらぺらはなす"(7)
+      //   hiraganaToDisplay = [0, 1, 2, 3, 4, 4, 5]
+      //   → hiragana[4]("は"),hiragana[5]("な") は display[4]("話") にマッピング
+      const hiraganaToDisplay = new Array(hiraganaChars.length).fill(0);
+      
+      // 前方一致: 先頭から一致する文字を1:1マッピング
+      let fwdD = 0, fwdH = 0;
+      while (fwdD < chars.length && fwdH < hiraganaChars.length && chars[fwdD] === hiraganaChars[fwdH]) {
+        hiraganaToDisplay[fwdH] = fwdD;
+        fwdD++; fwdH++;
+      }
+      
+      // 後方一致: 末尾から一致する文字を1:1マッピング
+      let bwdD = chars.length - 1, bwdH = hiraganaChars.length - 1;
+      while (bwdD > fwdD && bwdH > fwdH && chars[bwdD] === hiraganaChars[bwdH]) {
+        hiraganaToDisplay[bwdH] = bwdD;
+        bwdD--; bwdH--;
+      }
+      
+      // 中間部分: 残りのひらがなを残りの表示文字に均等マッピング
+      if (fwdH <= bwdH && fwdD <= bwdD) {
+        const remainH = bwdH - fwdH + 1;
+        const remainD = bwdD - fwdD + 1;
+        for (let i = 0; i < remainH; i++) {
+          hiraganaToDisplay[fwdH + i] = fwdD + Math.floor(i * remainD / remainH);
+        }
+      }
+      
+      // 漢字表示側の現在位置を正確なマッピングから取得
+      const displayCurrentIndex = currentIndex < hiraganaToDisplay.length
+        ? hiraganaToDisplay[currentIndex]
+        : chars.length;
+      
+      // 表示文字（漢字など）- マッピングベースで色付け
+      displayEl.innerHTML = chars.map((char, i) => {
+        let className = 'char';
+        if (i < displayCurrentIndex) {
+          className += ' completed';
+        } else if (i === displayCurrentIndex) {
+          className += ' current';
+        } else {
+          className += ' pending';
+        }
+        return `<span class="${className}">${char}</span>`;
+      }).join('');
+      
+      // ひらがな（下に表示、寿司打風）- こちらは正確
+      hiraganaEl.innerHTML = hiraganaChars.map((char, i) => {
+        let className = 'hiragana-char';
+        if (i < currentIndex) {
+          className += ' completed';  // 灰色
+        } else if (i === currentIndex) {
+          className += ' current';    // 青色、太字
+        } else {
+          className += ' pending';    // 通常
+        }
+        return `<span class="${className}">${char}</span>`;
+      }).join('');
+    }
+    
+    // 単語タイマー開始
+    function startWordTimer() {
+      // 前のタイマーをクリア
+      stopWordTimer();
+      
+      // 制限時間を計算（1文字あたり3秒 + 基本2秒）
+      const charCount = currentWord.hiragana.length;
+      wordTimeLimit = charCount * 3 + 2;
+      wordTimeRemaining = wordTimeLimit;
+      
+      // コンボ判定の閾値（50%）
+      comboThreshold = Math.ceil(wordTimeLimit * 0.5);
+      
+      // バーを一瞬でリセット（transitionを無効化して100%に戻す）
+      const bar = document.getElementById('wordTimerBar');
+      if (bar) {
+        bar.style.transition = 'none';
+        bar.style.width = '100%';
+        bar.classList.remove('warning', 'danger');
+        // 次フレームでtransitionを復活
+        requestAnimationFrame(() => {
+          bar.style.transition = 'width 1s linear, background 0.5s';
+        });
+      }
+      
+      // コンボマーカーの位置を設定（comboThreshold / wordTimeLimit = 50%）
+      const marker = document.getElementById('comboMarker');
+      if (marker) {
+        const markerPct = (comboThreshold / wordTimeLimit) * 100;
+        marker.style.left = markerPct + '%';
+      }
+      
+      // UI更新
+      updateWordTimeDisplay();
+      
+      // タイマー開始
+      wordTimerInterval = setInterval(() => {
+        wordTimeRemaining--;
+        updateWordTimeDisplay();
+        
+        // タイムアウト（バーの表示更新を待ってから演出を開始）
+        if (wordTimeRemaining <= 0) {
+          clearInterval(wordTimerInterval);  // タイマー停止（重複実行防止）
+          wordTimerInterval = null;
+          // 表示更新が完了するまで少し待つ（200ms）
+          const timeoutWordId = currentWordId;  // この時点の単語IDを記録
+          setTimeout(() => {
+            if (currentWordId !== timeoutWordId) return;  // 単語が変わっていたら無視
+            onWordTimeout();
+          }, 200);
+        }
+      }, 1000);
+    }
+    
+    // 単語タイマー停止
+    function stopWordTimer() {
+      if (wordTimerInterval) {
+        clearInterval(wordTimerInterval);
+        wordTimerInterval = null;
+      }
+    }
+    
+    // 単語タイマー表示更新
+    function updateWordTimeDisplay() {
+      const display = document.getElementById('wordTimeDisplay');
+      const bar = document.getElementById('wordTimerBar');
+      
+      if (wordTimeRemaining > 0) {
+        display.textContent = wordTimeRemaining;
+        if (wordTimeRemaining <= 3) {
+          display.style.color = '#f44336';
+          display.style.fontWeight = 'bold';
+        } else {
+          display.style.color = '';
+          display.style.fontWeight = '';
+        }
+      } else {
+        display.textContent = '0';
+        display.style.color = '#f44336';
+      }
+      
+      // 単語タイマーバー更新
+      if (bar && wordTimeLimit > 0) {
+        const pct = Math.max(0, wordTimeRemaining / wordTimeLimit * 100);
+        bar.style.width = pct + '%';
+        
+        bar.classList.remove('warning', 'danger');
+        if (pct <= 25) {
+          bar.classList.add('danger');
+        } else if (pct <= 50) {
+          bar.classList.add('warning');
+        }
+      }
+      
+      // コンボマーカーの通過状態を更新
+      const marker = document.getElementById('comboMarker');
+      if (marker) {
+        const inComboZone = wordTimeRemaining >= comboThreshold;
+        if (inComboZone) {
+          // コンボ圏内: 金色で輝く
+          marker.style.opacity = '1';
+          marker.style.background = '#ffd700';
+          marker.style.boxShadow = '0 0 6px rgba(255,215,0,0.9), 0 0 12px rgba(255,215,0,0.5)';
+        } else {
+          // コンボ圏外: 暗くなる
+          marker.style.opacity = '0.35';
+          marker.style.background = '#888';
+          marker.style.boxShadow = 'none';
+        }
+      }
+    }
+    
+    // コンボ表示更新
+    function updateComboDisplay() {
+      const comboEl = document.getElementById('comboDisplay');
+      if (combo >= 2) {
+        comboEl.textContent = `${combo} COMBO!`;
+        comboEl.style.display = 'inline-block';
+        comboEl.style.marginLeft = '10px';
+        comboEl.style.padding = '3px 8px';
+        comboEl.style.borderRadius = '12px';
+        comboEl.style.fontWeight = 'bold';
+        comboEl.style.animation = 'comboPulse 0.5s ease-in-out';
+        
+        // コンボ数に応じて色変更
+        if (combo >= 10) {
+          comboEl.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+          comboEl.style.color = '#fff';
+        } else if (combo >= 5) {
+          comboEl.style.background = 'linear-gradient(135deg, #ffd200 0%, #ff6b00 100%)';
+          comboEl.style.color = '#fff';
+        } else {
+          comboEl.style.background = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+          comboEl.style.color = '#fff';
+        }
+      } else {
+        comboEl.style.display = 'none';
+      }
+    }
+    
+    // コンボエフェクト表示
+    function showComboEffect(comboCount, timeBonus) {
+      // エフェクト要素を作成
+      const effect = document.createElement('div');
+      effect.style.position = 'fixed';
+      effect.style.top = '50%';
+      effect.style.left = '50%';
+      effect.style.transform = 'translate(-50%, -50%)';
+      effect.style.fontSize = '72px';
+      effect.style.fontWeight = 'bold';
+      effect.style.zIndex = '9999';
+      effect.style.pointerEvents = 'none';
+      effect.style.textShadow = '0 0 20px rgba(255,255,255,0.8)';
+      
+      if (timeBonus > 0) {
+        effect.textContent = `${comboCount} COMBO!\n+${timeBonus}秒`;
+        effect.style.background = 'linear-gradient(135deg, #ffd200 0%, #ff6b00 100%)';
+        effect.style.webkitBackgroundClip = 'text';
+        effect.style.webkitTextFillColor = 'transparent';
+        effect.style.backgroundClip = 'text';
+      } else {
+        effect.textContent = `${comboCount} COMBO!`;
+        effect.style.background = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+        effect.style.webkitBackgroundClip = 'text';
+        effect.style.webkitTextFillColor = 'transparent';
+        effect.style.backgroundClip = 'text';
+      }
+      
+      effect.style.animation = 'comboEffect 1s ease-out';
+      effect.style.whiteSpace = 'pre-line';
+      effect.style.textAlign = 'center';
+      
+      document.body.appendChild(effect);
+      
+      // 1秒後に削除
+      setTimeout(() => {
+        effect.remove();
+      }, 1000);
+    }
+    
+    // NGエフェクト表示
+    function showNGEffect(word) {
+      // ゲーム中のみ表示
+      if (!isPlaying) return;
+      
+      // TIMEOUT文字エフェクト（シンプル・軽量）
+      const effect = document.createElement('div');
+      effect.dataset.ngEffect = '1';
+      effect.style.position = 'fixed';
+      effect.style.top = '50%';
+      effect.style.left = '50%';
+      effect.style.transform = 'translate(-50%, -50%)';
+      effect.style.fontSize = '64px';
+      effect.style.fontWeight = '800';
+      effect.style.zIndex = '9999';
+      effect.style.pointerEvents = 'none';
+      effect.style.color = '#f44336';
+      effect.style.textShadow = '0 2px 12px rgba(0,0,0,0.5)';
+      effect.style.animation = 'ngEffect 0.7s ease-out';
+      effect.style.letterSpacing = '2px';
+      effect.textContent = 'TIMEOUT';
+      
+      document.body.appendChild(effect);
+      setTimeout(() => effect.remove(), 700);
+    }
+    
+    // 単語タイムアウト時の処理
+    // ── スキップ処理 ──
+    function onWordSkip() {
+      stopWordTimer();
+      
+      if (!isPlaying) return;
+      
+      // DIAG: スキップイベント
+      DIAG.pushEvent('word_skip', {
+        stuckChar: currentWord ? currentWord.hiragana[currentIndex] : null
+      });
+      
+      // コンボリセット
+      combo = 0;
+      bonusCombo = 0;
+      updateComboDisplay();
+      
+      // ペナルティ（固定 -30点）
+      score += SKIP_PENALTY;
+      missedWords++;
+      
+      document.getElementById('currentScore').textContent = score;
+      document.getElementById('statusBox').textContent = `SKIP! ${SKIP_PENALTY}点`;
+      document.getElementById('statusBox').style.background = '#e8f5e9';
+      
+      // スキップ演出
+      showSkipEffect();
+      
+      // 0.5秒後に次の単語へ
+      const skipWordId = currentWordId;
+      setTimeout(() => {
+        if (!isPlaying) return;
+        if (currentWordId !== skipWordId) return;
+        document.getElementById('statusBox').textContent = '手をカメラに映してください';
+        document.getElementById('statusBox').style.background = '#e3f2fd';
+        nextWord();
+      }, 500);
+    }
+
+    function showSkipEffect() {
+      const container = document.querySelector('.game-container') || document.body;
+      const effect = document.createElement('div');
+      effect.textContent = 'SKIP';
+      effect.style.cssText = `
+        position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%, -50%) scale(0.5);
+        font-size: 64px; font-weight: bold;
+        color: #4CAF50; text-shadow: 0 0 20px rgba(76,175,80,0.5);
+        z-index: 9999; pointer-events: none;
+        opacity: 1;
+        transition: all 0.6s ease-out;
+      `;
+      container.appendChild(effect);
+      
+      requestAnimationFrame(() => {
+        effect.style.transform = 'translate(-50%, -50%) scale(1.2)';
+        effect.style.opacity = '0';
+      });
+      
+      setTimeout(() => effect.remove(), 700);
+    }
+
+    function onWordTimeout() {
+      stopWordTimer();
+      
+      // ゲーム終了済みなら何もしない
+      if (!isPlaying) return;
+      
+      // DIAG: タイムアウトイベント
+      DIAG.pushEvent('word_timeout', {
+        stuckChar: currentWord ? currentWord.hiragana[currentIndex] : null
+      });
+      
+      // コンボ途切れ: 両方リセット
+      if (combo > 0) {
+
+      }
+      combo = 0;
+      bonusCombo = 0;
+      updateComboDisplay();
+      
+      // ペナルティ（単語の長さ × -10点）
+      const penalty = currentWord.hiragana.length * -10;
+      score += penalty;
+      missedWords++;
+      
+      document.getElementById('currentScore').textContent = score;
+      document.getElementById('statusBox').textContent = 'タイムアウト！ ' + penalty + '点';
+      document.getElementById('statusBox').style.background = '#ffebee';
+      
+      // NGエフェクト表示
+      showNGEffect(currentWord.display);
+      
+      // 0.7秒後に次の単語へ（ゲーム終了済み or 単語が変わっていたら何もしない）
+      const timeoutWordId = currentWordId;
+      setTimeout(() => {
+        if (!isPlaying) return;
+        if (currentWordId !== timeoutWordId) return;  // 既に別の単語に遷移済み
+        document.getElementById('statusBox').textContent = '手をカメラに映してください';
+        document.getElementById('statusBox').style.background = '#e3f2fd';
+        nextWord();
+      }, 700);
+    }
+    
+    // タイマー開始
+    // 全体タイマーバー更新
+    function updateTotalTimerBar() {
+      const bar = document.getElementById('totalTimerBar');
+      if (!bar) return;
+      const pct = Math.max(0, timeRemaining / timeLimit * 100);
+      bar.style.width = pct + '%';
+      
+      // 色変化
+      bar.classList.remove('warning', 'danger');
+      if (pct <= 20) {
+        bar.classList.add('danger');
+      } else if (pct <= 40) {
+        bar.classList.add('warning');
+      }
+    }
+    
+    function startTimer() {
+      document.getElementById('timeRemaining').textContent = timeRemaining;
+      updateTotalTimerBar();
+      
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        document.getElementById('timeRemaining').textContent = timeRemaining;
+        updateTotalTimerBar();
+        
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          gameOver();
+        }
+      }, 1000);
+    }
+    
+    // 手話認識ループ
+    // ── 同一フレーム方式: detect + predict を同フレームで実行し遅延を最小化 ──
+    // 認識フレームは重い（~135ms）が、結果が即座に反映される
+    // 間のフレームは描画のみ（~5ms）で滑らかさを維持
+    let loopFrameCount = 0;
+    let lastDetectResult = null;  // 前回の MediaPipe 検出結果を保持
+
+    // ── ループ内計測用 ──
+    const LOOP_PERF = {
+      detectTimes: [], predictTimes: [], logInterval: null,
+      // [v5] DIAG用：ゲーム全体を通した蓄積（リセットしない）
+      allDetectTimes: [],
+      allPredictTimes: [],
+      gameStartTime: 0,
+      totalLoopFrames: 0,
+      recognitionFrames: 0,
+    };
+    function startLoopPerf() {
+      LOOP_PERF.gameStartTime = performance.now();
+      LOOP_PERF.totalLoopFrames = 0;
+      LOOP_PERF.recognitionFrames = 0;
+      LOOP_PERF.allDetectTimes = [];
+      LOOP_PERF.allPredictTimes = [];
+      LOOP_PERF.logInterval = setInterval(() => {
+        if (LOOP_PERF.detectTimes.length > 0) {
+          const avg = (LOOP_PERF.detectTimes.reduce((a,b)=>a+b,0) / LOOP_PERF.detectTimes.length).toFixed(0);
+          const max = Math.max(...LOOP_PERF.detectTimes).toFixed(0);
+          console.log(`[LOOP] detectForVideo: avg=${avg}ms, max=${max}ms (n=${LOOP_PERF.detectTimes.length})`);
+          LOOP_PERF.detectTimes = [];
+        }
+        if (LOOP_PERF.predictTimes.length > 0) {
+          const avg = (LOOP_PERF.predictTimes.reduce((a,b)=>a+b,0) / LOOP_PERF.predictTimes.length).toFixed(0);
+          const max = Math.max(...LOOP_PERF.predictTimes).toFixed(0);
+          console.log(`[LOOP] predictSign:    avg=${avg}ms, max=${max}ms (n=${LOOP_PERF.predictTimes.length})`);
+          LOOP_PERF.predictTimes = [];
+        }
+        // 早期静止判定の発動率
+        const totalInf = earlyStaticCount + normalInferenceCount + skippedInferenceCount;
+        if (totalInf > 0) {
+          const earlyPct = (earlyStaticCount / totalInf * 100).toFixed(0);
+          const skipPct = (skippedInferenceCount / totalInf * 100).toFixed(0);
+          console.log(`[LOOP] earlyStatic: ${earlyStaticCount}, normal: ${normalInferenceCount}, skipped: ${skippedInferenceCount}/${totalInf} (${skipPct}% saved)`);
+          earlyStaticCount = 0;
+          normalInferenceCount = 0;
+          skippedInferenceCount = 0;
+        }
+      }, 5000);
+    }
+
+    async function loop() {
+      if (!isPlaying) return;
+      
+      const now = performance.now();
+      const isRecognitionFrame = (loopFrameCount % detectInterval === 0);
+      loopFrameCount++;
+      LOOP_PERF.totalLoopFrames++;  // [v5]
+
+      if (isRecognitionFrame) {
+        LOOP_PERF.recognitionFrames++;  // [v5]
+        // ── 認識フレーム: detect + 描画 + 特徴量抽出 + 推論を同一フレームで実行 ──
+        const t0 = performance.now();
+        const res = landmarker.detectForVideo(_video, now);
+        const detectElapsed = performance.now() - t0;
+        LOOP_PERF.detectTimes.push(detectElapsed);
+        LOOP_PERF.allDetectTimes.push(detectElapsed);  // [v5] 蓄積
+
+        lastDetectResult = res;
+        drawHands(res);
+
+        if (res?.landmarks?.length > 0) {
+          // 選択された利き手のみを使用（非利き手は無視）
+          const targetHand = selectedHand === 'right' ? 'Right' : 'Left';
+          let idx = -1;
+          if (res.handednesses?.length) {
+            idx = res.handednesses.findIndex(h => h?.[0]?.categoryName === targetHand);
+          }
+          
+          if (idx === -1) {
+            // 利き手が検出されなかった → 手なし扱い
+            skipXStartTime = null;
+            _elRecognizedChar.textContent = '-';
+            _elConfidence.textContent = '手が見えません';
+            _elStatusBox.textContent = '手をカメラに映してください';
+            // DIAG: 手未検出フレーム
+            DIAG.pushFrame({ rawSign: null, postSign: null, conf: 0, top3: null,
+              isEarlyStatic: false, isCacheHit: false, noHand: true,
+              wristXYZ: null, motionXY: 0, motionZ: 0 });
+          } else {
+            const landmarks = res.landmarks[idx];
+            trackWrist(landmarks);
+            const features = toFeature63(landmarks);
+            
+            // 同フレームで推論（遅延なし）
+            const t1 = performance.now();
+            await predictSign(features);
+            const predictElapsed = performance.now() - t1;
+            LOOP_PERF.predictTimes.push(predictElapsed);
+            LOOP_PERF.allPredictTimes.push(predictElapsed);  // [v5] 蓄積
+          }
+        } else {
+          skipXStartTime = null;
+          _elRecognizedChar.textContent = '-';
+          _elConfidence.textContent = '手が見えません';
+          _elStatusBox.textContent = '手をカメラに映してください';
+          // DIAG: 手未検出フレーム
+          DIAG.pushFrame({ rawSign: null, postSign: null, conf: 0, top3: null,
+            isEarlyStatic: false, isCacheHit: false, noHand: true,
+            wristXYZ: null, motionXY: 0, motionZ: 0 });
+        }
+      } else {
+        // ── 描画のみフレーム: 前回結果で再描画（軽量） ──
+        drawHands(lastDetectResult);
+      }
+      
+      rafId = requestAnimationFrame(loop);
+    }
+    
+    // 手の描画（定数・キャッシュ）
+    const HAND_CONNS = [
+      [0, 1], [1, 2], [2, 3], [3, 4],
+      [0, 5], [5, 6], [6, 7], [7, 8],
+      [0, 9], [9, 10], [10, 11], [11, 12],
+      [0, 13], [13, 14], [14, 15], [15, 16],
+      [0, 17], [17, 18], [18, 19], [19, 20],
+      [5, 9], [9, 13], [13, 17]
+    ];
+    // DOM要素キャッシュ（ゲーム中に頻繁に参照するもの）
+    let _video, _canvas, _ctx, _elRecognizedChar, _elConfidence, _elStatusBox;
+    function cacheLoopElements() {
+      _video = document.getElementById('video');
+      _canvas = document.getElementById('canvas');
+      _ctx = _canvas.getContext('2d');
+      _elRecognizedChar = document.getElementById('recognizedChar');
+      _elConfidence = document.getElementById('confidenceDisplay');
+      _elStatusBox = document.getElementById('statusBox');
+    }
+
+    function drawHands(res) {
+      const w = _canvas.width;
+      const h = _canvas.height;
+      
+      _ctx.clearRect(0, 0, w, h);
+      _ctx.drawImage(_video, 0, 0, w, h);
+      
+      if (res?.landmarks?.length > 0) {
+        for (const landmarks of res.landmarks) {
+          // 深海テーマ: コネクション（shadowBlur除去、色と太さで表現）
+          _ctx.strokeStyle = "rgba(100, 220, 255, 0.7)";
+          _ctx.lineWidth = 2;
+
+          for (const [start, end] of HAND_CONNS) {
+            const p1 = landmarks[start];
+            const p2 = landmarks[end];
+            if (p1 && p2) {
+              _ctx.beginPath();
+              _ctx.moveTo(p1.x * w, p1.y * h);
+              _ctx.lineTo(p2.x * w, p2.y * h);
+              _ctx.stroke();
+            }
+          }
+
+          // ランドマーク点（shadowBlur除去、色を明るく）
+          _ctx.fillStyle = "rgba(80, 200, 255, 0.95)";
+          for (const p of landmarks) {
+            _ctx.beginPath();
+            _ctx.arc(p.x * w, p.y * h, 3, 0, Math.PI * 2);
+            _ctx.fill();
+          }
+        }
+      }
+    }
+    
+    // 特徴量抽出
+    function toFeature63(landmarks) {
+      // 右手: ミラーあり（学習データの収録条件）/ 左手: ミラーなし（左手生座標≒右手ミラー像）
+      const mirror = (selectedHand === 'right');
+      const wrist = landmarks[0];
+      
+      const pts = landmarks.map(p => ({
+        x: (mirror ? (1.0 - p.x) : p.x) - (mirror ? (1.0 - wrist.x) : wrist.x),
+        y: p.y - wrist.y,
+        z: p.z - wrist.z
+      }));
+      
+      let maxd = 0;
+      for (const p of pts) {
+        const d = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
+        if (d > maxd) maxd = d;
+      }
+      
+      const s = (maxd > 1e-9) ? (1.0 / maxd) : 1.0;
+      const vec = [];
+      for (const p of pts) {
+        vec.push(p.x * s, p.y * s, p.z * s);
+      }
+      
+      return vec;
+    }
+    
+    // 手話認識
+    let frameBuffer = [];  // { features, timestamp } の配列
+    const TARGET_FRAMES = 15;
+    const MIN_FRAMES_TO_START = 3;  // パディング付き早期推論（初回遅延対策）
+    const RECOGNITION_WINDOW_MS = 500;  // 訓練データと同じ500msウィンドウ
+    
+    // ===== 早期静止判定（Early Static Recognition） =====
+    // 直近フレームが静止状態なら、500msウィンドウを無視してクリーンな入力で即推論
+    const STATIC_DIST_THRESHOLD = 0.15;  // 特徴量ベクトル間のユークリッド距離閾値（要チューニング）
+    const STATIC_MIN_FRAMES = 3;         // 静止判定に必要な最小フレーム数
+    let earlyStaticCount = 0;            // デバッグ用: 早期静止判定の発動回数
+    let normalInferenceCount = 0;        // デバッグ用: 通常推論の発動回数
+    let skippedInferenceCount = 0;       // デバッグ用: キャッシュで推論スキップした回数
+
+    // =============================================
+    // 診断フライトレコーダー
+    // =============================================
+    const DIAG = {
+      frames: [],    // フレームごとの認識データ
+      events: [],    // イベントマーカー（正解、タイムアウト、スキップ等）
+      
+      // フレーム記録
+      pushFrame(data) {
+        this.frames.push({
+          t: performance.now(),
+          wordId: currentWordId,
+          charIndex: currentIndex,
+          expected: currentWord ? currentWord.hiragana[currentIndex] : null,
+          ...data
+        });
+      },
+      
+      // イベント記録
+      pushEvent(type, extra = {}) {
+        this.events.push({
+          t: performance.now(),
+          type,
+          wordId: currentWordId,
+          word: currentWord ? currentWord.display : null,
+          hiragana: currentWord ? currentWord.hiragana : null,
+          charIndex: currentIndex,
+          expected: currentWord ? currentWord.hiragana[currentIndex] : null,
+          ...extra
+        });
+      },
+      
+      // リセット
+      reset() {
+        this.frames = [];
+        this.events = [];
+      },
+      
+      // JSON出力
+      export(meta) {
+        return {
+          meta: {
+            date: new Date().toISOString(),
+            version: 'diag-v5',
+            ...meta
+          },
+          // [v5] 環境情報
+          environment: this.collectEnvironment(),
+          // [v5] パフォーマンス統計
+          performance: this.collectPerformance(),
+          events: this.events,
+          frames: this.frames,
+          summary: this.buildSummary()
+        };
+      },
+      
+      // [v5] 環境情報を収集
+      collectEnvironment() {
+        const env = {
+          userAgent: navigator.userAgent,
+          platform: navigator.platform,
+          language: navigator.language,
+          hardwareConcurrency: navigator.hardwareConcurrency || null,
+          deviceMemory: navigator.deviceMemory || null,
+          screen: {
+            width: screen.width,
+            height: screen.height,
+            devicePixelRatio: window.devicePixelRatio,
+          },
+          viewport: {
+            innerWidth: window.innerWidth,
+            innerHeight: window.innerHeight,
+          },
+          camera: {
+            videoWidth: null,
+            videoHeight: null,
+          },
+          gpu: null,
+        };
+        // カメラ実解像度
+        try {
+          const v = document.getElementById('video');
+          if (v) {
+            env.camera.videoWidth = v.videoWidth;
+            env.camera.videoHeight = v.videoHeight;
+          }
+        } catch (e) {}
+        // GPU情報（WebGLレンダラー）
+        try {
+          const c = document.createElement('canvas');
+          const gl = c.getContext('webgl2') || c.getContext('webgl');
+          if (gl) {
+            const ext = gl.getExtension('WEBGL_debug_renderer_info');
+            env.gpu = {
+              vendor: ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR),
+              renderer: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
+            };
+          }
+        } catch (e) {}
+        return env;
+      },
+      
+      // [v5] パフォーマンス統計を集計
+      collectPerformance() {
+        const gameDuration = (performance.now() - LOOP_PERF.gameStartTime) / 1000;
+        const dt = LOOP_PERF.allDetectTimes;
+        const pt = LOOP_PERF.allPredictTimes;
+        
+        const stats = (arr) => {
+          if (arr.length === 0) return { avg: 0, max: 0, min: 0, median: 0, p95: 0, n: 0 };
+          const sorted = [...arr].sort((a, b) => a - b);
+          return {
+            avg: +(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1),
+            max: +sorted[sorted.length - 1].toFixed(1),
+            min: +sorted[0].toFixed(1),
+            median: +sorted[Math.floor(sorted.length / 2)].toFixed(1),
+            p95: +sorted[Math.floor(sorted.length * 0.95)].toFixed(1),
+            n: arr.length
+          };
+        };
+        
+        return {
+          gameDurationSec: +gameDuration.toFixed(1),
+          totalLoopFrames: LOOP_PERF.totalLoopFrames,
+          recognitionFrames: LOOP_PERF.recognitionFrames,
+          fps: {
+            loop: +(LOOP_PERF.totalLoopFrames / gameDuration).toFixed(1),
+            recognition: +(LOOP_PERF.recognitionFrames / gameDuration).toFixed(1),
+          },
+          detect: stats(dt),
+          predict: stats(pt),
+          // 合計（detect+predict）の統計
+          combined: (() => {
+            const minLen = Math.min(dt.length, pt.length);
+            const combined = [];
+            for (let i = 0; i < minLen; i++) combined.push(dt[i] + pt[i]);
+            return stats(combined);
+          })(),
+        };
+      },
+      
+      // サマリー自動生成（ログを貼る前にざっと見れるように）
+      buildSummary() {
+        const charTimes = {};  // expected別の所要時間
+        let prevCorrectTime = null;
+        
+        for (const ev of this.events) {
+          if (ev.type === 'char_correct') {
+            // この文字にかかった時間 = 直前のchar_correctからの差分
+            if (prevCorrectTime !== null && ev.wordId === this._prevWordId) {
+              const dt = ev.t - prevCorrectTime;
+              const ch = ev.recognized_hira || ev.expected || '?';
+              if (!charTimes[ch]) charTimes[ch] = [];
+              charTimes[ch].push(Math.round(dt));
+            }
+            prevCorrectTime = ev.t;
+            this._prevWordId = ev.wordId;
+          } else if (ev.type === 'word_start') {
+            prevCorrectTime = ev.t;
+            this._prevWordId = ev.wordId;
+          }
+        }
+        
+        // 文字別の平均/最大所要時間
+        const charStats = {};
+        for (const [ch, times] of Object.entries(charTimes)) {
+          const avg = times.reduce((a, b) => a + b, 0) / times.length;
+          const max = Math.max(...times);
+          charStats[ch] = { avg: Math.round(avg), max, count: times.length };
+        }
+        
+        // タイムアウト/スキップされた単語
+        const failedWords = this.events
+          .filter(e => e.type === 'word_timeout' || e.type === 'word_skip')
+          .map(e => ({ word: e.word, hiragana: e.hiragana, type: e.type, stuckAt: e.charIndex }));
+        
+        // 認識ブレ区間（同一expected に対してrawSignが3種類以上出てる区間）
+        const jitterZones = this.findJitterZones();
+        
+        return { charStats, failedWords, jitterZones };
+      },
+      
+      // rawSignの揺れが激しい区間を検出
+      findJitterZones() {
+        const zones = [];
+        let currentZone = null;
+        
+        for (const f of this.frames) {
+          if (!f.expected || !f.rawSign) continue;
+          
+          if (!currentZone || f.wordId !== currentZone.wordId || f.charIndex !== currentZone.charIndex) {
+            // 新しい文字に切り替わった
+            if (currentZone && currentZone.signs.size >= 3) {
+              zones.push({
+                wordId: currentZone.wordId,
+                charIndex: currentZone.charIndex,
+                expected: currentZone.expected,
+                signs: [...currentZone.signs],
+                frameCount: currentZone.count,
+                duration: currentZone.lastT - currentZone.firstT
+              });
+            }
+            currentZone = {
+              wordId: f.wordId, charIndex: f.charIndex, expected: f.expected,
+              signs: new Set(), count: 0, firstT: f.t, lastT: f.t
+            };
+          }
+          currentZone.signs.add(f.rawSign);
+          currentZone.count++;
+          currentZone.lastT = f.t;
+        }
+        // 最後の区間
+        if (currentZone && currentZone.signs.size >= 3) {
+          zones.push({
+            wordId: currentZone.wordId, charIndex: currentZone.charIndex,
+            expected: currentZone.expected, signs: [...currentZone.signs],
+            frameCount: currentZone.count, duration: currentZone.lastT - currentZone.firstT
+          });
+        }
+        return zones;
+      }
+    };
+    
+    // 静止キャッシュ: 静止状態で同じ結果が出続ける場合、推論自体をスキップ
+    let staticCache = { sign: null, conf: 0, probs: null, displaySign: null, isStatic: false };
+    
+    function featureDistance(a, b) {
+      let sum = 0;
+      for (let i = 0; i < a.length; i++) {
+        const d = a[i] - b[i];
+        sum += d * d;
+      }
+      return Math.sqrt(sum);
+    }
+    
+    function isStaticState() {
+      if (frameBuffer.length < STATIC_MIN_FRAMES) return false;
+      const recent = frameBuffer.slice(-STATIC_MIN_FRAMES);
+      for (let i = 1; i < recent.length; i++) {
+        if (featureDistance(recent[i - 1].features, recent[i].features) >= STATIC_DIST_THRESHOLD) {
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    // ===== 動き検出後処理（混同ペア補正） =====
+    let wristBuffer = [];
+    const WRIST_BUFFER_SIZE = 20;
+    const MOTION_THRESHOLD_XY = 0.06;  // 手のxy移動量の閾値（要チューニング）
+    // [2026-03-09] PULLBACK_THRESHOLD: 0.02→0.012 に引き下げ
+    //   小文字（ゃゅょっ等）の手前引き動作が微妙なテスターで検出漏れが発生していたため
+    const PULLBACK_THRESHOLD = 0.012;
+    // [2026-03-09] POSTPROCESS_CONF_LIMIT: 0.95→0.98 に引き上げ
+    //   モデルが高確信度で清音を出しても、動き検出による補正を試みる範囲を広げるため
+    const POSTPROCESS_CONF_LIMIT = 0.98;
+
+    function trackWrist(landmarks) {
+      const w = landmarks[0];
+      wristBuffer.push({ x: w.x, y: w.y, z: w.z });
+      if (wristBuffer.length > WRIST_BUFFER_SIZE) wristBuffer.shift();
+    }
+
+    function getWristMotion() {
+      if (wristBuffer.length < 5) return { xy: 0, z: 0 };
+      const recent = wristBuffer.slice(-15);
+      let totalXY = 0, totalZ = 0;
+      for (let i = 1; i < recent.length; i++) {
+        const dx = recent[i].x - recent[i - 1].x;
+        const dy = recent[i].y - recent[i - 1].y;
+        totalXY += Math.sqrt(dx * dx + dy * dy);
+        totalZ += (recent[i].z - recent[i - 1].z);
+      }
+      return { xy: totalXY, z: totalZ };
+    }
+
+    function postProcessSign(sign, conf, probs) {
+      if (conf >= POSTPROCESS_CONF_LIMIT) return sign;
+      const motion = getWristMotion();
+      const hasMotionXY = motion.xy > MOTION_THRESHOLD_XY;
+      const hasPullBack = Math.abs(motion.z) > PULLBACK_THRESHOLD;
+
+      // に↔り: 「り」は空書き(motion)、「に」は静止(static)
+      if (sign === 'ni' && hasMotionXY) return 'ri';
+      if (sign === 'ri' && !hasMotionXY) return 'ni';
+
+      // ── [2026-03-09] そ↔の/ん/ー 補正追加 ──
+      // テスターの「の」「ん」「ー」が「そ」と誤認される問題への対策
+      // 全て人差し指1本の形だが、「そ」は静止、「の」「ん」「ー」は動きがある
+      // モデルが「そ」と予測したがXY動きがある → no/n/bar の中で最も確率が高いものに補正
+      if (sign === 'so' && hasMotionXY && probs && labelMap) {
+        const candidates = ['no', 'n', 'bar'];
+        let bestLabel = sign, bestProb = -1;
+        for (const c of candidates) {
+          const cId = labelMap.label_to_id?.[c];
+          if (cId !== undefined && probs[cId] > bestProb) {
+            bestProb = probs[cId];
+            bestLabel = c;
+          }
+        }
+        if (bestProb > 0.01) return bestLabel; // 最低限の確率がある候補に補正
+      }
+
+      // ── [2026-04-14] 小文字pullback補正を廃止 ──
+      // MediaPipeのZ座標が手前引き動作を検出できず（motionZ=常に0）、
+      // 全18行のうち左側（清音→小文字）は一度も発動せず、
+      // 右側（小文字→清音に戻す）は常に発動して小文字認識を邪魔していた。
+      // 邪魔32回 vs 正しい補正31回だが、正しい補正はisMatchのkomojiToOmojiで
+      // カバーされるため、削除による悪影響はゼロ。
+      //
+      // 廃止対象: ゃ↔や, ゅ↔ゆ, ょ↔よ, っ↔つ, ぁ↔あ, ぃ↔い, ぅ↔う, ぇ↔え, を↔お
+
+      // [2026-03-11] X（スキップジェスチャー）補正
+      // Xは×ジェスチャー(静止型)。モデルがdu/ge等と誤認識することがある。
+      // 静止状態で、Xの確率がある程度あれば X に補正する。
+      if (sign !== 'X' && !hasMotionXY && probs && labelMap) {
+        const xId = labelMap.label_to_id?.['X'];
+        if (xId !== undefined) {
+          const xProb = probs[xId];
+          // Xの確率が20%以上あり、現在の予測が既知の混同ラベルに含まれる場合
+          const xConfusedLabels = ['du', 'ge', 'di', 'gu'];
+          if (xProb >= 0.20 && xConfusedLabels.includes(sign)) {
+            return 'X';
+          }
+        }
+      }
+      // 逆方向: X と判定されたが動きがある → 本来は動き型の文字
+      if (sign === 'X' && hasMotionXY) return 'du';
+
+      return sign;
+    }
+    // ===== 動き検出後処理ここまで =====
+    
+    async function predictSign(features) {
+      const now = performance.now();
+      frameBuffer.push({ features, timestamp: now });
+      
+      // 古いフレームを除去（ウィンドウ外）
+      const cutoff = now - RECOGNITION_WINDOW_MS * 2;  // 余裕を持って2倍まで保持
+      while (frameBuffer.length > 0 && frameBuffer[0].timestamp < cutoff) {
+        frameBuffer.shift();
+      }
+      
+      // ── 入力フレームの選択: 早期静止判定 or 通常ウィンドウ ──
+      let frames15;
+      let isEarlyStatic = false;
+      const currentlyStatic = isStaticState();
+      
+      if (currentlyStatic) {
+        // [v2] 静止キャッシュによる推論スキップを無効化
+        // タイピングゲームでは文字が次々変わるため、キャッシュは常にstaleになり
+        // 前の文字の結果を出し続ける原因になっていた（正解率0%）
+        // Early Static Recognition（クリーンな入力で即推論）は維持する
+        
+        // 静止状態: 直近フレームだけでクリーンな入力を作成
+        const latestFeatures = frameBuffer[frameBuffer.length - 1].features;
+        frames15 = Array(TARGET_FRAMES).fill(latestFeatures);
+        isEarlyStatic = true;
+        earlyStaticCount++;
+      } else {
+        // 動き検出: キャッシュを無効化
+        staticCache = { sign: null, conf: 0, probs: null, displaySign: null, isStatic: false };
+        
+        // 通常パス: 500ms ウィンドウ内のフレームを取得
+        const windowStart = now - RECOGNITION_WINDOW_MS;
+        const recentFrames = frameBuffer.filter(f => f.timestamp >= windowStart);
+        
+        if (recentFrames.length < MIN_FRAMES_TO_START) return;
+        
+        frames15 = resampleTo15(recentFrames.map(f => f.features));
+        normalInferenceCount++;
+      }
+      
+      const inputTensor = tf.tensor3d([frames15], [1, TARGET_FRAMES, 63]);
+      
+      const output = await model.executeAsync(inputTensor);
+      const probs = await output.data();
+      
+      inputTensor.dispose();
+      output.dispose();
+      
+      // [2026-03-09] argmax最適化: 3パス→1パスのforループに変更
+      let predId = 0, maxProb = probs[0];
+      for (let pi = 1; pi < probs.length; pi++) {
+        if (probs[pi] > maxProb) { maxProb = probs[pi]; predId = pi; }
+      }
+      const conf = maxProb;
+      const rawSign = labelMap.id_to_label[String(predId)];
+      
+      // 動き検出による混同ペア補正
+      const sign = postProcessSign(rawSign, conf, probs);
+      
+      // DIAG: 通常推論フレーム記録
+      const motion = getWristMotion();
+      const diagTop3 = [];
+      { // top3抽出
+        const indices = [...probs.keys()].sort((a, b) => probs[b] - probs[a]).slice(0, 3);
+        for (const idx of indices) {
+          diagTop3.push({ label: labelMap.id_to_label[String(idx)], prob: +probs[idx].toFixed(4) });
+        }
+      }
+      DIAG.pushFrame({
+        rawSign, postSign: sign, conf: +conf.toFixed(4),
+        top3: diagTop3,
+        isEarlyStatic, isCacheHit: false,
+        wristXYZ: wristBuffer.length > 0 ? { ...wristBuffer[wristBuffer.length - 1] } : null,
+        motionXY: +motion.xy.toFixed(4), motionZ: +motion.z.toFixed(4)
+      });
+      
+      // [v2] 静止キャッシュ更新を無効化（推論スキップを廃止したため不要）
+      // if (currentlyStatic) {
+      //   const displaySign = convertToHiragana(sign);
+      //   staticCache = { sign, conf, probs: Array.from(probs), displaySign, isStatic: true };
+      // }
+      
+      // ── スキップ判定（Xジェスチャー検知） ──
+      if (sign === 'X' && conf >= 0.80) {
+        const now2 = performance.now();
+        if (skipXStartTime === null) {
+          skipXStartTime = now2;
+        }
+        const held = now2 - skipXStartTime;
+        const progress = Math.min(held / SKIP_HOLD_MS, 1.0);
+        
+        // UI: スキップ進捗表示
+        _elRecognizedChar.textContent = '✕';
+        _elConfidence.textContent = `SKIP ${Math.round(progress * 100)}%`;
+        document.getElementById('statusBox').textContent = `✕ を出し続けてスキップ（${(SKIP_HOLD_MS / 1000).toFixed(1)}秒）`;
+        
+        if (held >= SKIP_HOLD_MS) {
+          skipXStartTime = null;
+          onWordSkip();
+        }
+        return;  // X 検知中は通常の文字認識を行わない
+      } else {
+        skipXStartTime = null;  // X 以外を検知したらリセット
+      }
+      
+      // 英語ラベルを日本語に変換（表示用）
+      const displaySign = convertToHiragana(sign);
+      
+      // UI更新
+      _elRecognizedChar.textContent = displaySign;
+      _elConfidence.textContent = `${(conf * 100).toFixed(1)}%`;
+      
+      // 判定
+      if (conf >= 0.80) {
+        onSignRecognized(sign);
+      }
+    }
+    
+    function resampleTo15(frames) {
+      const n = frames.length;
+      if (n === TARGET_FRAMES) return frames;
+      
+      if (n < TARGET_FRAMES) {
+        const result = [...frames];
+        while (result.length < TARGET_FRAMES) {
+          result.push(frames[frames.length - 1]);
+        }
+        return result;
+      }
+      
+      const indices = [];
+      for (let i = 0; i < TARGET_FRAMES; i++) {
+        indices.push(i * (n - 1) / (TARGET_FRAMES - 1));
+      }
+      
+      return indices.map(idx => {
+        const i0 = Math.floor(idx);
+        const i1 = Math.min(i0 + 1, n - 1);
+        const alpha = idx - i0;
+        return frames[i0].map((v, j) => v * (1 - alpha) + frames[i1][j] * alpha);
+      });
+    }
+    
+    // ── 連続同一サイン誤マッチ防止 ──
+    // 「ぽつぽつ」等で「ぽ」を維持したまま次の「ぽ」にマッチするのを防ぐ
+    let lastMatchedSign = null;       // 直前に正解したサインのラベル
+    let lastMatchedTime = 0;          // 正解した時刻
+    const SAME_SIGN_COOLDOWN_MS = 400; // 同一サイン再マッチまでの最低待機時間
+
+    // 認識結果の処理
+    function onSignRecognized(sign) {
+      // 英語ラベルを日本語に変換
+      const hiraganaSign = convertToHiragana(sign);
+      const expectedChar = currentWord.hiragana[currentIndex];
+      const wordStr = Array.isArray(currentWord.hiragana) ? currentWord.hiragana.join('') : currentWord.hiragana;
+
+      if (isMatch(hiraganaSign, expectedChar)) {
+        // 同一サインが連続で来た場合、クールダウン中はスキップ
+        if (lastMatchedSign === sign && (performance.now() - lastMatchedTime) < SAME_SIGN_COOLDOWN_MS) {
+          console.log(`[MATCH-BLOCKED] cooldown中 sign=${sign} hira=${hiraganaSign} idx=${currentIndex} word=${wordStr}`);
+          DIAG.pushEvent('match_blocked', { sign, hira: hiraganaSign });
+          return;
+        }
+        console.log(`%c[MATCH-OK] sign=${sign} hira=${hiraganaSign} expected=${expectedChar} idx=${currentIndex}/${currentWord.hiragana.length} word=${wordStr}`, 'color:#0f0;font-weight:bold');
+        lastMatchedSign = sign;
+        lastMatchedTime = performance.now();
+        onCharacterCorrect();
+      } else {
+        // 別のサインが来たらクールダウンをリセット
+        if (lastMatchedSign !== null) {
+          console.log(`[MATCH-MISS] sign=${sign} hira=${hiraganaSign} expected=${expectedChar} idx=${currentIndex} → cooldownリセット`);
+        }
+        lastMatchedSign = null;
+      }
+    }
+    
+    // マッチング判定（濁音補正＋文字グループ対応）
+    function isMatch(recognized, expected) {
+      // 1. 直接一致
+      if (recognized === expected) {
+        console.log(`  [isMatch] 直接一致: "${recognized}" === "${expected}"`);
+        return true;
+      }
+
+      // 2. エイリアスチェック（を/小お など）
+      if (aliases[expected]) {
+        if (aliases[expected].includes(recognized)) {
+          console.log(`  [isMatch] エイリアス一致: recognized="${recognized}" expected="${expected}" aliases=${JSON.stringify(aliases[expected])}`);
+          return true;
+        }
+      }
+
+      // 3. 濁音→清音の補正
+      if (dakuonToSeion[recognized]) {
+        const seion = dakuonToSeion[recognized];
+        if (seion === expected) {
+          console.log(`  [isMatch] 濁音補正: recognized="${recognized}" → seion="${seion}" === expected="${expected}"`);
+          return true;
+        }
+      }
+
+      // 4. 小さい文字→大きい文字の補正（一方向のみ）
+      if (komojiToOmoji[recognized]) {
+        const omoji = komojiToOmoji[recognized];
+        if (omoji === expected) {
+          console.log(`  [isMatch] 小文字補正: recognized="${recognized}" → omoji="${omoji}" === expected="${expected}"`);
+          return true;
+        }
+      }
+
+      // 5. 文字グループチェック（相互認識）
+      if (isInSameGroup(recognized, expected)) {
+        console.log(`  [isMatch] グループ一致: recognized="${recognized}" expected="${expected}"`);
+        return true;
+      }
+
+      return false;
+    }
+    
+    // 正解時の処理
+    function onCharacterCorrect() {
+      const charTime = performance.now() - charStartTime;
+      totalTime += charTime;
+      totalChars++;
+      
+      // DIAG: 正解イベント（currentIndex増加前に記録）
+      DIAG.pushEvent('char_correct', {
+        recognized: lastMatchedSign,
+        recognized_hira: convertToHiragana(lastMatchedSign),
+        charTimeMs: Math.round(charTime)
+      });
+      
+      // [v2] フレームバッファをクリア：前の文字のフレームが次の推論に混入するのを防止
+      frameBuffer = [];
+      // [v3] wristBufferはクリアしない：動き検出（pullback/motionXY）の文脈情報を保持
+      //      v2でクリアしたところ小文字(ゃゅょっ)の認識が+29%悪化、ri→ni補正が3.5倍に増加した
+      
+      currentIndex++;
+      updateWordDisplay();
+      updateStats();
+      
+      if (currentIndex >= currentWord.hiragana.length) {
+        onWordComplete();
+      } else {
+        charStartTime = performance.now();
+      }
+    }
+    
+    // 単語完成
+    function onWordComplete() {
+      stopWordTimer();
+      
+      // DIAG: 単語完了イベント
+      DIAG.pushEvent('word_complete');
+      
+      clearedCount++;
+      score += currentWord.hiragana.length * 10;
+      SEA.updateScore(totalChars);  // 深海演出を累計文字数で更新
+      
+      // コンボ判定（制限時間の50%以上残っていればコンボ）
+      const isCombo = wordTimeRemaining >= comboThreshold;
+      
+      if (isCombo) {
+        // 表示用コンボ: 途切れるまで増加し続ける
+        combo++;
+        if (combo > maxCombo) maxCombo = combo;
+        
+        // ボーナス判定用コンボ: 10達成でリセット
+        bonusCombo++;
+        
+        let bonus = 0;
+        
+        if (bonusCombo === 3) {
+          bonus = 2;
+        } else if (bonusCombo === 5) {
+          bonus = 3;
+        } else if (bonusCombo === 10) {
+          bonus = 5;
+          bonusCombo = 0; // ボーナスカウンタのみリセット
+
+        }
+        
+        // タイムボーナス付与
+        if (bonus > 0) {
+          timeRemaining += bonus;
+          document.getElementById('timeRemaining').textContent = timeRemaining;
+          updateTotalTimerBar();
+          showComboEffect(combo, bonus);
+        }
+        
+        // コンボ表示更新（表示用comboで更新）
+        updateComboDisplay();
+      } else {
+        // コンボ途切れ: 両方リセット
+        if (combo > 0) {
+
+        }
+        combo = 0;
+        bonusCombo = 0;
+        updateComboDisplay();
+      }
+      
+      document.getElementById('clearedCount').textContent = clearedCount;
+      document.getElementById('currentScore').textContent = score;
+      
+      nextWord();
+    }
+    
+    // 統計更新
+    function updateStats() {
+      const seconds = totalTime / 1000;
+      const cps = seconds > 0 ? (totalChars / seconds).toFixed(2) : '0.00';
+      document.getElementById('speedDisplay').textContent = cps;
+    }
+    
+    // ゲーム終了
+    function gameOver() {
+      isPlaying = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      if (LOOP_PERF.logInterval) clearInterval(LOOP_PERF.logInterval);
+      releaseWakeLock();  // 画面スリープ防止解除
+      stopWordTimer();  // 単語タイマー停止
+      
+      // DIAG: ゲーム終了イベント
+      DIAG.pushEvent('game_over');
+      
+      // DIAG: エクスポートデータを保持（ボタン押下時に使用）
+      window._diagData = DIAG.export({
+        difficulty, timeLimit, perfTier, detectInterval,
+        tierAvgDetect: window._tierAvgDetect || null,
+        tierSampleCount: window._tierSampleCount || 0,
+        score, clearedCount, totalChars, missedWords, maxCombo,
+        earlyStaticCount, normalInferenceCount, skippedInferenceCount,
+        selectedHand,
+        frameCount: DIAG.frames.length,
+        eventCount: DIAG.events.length
+      });
+      console.log('[DIAG] フレーム数:', DIAG.frames.length, 'イベント数:', DIAG.events.length);
+      console.log('[DIAG] サマリー:', JSON.stringify(window._diagData.summary, null, 2));
+      
+      // 画面上に残っているNGエフェクト・フラッシュを強制削除
+      document.querySelectorAll('[data-ng-effect]').forEach(el => el.remove());
+      
+      const seconds = totalTime / 1000;
+      const cps = seconds > 0 ? (totalChars / seconds).toFixed(2) : '0.00';
+      
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('finalCleared').textContent = clearedCount;
+      document.getElementById('finalChars').textContent = totalChars;
+      document.getElementById('finalSpeed').textContent = cps + ' 文字/秒';
+      
+      // 称号取得
+      loadTitleAndShow(score);
+      
+      // 到達ステージ表示
+      loadStageAndShow(totalChars);
+      
+      // ハイスコアチェック
+      checkHighScore(score);
+      
+      // スコア保存
+      saveScore(score, clearedCount, cps);
+      
+      // 結果画面表示
+      document.getElementById('resultScreen').classList.add('show');
+    }
+    
+    // 称号読み込み
+    async function loadTitleAndShow(score) {
+      try {
+        const response = await fetch('./data/titles.json?v=' + Date.now());
+        const data = await response.json();
+        
+        let title = data.titles[0];
+        for (const t of data.titles) {
+          if (score >= t.minScore && score <= t.maxScore) {
+            title = t;
+            break;
+          }
+        }
+        
+        document.getElementById('titleEmoji').textContent = title.emoji;
+        document.getElementById('titleText').textContent = title.title;
+        
+        // 称号をlocalStorageの最新スコアに追記
+        try {
+          const scores = JSON.parse(localStorage.getItem('allScores') || '[]');
+          if (scores.length > 0) {
+            scores[scores.length - 1].titleText  = title.title;
+            scores[scores.length - 1].titleEmoji = title.emoji;
+            localStorage.setItem('allScores', JSON.stringify(scores));
+          }
+        } catch(e) {}
+        
+      } catch (error) {
+        console.error('称号読み込みエラー:', error);
+        document.getElementById('titleEmoji').textContent = '⭐';
+        document.getElementById('titleText').textContent = '参加賞';
+      }
+    }
+    
+    // 到達ステージ読み込み
+    async function loadStageAndShow(totalChars) {
+      try {
+        const response = await fetch('./data/stage.json?v=' + Date.now());
+        const data = await response.json();
+        
+        // totalCharsから到達ステージを決定
+        let stage = data.stages[0];
+        for (const s of data.stages) {
+          if (totalChars >= s.minChars) {
+            stage = s;
+          } else {
+            break;
+          }
+        }
+        
+        // 深度計算（次のステージまでの進捗で補間）
+        const currentIndex = data.stages.indexOf(stage);
+        const nextStage = data.stages[currentIndex + 1];
+        let depth = stage.depth;
+        
+        if (nextStage) {
+          const progress = (totalChars - stage.minChars) / (nextStage.minChars - stage.minChars);
+          depth = Math.round(stage.depth + (nextStage.depth - stage.depth) * Math.min(1, progress));
+        } else {
+          // 最終ステージを超えた場合
+          depth = Math.round(stage.depth + (totalChars - stage.minChars) * 15);
+        }
+        
+        // 表示
+        document.getElementById('stageResultIcon').textContent = stage.icon;
+        document.getElementById('stageResultName').textContent = stage.name;
+        document.getElementById('stageResultDepth').textContent = `▼ ${depth.toLocaleString()}m`;
+        document.getElementById('stageResultComment').textContent = stage.comment;
+        
+        // スペシャルステージのアンロック処理
+        // 末尾5ステージがスペシャルステージ
+        const specialStartIndex = data.stages.length - 5;
+        if (currentIndex >= specialStartIndex) {
+          const specialStageNumber = currentIndex - specialStartIndex + 1; // 1〜5
+          
+          // localStorageに保存（練習モードで使用）
+          const currentMaxStage = localStorage.getItem('signDiverMaxStage') || '0';
+          const currentMax = parseInt(currentMaxStage);
+          
+          if (specialStageNumber > currentMax) {
+            localStorage.setItem('signDiverMaxStage', specialStageNumber.toString());
+
+            
+            // アンロック通知（オプション：必要に応じてUIで表示）
+            const specialNames = {};
+            for (let i = 0; i < 5; i++) {
+              specialNames[i + 1] = data.stages[specialStartIndex + i].name;
+            }
+
+          }
+        }
+        
+      } catch (error) {
+        console.error('ステージ読み込みエラー:', error);
+        document.getElementById('stageResultIcon').textContent = '🏖️';
+        document.getElementById('stageResultName').textContent = '浅瀬';
+        document.getElementById('stageResultDepth').textContent = '▼ 0m';
+        document.getElementById('stageResultComment').textContent = 'データの読み込みに失敗しました';
+      }
+    }
+    
+    // ハイスコアチェック
+    function checkHighScore(newScore) {
+      const key = `highScore_${difficulty}_${timeLimit}`;
+      const highScore = localStorage.getItem(key);
+      
+      if (!highScore || newScore > parseInt(highScore)) {
+        localStorage.setItem(key, newScore);
+        document.getElementById('highScoreNotice').style.display = 'block';
+      }
+    }
+    
+    // スコア保存
+    function saveScore(score, cleared, speed) {
+      const scores = JSON.parse(localStorage.getItem('allScores') || '[]');
+      
+      scores.push({
+        score,
+        cleared,
+        speed,
+        totalChars,
+        difficulty,
+        timeLimit,
+        date: new Date().toISOString()
+      });
+      
+      // 最新100件のみ保存
+      if (scores.length > 100) {
+        scores.shift();
+      }
+      
+      localStorage.setItem('allScores', JSON.stringify(scores));
+    }
+    
+    // グローバル関数
+    window.retry = function() {
+      window.location.reload();
+    };
+    
+    const SITE_URL = 'https://signdiver.com/';
+
+    window.shareToX = function() {
+      const score = document.getElementById('finalScore').textContent;
+      const speed = document.getElementById('finalSpeed').textContent;
+      const text = `指文字タイピングゲーム Sign Diver で ${score}点（${speed}）を記録しました！ #SignDiver #指文字`;
+      const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(SITE_URL)}`;
+      window.open(url, '_blank', 'width=550,height=450');
+    };
+
+    window.shareToLINE = function() {
+      const score = document.getElementById('finalScore').textContent;
+      const text = `指文字タイピングゲーム Sign Diver で ${score}点取れた！やってみて 👉 ${SITE_URL}`;
+      const url = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE_URL)}&text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    };
+
+    window.backToMenu = function() {
+      window.location.href = 'index.html';
+    };
+    
+    // DIAG: 診断データ出力
+    window.exportDiagnostics = function() {
+      const data = window._diagData;
+      if (!data) {
+        alert('診断データがありません');
+        return;
+      }
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      a.download = `signdiver_diag_${ts}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+    
+    // Escキーで中断
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && isPlaying) {
+        const confirmQuit = confirm('ゲームを中断しますか？');
+        if (confirmQuit) {
+          window.location.href = 'index.html';
+        }
+      }
+    });
+    
+    // =============================================
+    // 深海アニメーションシステム
+    // =============================================
+    
+    const SEA = {
+      canvas: null,
+      ctx: null,
+      W: 0,
+      H: 0,
+      raf: null,
+      
+      // 深度レベル定義（stage.json から動的読み込み）
+      LEVELS: [],
+      
+      currentDepth: 0,
+      targetDepth: 0,
+      currentLevel: 0,
+      
+      // フェード用：現在描画に使っている色（なめらかに遷移）
+      renderBg1: '#0099cc',
+      renderBg2: '#006699',
+      renderRays: 1.0,
+      fadeFrom1: '#0099cc',
+      fadeFrom2: '#006699',
+      fadeFromRay: 1.0,
+      fadeProgress: 1,   // 1=フェード完了済み（初期状態）
+      
+      bubbles: [],
+      particles: [],        // 浮遊塵
+      creatures: [],        // 魚/クラゲ
+      diverY: 0,            // ダイバーY座標
+      time: 0,
+      
+      async init() {
+        this.canvas = document.getElementById('seaCanvas');
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this._depthMeter = document.getElementById('depthMeter');
+        this._depthGaugeValue = document.getElementById('depthGaugeValue');
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        
+        // stage.json から深海演出データを読み込み
+        try {
+          const res = await fetch('./data/stage.json?v=' + Date.now());
+          const data = await res.json();
+          this.LEVELS = data.stages.map(s => ({
+            minChars: s.minChars,
+            depth: s.depth,
+            name: s.name,
+            ...s.sea
+          }));
+        } catch (e) {
+          console.error('stage.json 読み込みエラー（SEA演出フォールバック）:', e);
+          this.LEVELS = [
+            { minChars: 0, depth: 0, name: '浅瀬', bg1: '#00bfff', bg2: '#0099cc', rays: 1.0, creatures: ['fish'], creatureCount: 4, creatureMinCount: 3, mysteryFog: false }
+          ];
+        }
+        
+        // 初期描画色を設定
+        this.renderBg1 = this.LEVELS[0].bg1;
+        this.renderBg2 = this.LEVELS[0].bg2;
+        this.renderRays = this.LEVELS[0].rays;
+        this.fadeFrom1 = this.LEVELS[0].bg1;
+        this.fadeFrom2 = this.LEVELS[0].bg2;
+        this.fadeFromRay = this.LEVELS[0].rays;
+        
+        // スマホ横向き: ダイバーを上寄りに
+        const isLM = window.matchMedia('(max-width: 900px) and (max-height: 450px)').matches;
+        this.diverY = isLM ? this.H * 0.25 : this.H * 0.5;
+        this.spawnInitial();
+        this.animate();
+      },
+      
+      resize() {
+        if (!this.canvas) return;
+        const wrap = this.canvas.parentElement;
+        // clientWidthが0の場合はoffsetWidthで代替
+        this.W = wrap.clientWidth || wrap.offsetWidth || 800;
+        this.H = wrap.clientHeight || wrap.offsetHeight || 200;
+        this.canvas.width  = this.W;
+        this.canvas.height = this.H;
+        // スマホ横向き: ダイバーを上寄りに（テキストと被らないように）
+        const isLandscapeMobile = window.matchMedia('(max-width: 900px) and (max-height: 450px)').matches;
+        this.diverY = isLandscapeMobile ? this.H * 0.25 : this.H * 0.5;
+      },
+      
+      // 累計クリア文字数からレベルを取得
+      getLevel(chars) {
+        let lv = 0;
+        for (let i = 0; i < this.LEVELS.length; i++) {
+          if (chars >= this.LEVELS[i].minChars) lv = i;
+        }
+        return lv;
+      },
+      
+      // 累計クリア文字数が変化した時に呼ぶ
+      updateScore(chars) {
+        const lv = this.getLevel(chars);
+        const L  = this.LEVELS[lv];
+        const nextLv = this.LEVELS[lv + 1];
+        
+        // 次レベルまでの進捗で深度を補間
+        if (nextLv) {
+          const progress = (chars - L.minChars) / (nextLv.minChars - L.minChars);
+          this.targetDepth = L.depth + (nextLv.depth - L.depth) * progress;
+        } else {
+          this.targetDepth = L.depth + (chars - L.minChars) * 15;
+        }
+        
+        // レベルが上がったらクリーチャーをフェード切替＆背景フェード開始
+        if (lv !== this.currentLevel) {
+          // フェード用：現在の色を起点として保存
+          this.fadeFrom1   = this.renderBg1;
+          this.fadeFrom2   = this.renderBg2;
+          this.fadeFromRay = this.renderRays;
+          this.fadeProgress = 0;  // 0→1 で線形フェード
+          this.currentLevel = lv;
+          
+          // 旧クリーチャーをフェードアウト対象にする
+          for (const c of this.creatures) {
+            c.fadingOut = true;
+          }
+          // 新クリーチャーをフェードインで生成
+          this.spawnCreatures(true);
+        }
+      },
+      
+      spawnInitial() {
+        // 泡
+        for (let i = 0; i < 18; i++) this.addBubble(true);
+        // 浮遊塵
+        for (let i = 0; i < 30; i++) this.addParticle(true);
+        // 生き物
+        this.spawnCreatures();
+      },
+      
+      spawnCreatures(fadeIn = false) {
+        const lv = this.LEVELS[this.currentLevel];
+        const types = lv.creatures;
+        const count = lv.creatureCount;
+        // [2026-03-09] 群れ生成（katsuo等）でcreatureCountを超えないよう残り枠を管理
+        let spawned = 0;
+        for (let i = 0; i < count && spawned < count; i++) {
+          const type = types[Math.floor(Math.random() * types.length)];
+          const before = this.creatures.length;
+          this.addCreature(type, true, true, count - spawned);
+          spawned += this.creatures.length - before;
+        }
+        // フェードインの場合、今追加したクリーチャーの opacity を 0 に設定
+        if (fadeIn) {
+          for (const c of this.creatures) {
+            if (!c.fadingOut) {
+              c.opacity = 0;
+              c.fadingIn = true;
+            }
+          }
+        }
+      },
+      
+      addBubble(randomY = false) {
+        this.bubbles.push({
+          x: Math.random() * this.W,
+          y: randomY ? Math.random() * this.H : this.H + 10,
+          r: 1.5 + Math.random() * 4,
+          speed: 0.4 + Math.random() * 0.8,
+          wobble: Math.random() * Math.PI * 2,
+          opacity: 0.3 + Math.random() * 0.4
+        });
+      },
+      
+      addParticle(randomY = false) {
+        this.particles.push({
+          x: Math.random() * this.W,
+          y: randomY ? Math.random() * this.H : -5,
+          vy: 0.05 + Math.random() * 0.15,
+          vx: (Math.random() - 0.5) * 0.3,
+          opacity: 0.1 + Math.random() * 0.25,
+          size: 0.5 + Math.random() * 1.5
+        });
+      },
+      
+      // [2026-03-09] maxSlots: 群れ生成時に使える残り枠数（katsuoが枠を超えないよう制限）
+      addCreature(type, randomPos = false, asGroup = true, maxSlots = 99) {
+        const fromRight = Math.random() > 0.5;
+        const rx = randomPos ? Math.random() * this.W : (fromRight ? this.W + 80 : -80);
+        const ry = this.H * (0.1 + Math.random() * 0.8);
+        
+        if (type === 'katsuo') {
+          // カツオ：群れで泳ぐ（asGroup=false なら単体補充）
+          const dir = fromRight ? -1 : 1;
+          const baseX = randomPos ? Math.random() * this.W : (fromRight ? this.W + 80 : -80);
+          const baseY = this.H * (0.15 + Math.random() * 0.7);
+          const groupSize = asGroup ? Math.min(2 + Math.floor(Math.random() * 3), maxSlots) : 1;
+          for (let g = 0; g < groupSize; g++) {
+            this.creatures.push({
+              type: 'katsuo',
+              x: baseX + (randomPos ? (Math.random()-0.5)*80 : g * dir * -30),
+              y: baseY + (Math.random()-0.5) * 40,
+              vx: dir * (1.2 + Math.random() * 0.8),
+              phase: Math.random() * Math.PI * 2,
+              size: 18 + Math.random() * 10,
+            });
+          }
+          return;
+        }
+        
+        if (type === 'saba') {
+          // サバ：カツオより細め、青緑の縞
+          const dir = fromRight ? -1 : 1;
+          this.creatures.push({
+            type: 'saba',
+            x: rx, y: ry,
+            vx: dir * (0.8 + Math.random() * 0.6),
+            phase: Math.random() * Math.PI * 2,
+            size: 16 + Math.random() * 8,
+          });
+          return;
+        }
+        
+        if (type === 'rakko') {
+          // ラッコ：可愛い、ゆっくり、時々回転
+          this.creatures.push({
+            type: 'rakko',
+            x: rx, y: ry,
+            vx: (fromRight ? -1 : 1) * (0.25 + Math.random() * 0.25),
+            phase: Math.random() * Math.PI * 2,
+            size: 14 + Math.random() * 8,
+            floatAngle: Math.random() * Math.PI * 2, // 浮遊角度
+          });
+          return;
+        }
+        
+        if (type === 'shark') {
+          // サメ：大きい、速い
+          const dir = fromRight ? -1 : 1;
+          this.creatures.push({
+            type: 'shark',
+            x: randomPos ? Math.random() * this.W : (fromRight ? this.W + 120 : -120),
+            y: this.H * (0.15 + Math.random() * 0.6),
+            vx: dir * (0.7 + Math.random() * 0.5),
+            phase: Math.random() * Math.PI * 2,
+            size: 35 + Math.random() * 20,
+          });
+          return;
+        }
+        
+        if (type === 'shrimp') {
+          // エビ：小さい、ひょこひょこ泳ぐ
+          this.creatures.push({
+            type: 'shrimp',
+            x: rx, y: ry,
+            vx: (fromRight ? -1 : 1) * (0.4 + Math.random() * 0.5),
+            phase: Math.random() * Math.PI * 2,
+            size: 10 + Math.random() * 6,
+          });
+          return;
+        }
+        
+        if (type === 'starfish') {
+          // ヒトデ：ゆっくり漂う、やや下寄り
+          this.creatures.push({
+            type: 'starfish',
+            x: rx,
+            y: this.H * (0.55 + Math.random() * 0.35), // 下半分に出現
+            vx: (fromRight ? -1 : 1) * (0.1 + Math.random() * 0.15),
+            phase: Math.random() * Math.PI * 2,
+            size: 12 + Math.random() * 8,
+            hue: 0 + Math.random() * 40, // オレンジ〜赤
+          });
+          return;
+        }
+        
+        if (type === 'seaweed') {
+          // わかめ：左右にゆらゆら、ほぼ定位置
+          this.creatures.push({
+            type: 'seaweed',
+            x: randomPos ? Math.random() * this.W : (Math.random() * this.W),
+            y: this.H, // 底から生える
+            vx: 0,     // 横移動なし（ゆらゆらのみ）
+            phase: Math.random() * Math.PI * 2,
+            size: 30 + Math.random() * 30,
+            hue: 140 + Math.random() * 30,
+          });
+          return;
+        }
+        
+        if (type === 'clam') {
+          // アサリ：底にいる、ゆっくり
+          this.creatures.push({
+            type: 'clam',
+            x: rx,
+            y: this.H * (0.7 + Math.random() * 0.2),
+            vx: (fromRight ? -1 : 1) * (0.08 + Math.random() * 0.1),
+            phase: Math.random() * Math.PI * 2,
+            size: 9 + Math.random() * 5,
+          });
+          return;
+        }
+        
+        if (type === 'mussel') {
+          // ムール貝：縦長の貝
+          this.creatures.push({
+            type: 'mussel',
+            x: rx,
+            y: this.H * (0.65 + Math.random() * 0.25),
+            vx: (fromRight ? -1 : 1) * (0.06 + Math.random() * 0.08),
+            phase: Math.random() * Math.PI * 2,
+            size: 10 + Math.random() * 6,
+          });
+          return;
+        }
+        
+        if (type === 'jellyfish' || type === 'anglerfish') {
+          this.creatures.push({
+            type: type,
+            x: rx, y: ry,
+            vx: (fromRight ? -1 : 1) * (0.2 + Math.random() * 0.4),
+            phase: Math.random() * Math.PI * 2,
+            size: 14 + Math.random() * 14,
+            hue: type === 'anglerfish' ? (120 + Math.random() * 120) : (160 + Math.random() * 60),
+            glow: 0.5 + Math.random() * 0.5
+          });
+          return;
+        }
+        
+        if (type === 'mystery' || type === 'diver2') {
+          // 画面中央左寄りに固定、横移動なし
+          this.creatures.push({
+            type: 'diver2',
+            x: this.W * 0.35,
+            y: this.H * 0.50,
+            vx: 0,
+            phase: Math.random() * Math.PI * 2,
+            size: 1,
+            facingLeft: false,  // プレイヤー（右側）に向かって右向き
+            bubTick: 0,
+          });
+          return;
+        }
+        
+        // 通常の魚（デフォルト）
+        this.creatures.push({
+          type: 'fish',
+          x: rx, y: ry,
+          vx: (fromRight ? -1 : 1) * (0.5 + Math.random() * 1),
+          phase: Math.random() * Math.PI * 2,
+          size: 10 + Math.random() * 12,
+          color: `hsl(${180 + Math.random() * 60},70%,${55 + Math.random() * 20}%)`
+        });
+      },
+      
+      animate() {
+        this.raf = requestAnimationFrame(() => this.animate());
+        try {
+          this.time += 0.016;
+          
+          // 親要素のサイズが変わっていたら追従
+          const wrap = this.canvas && this.canvas.parentElement;
+          if (wrap) {
+            const w = wrap.clientWidth || wrap.offsetWidth;
+            const h = wrap.clientHeight || wrap.offsetHeight || 200;
+            if (w > 0 && (w !== this.W || h !== this.H)) {
+              this.W = w;
+              this.H = h;
+              this.canvas.width  = w;
+              this.canvas.height = h;
+            }
+          }
+          
+          // 深度をなめらかに追従
+          this.currentDepth += (this.targetDepth - this.currentDepth) * 0.008;
+          
+          // 背景色を線形フェード（約2秒、60fps想定で120フレーム）
+          const lv = this.LEVELS[this.currentLevel];
+          const FADE_FRAMES = 120;
+          if (this.fadeProgress < 1) {
+            this.fadeProgress = Math.min(1, this.fadeProgress + 1 / FADE_FRAMES);
+            const t = this.fadeProgress;
+            this.renderBg1  = this.lerpColor(this.fadeFrom1,   lv.bg1,  t);
+            this.renderBg2  = this.lerpColor(this.fadeFrom2,   lv.bg2,  t);
+            this.renderRays = this.lerpVal(this.fadeFromRay, lv.rays, t);
+          }
+          
+          // 深度メーター更新
+          if (this._depthMeter) this._depthMeter.textContent = '▼ ' + Math.round(this.currentDepth) + ' m';
+
+          // 深度数値表示更新
+          if (this._depthGaugeValue) {
+            this._depthGaugeValue.innerHTML = Math.round(this.currentDepth) + '<span class="depth-gauge-unit">m</span>';
+          }
+
+          this.draw();
+          this.update();
+        } catch(e) {
+          console.warn('SEA animate error:', e);
+        }
+      },
+      
+      draw() {
+        const { ctx, W, H, time } = this;
+        
+        // 背景グラデーション（renderBg1/2はanimate内でなめらかに補間済み）
+        const bg = ctx.createLinearGradient(0, 0, 0, H);
+        bg.addColorStop(0, this.renderBg1);
+        bg.addColorStop(1, this.renderBg2);
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+        
+        // 光線（renderRaysはなめらかに補間済み）
+        const rayStrength = this.renderRays;
+        if (rayStrength > 0.02) {
+          for (let i = 0; i < 5; i++) {
+            const rx = W * 0.1 + (W * 0.8 / 5) * i + Math.sin(time * 0.3 + i) * 15;
+            const rg = ctx.createLinearGradient(rx, 0, rx + 40, H * 0.8);
+            rg.addColorStop(0, `rgba(180,230,255,${0.18 * rayStrength})`);
+            rg.addColorStop(1, `rgba(180,230,255,0)`);
+            ctx.beginPath();
+            ctx.moveTo(rx - 15, 0);
+            ctx.lineTo(rx + 40, H * 0.8);
+            ctx.lineTo(rx + 55, H * 0.8);
+            ctx.lineTo(rx + 0, 0);
+            ctx.fillStyle = rg;
+            ctx.fill();
+          }
+        }
+        
+        // 浮遊塵
+        ctx.fillStyle = 'rgba(200,230,255,0.6)';
+        for (const p of this.particles) {
+          ctx.globalAlpha = p.opacity;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        
+        // 泡
+        for (const b of this.bubbles) {
+          const bx = b.x + Math.sin(b.wobble + time * 0.8) * 5;
+          ctx.globalAlpha = b.opacity;
+          ctx.beginPath();
+          ctx.arc(bx, b.y, b.r, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(180,230,255,0.9)';
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+          // ハイライト
+          ctx.beginPath();
+          ctx.arc(bx - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.3, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,0.6)';
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        
+        // 謎の空間: 紫の霧 + 浮遊光点
+        if (this.LEVELS[this.currentLevel] && this.LEVELS[this.currentLevel].mysteryFog) {
+          const fogAlpha = 0.07 + Math.sin(this.time * 0.4) * 0.03;
+          ctx.fillStyle = `rgba(55,0,95,${fogAlpha})`;
+          ctx.fillRect(0, 0, W, H);
+          ctx.save();
+          for (let s = 0; s < 20; s++) {
+            const sx = ((s * 139 + this.time * 9) % W + W) % W;
+            const sy = ((s * 89 + Math.sin(this.time * 0.35 + s) * 45) % H + H) % H;
+            const sr = 0.7 + Math.sin(this.time * 1.1 + s * 2.3) * 0.5;
+            ctx.globalAlpha = 0.14 + Math.sin(this.time * 0.9 + s) * 0.08;
+            ctx.fillStyle = `hsl(${275 + s * 14},75%,78%)`;
+            ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.restore();
+          ctx.globalAlpha = 1;
+        }
+        
+        // 生き物
+        for (const c of this.creatures) {
+          this.drawCreature(c);
+        }
+        
+        // ダイバー
+        this.drawDiver();
+      },
+      
+      drawCreature(c) {
+        const { ctx, time } = this;
+        const cOpacity = (c.opacity != null) ? c.opacity : 1.0;
+        if (cOpacity <= 0) return;
+        
+        if (c.type === 'fish') {
+          const flip = c.vx < 0 ? -1 : 1;
+          const wobble = Math.sin(time * 2 + c.phase) * 3;
+          ctx.save();
+          ctx.translate(c.x, c.y + wobble);
+          ctx.scale(flip, 1);
+          ctx.fillStyle = c.color;
+          ctx.globalAlpha = 0.75 * cOpacity;
+          // 胴体
+          ctx.beginPath();
+          ctx.ellipse(0, 0, c.size, c.size * 0.45, 0, 0, Math.PI * 2);
+          ctx.fill();
+          // 尾ひれ
+          ctx.beginPath();
+          ctx.moveTo(-c.size * 0.85, 0);
+          ctx.lineTo(-c.size * 1.5, -c.size * 0.5 + Math.sin(time * 4 + c.phase) * 3);
+          ctx.lineTo(-c.size * 1.5,  c.size * 0.5 + Math.sin(time * 4 + c.phase) * 3);
+          ctx.closePath();
+          ctx.fill();
+          // 目
+          ctx.fillStyle = 'rgba(0,0,0,0.8)';
+          ctx.beginPath();
+          ctx.arc(c.size * 0.5, -c.size * 0.1, c.size * 0.12, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'jellyfish') {
+          const pulse = 0.85 + Math.sin(time * 1.2 + c.phase) * 0.15;
+          ctx.save();
+          ctx.translate(c.x, c.y + Math.sin(time * 0.5 + c.phase) * 8);
+          ctx.globalAlpha = 0.55 * cOpacity;
+          // 傘
+          const jg = ctx.createRadialGradient(0, 0, 0, 0, 0, c.size * pulse);
+          jg.addColorStop(0, `hsla(${c.hue},80%,75%,0.9)`);
+          jg.addColorStop(1, `hsla(${c.hue},70%,55%,0)`);
+          ctx.fillStyle = jg;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, c.size * pulse, c.size * 0.6 * pulse, 0, Math.PI, 0);
+          ctx.fill();
+          // 触手
+          for (let i = -2; i <= 2; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * c.size * 0.2, 0);
+            ctx.quadraticCurveTo(
+              i * c.size * 0.2 + Math.sin(time + i) * 8,
+              c.size * 0.8,
+              i * c.size * 0.2 + Math.sin(time * 1.5 + i) * 12,
+              c.size * 1.5
+            );
+            ctx.strokeStyle = `hsla(${c.hue},70%,70%,0.5)`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'anglerfish') {
+          // 深海魚（アンコウ風・発光）
+          const pulse = 0.7 + Math.sin(time * 2 + c.phase) * 0.3;
+          const flip = c.vx < 0 ? -1 : 1;
+          ctx.save();
+          ctx.translate(c.x, c.y + Math.sin(time * 0.3 + c.phase) * 5);
+          ctx.scale(flip, 1);
+          ctx.globalAlpha = 0.7 * cOpacity;
+          
+          // グロー
+          const glowG = ctx.createRadialGradient(c.size * 0.8, -c.size, 0, c.size * 0.8, -c.size, c.size * 1.2 * pulse);
+          glowG.addColorStop(0, `hsla(${c.hue},100%,70%,0.9)`);
+          glowG.addColorStop(1, `hsla(${c.hue},100%,50%,0)`);
+          ctx.fillStyle = glowG;
+          ctx.beginPath();
+          ctx.arc(c.size * 0.8, -c.size, c.size * 1.2 * pulse, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // 胴体（暗い）
+          ctx.fillStyle = `hsl(240,30%,12%)`;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, c.size * 1.1, c.size * 0.6, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // 目
+          ctx.fillStyle = `hsla(${c.hue},100%,70%,${0.5 + pulse * 0.5})`;
+          ctx.beginPath();
+          ctx.arc(c.size * 0.6, -c.size * 0.15, c.size * 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'katsuo') {
+          // カツオ（スリムな紡錘形、背が青黒、腹が銀白、縦縞）
+          const flip = c.vx < 0 ? -1 : 1;
+          const tailWave = Math.sin(time * 5 + c.phase) * 3;
+          ctx.save();
+          ctx.translate(c.x, c.y + Math.sin(time * 1.5 + c.phase) * 2);
+          ctx.scale(flip, 1);
+          ctx.globalAlpha = 0.82 * cOpacity;
+          
+          // 胴体（上半分：青黒）
+          ctx.beginPath();
+          ctx.ellipse(0, -c.size * 0.1, c.size, c.size * 0.28, 0, Math.PI, 0);
+          ctx.fillStyle = '#1a2a4a';
+          ctx.fill();
+          
+          // 胴体（下半分：銀白）
+          ctx.beginPath();
+          ctx.ellipse(0, c.size * 0.08, c.size, c.size * 0.22, 0, 0, Math.PI);
+          ctx.fillStyle = '#c8d8e8';
+          ctx.fill();
+          
+          // 縦縞（カツオの特徴）
+          ctx.strokeStyle = 'rgba(80,120,180,0.5)';
+          ctx.lineWidth = 1;
+          for (let s = 0; s < 5; s++) {
+            const sx = -c.size * 0.3 + s * c.size * 0.15;
+            ctx.beginPath();
+            ctx.moveTo(sx, c.size * 0.05);
+            ctx.lineTo(sx + c.size * 0.05, c.size * 0.28);
+            ctx.stroke();
+          }
+          
+          // 尾びれ（大きく力強い）
+          ctx.fillStyle = '#1a2a4a';
+          ctx.beginPath();
+          ctx.moveTo(-c.size * 0.88, 0);
+          ctx.lineTo(-c.size * 1.5, -c.size * 0.45 + tailWave);
+          ctx.lineTo(-c.size * 1.35, 0);
+          ctx.lineTo(-c.size * 1.5,  c.size * 0.45 + tailWave);
+          ctx.closePath();
+          ctx.fill();
+          
+          // 背びれ
+          ctx.fillStyle = '#1a2a4a';
+          ctx.beginPath();
+          ctx.moveTo(-c.size * 0.1, -c.size * 0.22);
+          ctx.lineTo( c.size * 0.4, -c.size * 0.38);
+          ctx.lineTo( c.size * 0.55,-c.size * 0.22);
+          ctx.closePath();
+          ctx.fill();
+          
+          // 目
+          ctx.fillStyle = '#000';
+          ctx.beginPath();
+          ctx.arc(c.size * 0.65, -c.size * 0.06, c.size * 0.09, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,0.5)';
+          ctx.beginPath();
+          ctx.arc(c.size * 0.67, -c.size * 0.08, c.size * 0.035, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'diver2') {
+          // 2人目のダイバー（白×ピンクスーツ）
+          // 静かな上下浮遊のみ（横移動なし）
+          const floatY  = Math.sin(time * 0.55 + c.phase) * 7;
+          const finWave = Math.sin(time * 0.9 + c.phase) * 2;   // ゆっくりフィン
+          const armWave = Math.sin(time * 0.7 + c.phase) * 2;   // ゆっくり腕
+          const flip = c.facingLeft ? -1 : 1;
+          ctx.save();
+          ctx.translate(c.x, c.y + floatY);
+          ctx.scale(flip, 1);
+          ctx.globalAlpha = 0.85 * cOpacity;
+          // 泡（定期）
+          c.bubTick++;
+          if (c.bubTick % 55 === 0) {
+            this.bubbles.push({
+              x: c.x - flip * 14, y: c.y - 8,
+              r: 1 + Math.random() * 2,
+              speed: 0.55 + Math.random() * 0.4,
+              wobble: Math.random() * Math.PI * 2,
+              opacity: 0.4,
+            });
+          }
+          // タンク（ピンク）
+          ctx.fillStyle = '#c05878';
+          ctx.beginPath(); ctx.rect(12, -8, 7, 19); ctx.fill();
+          ctx.fillStyle = '#7a3248';
+          ctx.beginPath(); ctx.rect(13, -11, 5, 5); ctx.fill();
+          // ボディ（白）
+          ctx.fillStyle = '#e8eef8';
+          ctx.beginPath(); ctx.ellipse(0, 0, 9, 14, 0, 0, Math.PI * 2); ctx.fill();
+          // スーツのピンクライン
+          ctx.strokeStyle = '#d06090'; ctx.lineWidth = 2.5;
+          ctx.beginPath(); ctx.moveTo(-5, -9); ctx.lineTo(-5, 9); ctx.stroke();
+          // 頭
+          ctx.fillStyle = '#e8eef8';
+          ctx.beginPath(); ctx.arc(0, -17, 9, 0, Math.PI * 2); ctx.fill();
+          // マスク（水色）
+          ctx.fillStyle = 'rgba(140,220,255,0.65)';
+          ctx.beginPath(); ctx.ellipse(0, -17, 7, 5.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#d06090'; ctx.lineWidth = 1.5; ctx.stroke();
+          // フィン（パープル）
+          ctx.fillStyle = '#8855cc';
+          ctx.beginPath(); ctx.ellipse(finWave * 0.4, 19, 13, 4, -0.15, 0, Math.PI * 2); ctx.fill();
+          // 腕
+          ctx.strokeStyle = '#e8eef8'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(0, -4);
+          ctx.quadraticCurveTo(18, 2 + armWave, 20, 9);
+          ctx.stroke();
+          // 微かなグロー
+          const glowD2 = ctx.createRadialGradient(0, 0, 4, 0, 0, 42);
+          glowD2.addColorStop(0, 'rgba(210,150,255,0.10)');
+          glowD2.addColorStop(1, 'rgba(210,150,255,0)');
+          ctx.globalAlpha = 0.55 * cOpacity;
+          ctx.fillStyle = glowD2;
+          ctx.beginPath(); ctx.arc(0, 0, 42, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'saba') {
+          // サバ：細長い紡錘形、背が青緑の縞模様
+          const flip = c.vx < 0 ? -1 : 1;
+          const tailWave = Math.sin(time * 4.5 + c.phase) * 2.5;
+          ctx.save();
+          ctx.translate(c.x, c.y + Math.sin(time * 1.2 + c.phase) * 2);
+          ctx.scale(flip, 1);
+          ctx.globalAlpha = 0.8 * cOpacity;
+          
+          // 胴体上（青緑）
+          ctx.beginPath();
+          ctx.ellipse(0, -c.size * 0.08, c.size, c.size * 0.22, 0, Math.PI, 0);
+          ctx.fillStyle = '#2a6e5a';
+          ctx.fill();
+          // 胴体下（銀）
+          ctx.beginPath();
+          ctx.ellipse(0, c.size * 0.06, c.size, c.size * 0.18, 0, 0, Math.PI);
+          ctx.fillStyle = '#b8ccd8';
+          ctx.fill();
+          // 青緑の斜め縞
+          ctx.strokeStyle = 'rgba(20,90,70,0.6)';
+          ctx.lineWidth = 1;
+          for (let s = 0; s < 6; s++) {
+            const sx = -c.size * 0.6 + s * c.size * 0.22;
+            ctx.beginPath();
+            ctx.moveTo(sx, -c.size * 0.05);
+            ctx.lineTo(sx + c.size * 0.08, c.size * 0.2);
+            ctx.stroke();
+          }
+          // 尾びれ
+          ctx.fillStyle = '#2a6e5a';
+          ctx.beginPath();
+          ctx.moveTo(-c.size * 0.9, 0);
+          ctx.lineTo(-c.size * 1.45, -c.size * 0.35 + tailWave);
+          ctx.lineTo(-c.size * 1.45,  c.size * 0.35 + tailWave);
+          ctx.closePath();
+          ctx.fill();
+          // 目
+          ctx.fillStyle = '#000';
+          ctx.beginPath();
+          ctx.arc(c.size * 0.65, -c.size * 0.05, c.size * 0.08, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'rakko') {
+          // ラッコ：丸っこい体、可愛い、茶色系
+          const wobble = Math.sin(time * 0.8 + c.phase) * 3;
+          const flip = c.vx < 0 ? -1 : 1;
+          const armWave = Math.sin(time * 2 + c.phase) * 0.15;
+          ctx.save();
+          ctx.translate(c.x, c.y + wobble);
+          ctx.scale(flip, 1);
+          ctx.globalAlpha = 0.85 * cOpacity;
+          
+          // 胴体（茶色の楕円）
+          ctx.beginPath();
+          ctx.ellipse(0, 0, c.size, c.size * 0.9, 0, 0, Math.PI * 2);
+          ctx.fillStyle = '#8B6F47';  // 茶色
+          ctx.fill();
+          
+          // お腹（薄いベージュ）
+          ctx.beginPath();
+          ctx.ellipse(c.size * 0.15, c.size * 0.15, c.size * 0.55, c.size * 0.65, 0, 0, Math.PI * 2);
+          ctx.fillStyle = '#D4B896';
+          ctx.fill();
+          
+          // 頭（丸）
+          ctx.beginPath();
+          ctx.arc(c.size * 0.7, -c.size * 0.5, c.size * 0.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#8B6F47';
+          ctx.fill();
+          
+          // 耳（小さい楕円×2）
+          ctx.beginPath();
+          ctx.ellipse(c.size * 0.5, -c.size * 0.85, c.size * 0.15, c.size * 0.18, -0.3, 0, Math.PI * 2);
+          ctx.fillStyle = '#6B5737';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(c.size * 0.88, -c.size * 0.85, c.size * 0.15, c.size * 0.18, 0.3, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // 目（クリクリした丸い目）
+          ctx.fillStyle = '#000';
+          ctx.beginPath();
+          ctx.arc(c.size * 0.6, -c.size * 0.55, c.size * 0.08, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(c.size * 0.82, -c.size * 0.55, c.size * 0.08, 0, Math.PI * 2);
+          ctx.fill();
+          // 白いハイライト
+          ctx.fillStyle = '#fff';
+          ctx.beginPath();
+          ctx.arc(c.size * 0.62, -c.size * 0.57, c.size * 0.03, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(c.size * 0.84, -c.size * 0.57, c.size * 0.03, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // 鼻（小さい三角）
+          ctx.fillStyle = '#4a3a2a';
+          ctx.beginPath();
+          ctx.moveTo(c.size * 0.71, -c.size * 0.42);
+          ctx.lineTo(c.size * 0.66, -c.size * 0.35);
+          ctx.lineTo(c.size * 0.76, -c.size * 0.35);
+          ctx.closePath();
+          ctx.fill();
+          
+          // ヒゲ
+          ctx.strokeStyle = 'rgba(60,50,40,0.6)';
+          ctx.lineWidth = 0.6;
+          for (let w = 0; w < 3; w++) {
+            const wy = -c.size * 0.38 + w * c.size * 0.06;
+            // 左側
+            ctx.beginPath();
+            ctx.moveTo(c.size * 0.5, wy);
+            ctx.lineTo(c.size * 0.2, wy - c.size * 0.05);
+            ctx.stroke();
+            // 右側
+            ctx.beginPath();
+            ctx.moveTo(c.size * 0.92, wy);
+            ctx.lineTo(c.size * 1.22, wy - c.size * 0.05);
+            ctx.stroke();
+          }
+          
+          // 前足（お腹の前で合わせている）
+          ctx.fillStyle = '#6B5737';
+          ctx.beginPath();
+          ctx.ellipse(c.size * 0.3, c.size * 0.3 + armWave * c.size, c.size * 0.18, c.size * 0.3, -0.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(c.size * 0.0, c.size * 0.3 - armWave * c.size, c.size * 0.18, c.size * 0.3, 0.5, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // 後ろ足（ヒレ）
+          ctx.beginPath();
+          ctx.ellipse(-c.size * 0.5, c.size * 0.6, c.size * 0.25, c.size * 0.15, 0.3, 0, Math.PI * 2);
+          ctx.fillStyle = '#6B5737';
+          ctx.fill();
+          
+          // 尾（小さい）
+          ctx.beginPath();
+          ctx.ellipse(-c.size * 0.85, c.size * 0.05, c.size * 0.2, c.size * 0.15, 0, 0, Math.PI * 2);
+          ctx.fillStyle = '#8B6F47';
+          ctx.fill();
+          
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'shark') {
+          // サメ：大きい、三角背びれ、流線型
+          const flip = c.vx < 0 ? -1 : 1;
+          const tailWave = Math.sin(time * 2.5 + c.phase) * 4;
+          ctx.save();
+          ctx.translate(c.x, c.y + Math.sin(time * 0.5 + c.phase) * 3);
+          ctx.scale(flip, 1);
+          ctx.globalAlpha = 0.75 * cOpacity;
+          
+          // 胴体
+          ctx.beginPath();
+          ctx.ellipse(0, 0, c.size, c.size * 0.3, 0, 0, Math.PI * 2);
+          ctx.fillStyle = '#607080';
+          ctx.fill();
+          // 腹（白）
+          ctx.beginPath();
+          ctx.ellipse(c.size * 0.1, c.size * 0.1, c.size * 0.75, c.size * 0.16, 0, 0, Math.PI);
+          ctx.fillStyle = '#d8dde0';
+          ctx.fill();
+          // 三角背びれ（特徴的）
+          ctx.beginPath();
+          ctx.moveTo(c.size * 0.1, -c.size * 0.28);
+          ctx.lineTo(c.size * 0.45, -c.size * 0.72);
+          ctx.lineTo(c.size * 0.6, -c.size * 0.28);
+          ctx.closePath();
+          ctx.fillStyle = '#506070';
+          ctx.fill();
+          // 尾びれ（三日月型）
+          ctx.fillStyle = '#506070';
+          ctx.beginPath();
+          ctx.moveTo(-c.size * 0.85, 0);
+          ctx.lineTo(-c.size * 1.55, -c.size * 0.5 + tailWave);
+          ctx.lineTo(-c.size * 1.2, 0);
+          ctx.lineTo(-c.size * 1.55,  c.size * 0.5 + tailWave);
+          ctx.closePath();
+          ctx.fill();
+          // 胸びれ
+          ctx.beginPath();
+          ctx.moveTo(c.size * 0.2, c.size * 0.15);
+          ctx.lineTo(-c.size * 0.1, c.size * 0.55);
+          ctx.lineTo(-c.size * 0.3, c.size * 0.15);
+          ctx.closePath();
+          ctx.fillStyle = '#607080';
+          ctx.fill();
+          // 目
+          ctx.fillStyle = '#111';
+          ctx.beginPath();
+          ctx.arc(c.size * 0.6, -c.size * 0.08, c.size * 0.07, 0, Math.PI * 2);
+          ctx.fill();
+          // えら
+          ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+          ctx.lineWidth = 1;
+          for (let g = 0; g < 3; g++) {
+            const gx = c.size * 0.35 - g * c.size * 0.1;
+            ctx.beginPath();
+            ctx.moveTo(gx, -c.size * 0.22);
+            ctx.lineTo(gx - c.size * 0.05, c.size * 0.12);
+            ctx.stroke();
+          }
+          
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'shrimp') {
+          // エビ：細い体が弧を描く、触角、脚
+          const flip = c.vx < 0 ? -1 : 1;
+          const bob = Math.sin(time * 3 + c.phase) * 2;
+          ctx.save();
+          ctx.translate(c.x, c.y + bob);
+          ctx.scale(flip, 1);
+          ctx.globalAlpha = 0.8 * cOpacity;
+          
+          // 胴体（弧状の楕円を連ねる）
+          ctx.fillStyle = '#e87060';
+          for (let seg = 0; seg < 5; seg++) {
+            const sx = c.size * 0.3 - seg * c.size * 0.14;
+            const sy = Math.sin(seg * 0.6 + c.phase) * c.size * 0.15;
+            ctx.beginPath();
+            ctx.ellipse(sx, sy, c.size * 0.18, c.size * 0.12, -seg * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          // 頭部（大きめ）
+          ctx.beginPath();
+          ctx.ellipse(c.size * 0.55, 0, c.size * 0.3, c.size * 0.22, 0, 0, Math.PI * 2);
+          ctx.fillStyle = '#d05848';
+          ctx.fill();
+          // 触角
+          ctx.strokeStyle = 'rgba(200,80,60,0.7)';
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(c.size * 0.75, -c.size * 0.1);
+          ctx.lineTo(c.size * 1.3, -c.size * 0.45);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(c.size * 0.75, 0);
+          ctx.lineTo(c.size * 1.4, -c.size * 0.2);
+          ctx.stroke();
+          // 脚（小さい）
+          ctx.strokeStyle = 'rgba(200,80,60,0.5)';
+          ctx.lineWidth = 0.6;
+          for (let leg = 0; leg < 4; leg++) {
+            const lx = c.size * 0.2 - leg * c.size * 0.13;
+            ctx.beginPath();
+            ctx.moveTo(lx, c.size * 0.1);
+            ctx.lineTo(lx - c.size * 0.05, c.size * 0.35 + Math.sin(time * 4 + leg) * 3);
+            ctx.stroke();
+          }
+          // 尾扇
+          ctx.fillStyle = '#e87060';
+          ctx.beginPath();
+          ctx.moveTo(-c.size * 0.45, 0);
+          ctx.lineTo(-c.size * 0.85, -c.size * 0.28);
+          ctx.lineTo(-c.size * 0.7, 0);
+          ctx.lineTo(-c.size * 0.85,  c.size * 0.28);
+          ctx.closePath();
+          ctx.fill();
+          // 目
+          ctx.fillStyle = '#111';
+          ctx.beginPath();
+          ctx.arc(c.size * 0.75, -c.size * 0.06, c.size * 0.07, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'starfish') {
+          // ヒトデ：5本腕、ゆっくり回転
+          const rot = time * 0.15 + c.phase;
+          const pulse = 1 + Math.sin(time * 0.8 + c.phase) * 0.05;
+          ctx.save();
+          ctx.translate(c.x, c.y + Math.sin(time * 0.4 + c.phase) * 3);
+          ctx.rotate(rot);
+          ctx.globalAlpha = 0.82 * cOpacity;
+          
+          // 5本腕
+          ctx.fillStyle = `hsl(${c.hue},80%,55%)`;
+          for (let arm = 0; arm < 5; arm++) {
+            const angle = (arm / 5) * Math.PI * 2 - Math.PI / 2;
+            ctx.save();
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.ellipse(0, -c.size * 0.55 * pulse, c.size * 0.22, c.size * 0.55, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+          // 中心円
+          ctx.beginPath();
+          ctx.arc(0, 0, c.size * 0.28 * pulse, 0, Math.PI * 2);
+          ctx.fillStyle = `hsl(${c.hue},70%,45%)`;
+          ctx.fill();
+          // テクスチャ（小さい点）
+          ctx.fillStyle = `hsla(${c.hue},60%,35%,0.5)`;
+          for (let arm = 0; arm < 5; arm++) {
+            const angle = (arm / 5) * Math.PI * 2 - Math.PI / 2;
+            for (let d = 1; d <= 3; d++) {
+              ctx.beginPath();
+              ctx.arc(
+                Math.cos(angle) * c.size * 0.2 * d,
+                Math.sin(angle) * c.size * 0.2 * d,
+                c.size * 0.05, 0, Math.PI * 2
+              );
+              ctx.fill();
+            }
+          }
+          
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'seaweed') {
+          // わかめ：底から生え、左右にゆらゆら
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.globalAlpha = 0.7 * cOpacity;
+          
+          const segments = 7;
+          const segH = c.size / segments;
+          ctx.strokeStyle = `hsl(${c.hue},65%,30%)`;
+          ctx.lineWidth = c.size * 0.12;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          
+          // 本体（ベジェ曲線でゆらゆら）
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          for (let s = 1; s <= segments; s++) {
+            const sy = -segH * s;
+            const wave = Math.sin(time * 1.2 + c.phase + s * 0.5) * (c.size * 0.18);
+            ctx.lineTo(wave, sy);
+          }
+          ctx.strokeStyle = `hsl(${c.hue},60%,28%)`;
+          ctx.stroke();
+          
+          // 葉（横に広がる帯）
+          for (let s = 2; s <= segments; s += 2) {
+            const sy = -segH * s;
+            const wave = Math.sin(time * 1.2 + c.phase + s * 0.5) * (c.size * 0.18);
+            const leafW = c.size * (0.15 + 0.08 * s / segments);
+            const leafWave = Math.sin(time * 1.5 + c.phase + s) * leafW * 0.4;
+            ctx.beginPath();
+            ctx.ellipse(wave + leafWave, sy, leafW, c.size * 0.07, Math.sin(time + s) * 0.4, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${c.hue},65%,32%,0.8)`;
+            ctx.fill();
+          }
+          
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'clam') {
+          // アサリ：丸みのある三角形の二枚貝、同心円の模様
+          const bob = Math.sin(time * 0.5 + c.phase) * 1;
+          ctx.save();
+          ctx.translate(c.x, c.y + bob);
+          ctx.globalAlpha = 0.85 * cOpacity;
+          
+          // 下の貝殻
+          ctx.beginPath();
+          ctx.ellipse(0, c.size * 0.1, c.size, c.size * 0.45, 0, 0, Math.PI);
+          ctx.fillStyle = '#c8b090';
+          ctx.fill();
+          // 上の貝殻
+          ctx.beginPath();
+          ctx.ellipse(0, 0, c.size, c.size * 0.55, 0, Math.PI, 0);
+          ctx.fillStyle = '#d8c0a0';
+          ctx.fill();
+          // 同心円の筋
+          ctx.strokeStyle = 'rgba(150,110,70,0.5)';
+          ctx.lineWidth = 0.7;
+          for (let r2 = 1; r2 <= 3; r2++) {
+            ctx.beginPath();
+            ctx.ellipse(0, 0, c.size * (0.35 + r2 * 0.22), c.size * (0.2 + r2 * 0.12), 0, Math.PI, 0);
+            ctx.stroke();
+          }
+          // 蝶番の点
+          ctx.fillStyle = '#907050';
+          ctx.beginPath();
+          ctx.arc(0, 0, c.size * 0.1, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+          
+        } else if (c.type === 'mussel') {
+          // ムール貝：縦長の楕円、紫〜黒グラデーション
+          const bob = Math.sin(time * 0.4 + c.phase) * 1.5;
+          ctx.save();
+          ctx.translate(c.x, c.y + bob);
+          ctx.rotate(Math.sin(time * 0.3 + c.phase) * 0.1);
+          ctx.globalAlpha = 0.85 * cOpacity;
+          
+          // 外側
+          const musselGrad = ctx.createLinearGradient(-c.size * 0.4, -c.size, c.size * 0.4, c.size);
+          musselGrad.addColorStop(0, '#3a2060');
+          musselGrad.addColorStop(0.5, '#6040a0');
+          musselGrad.addColorStop(1, '#1a0830');
+          ctx.beginPath();
+          ctx.ellipse(0, 0, c.size * 0.42, c.size, 0, 0, Math.PI * 2);
+          ctx.fillStyle = musselGrad;
+          ctx.fill();
+          // 光沢
+          const sheen = ctx.createLinearGradient(-c.size * 0.2, -c.size * 0.8, c.size * 0.1, 0);
+          sheen.addColorStop(0, 'rgba(180,150,255,0.3)');
+          sheen.addColorStop(1, 'rgba(180,150,255,0)');
+          ctx.fillStyle = sheen;
+          ctx.beginPath();
+          ctx.ellipse(-c.size * 0.1, -c.size * 0.3, c.size * 0.18, c.size * 0.5, -0.3, 0, Math.PI * 2);
+          ctx.fill();
+          // 縦の筋
+          ctx.strokeStyle = 'rgba(80,40,120,0.6)';
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(0, -c.size * 0.9);
+          ctx.lineTo(0, c.size * 0.9);
+          ctx.stroke();
+          
+          ctx.restore();
+          ctx.globalAlpha = 1 * cOpacity;
+        }
+      },
+      
+      drawDiver() {
+        const { ctx, W, H, time } = this;
+        // ダイバーはcanvas中央右寄りに配置
+        const dx = W * 0.72;
+        const dy = this.diverY + Math.sin(time * 0.6) * 6;
+        
+        ctx.save();
+        ctx.globalAlpha = 0.8;
+        ctx.translate(dx, dy);
+        
+        // 泡（ダイバーから）
+        if (Math.random() < 0.04) {
+          this.bubbles.push({ x: dx - 14, y: dy - 8, r: 1 + Math.random() * 2, speed: 0.6 + Math.random() * 0.5, wobble: Math.random() * Math.PI * 2, opacity: 0.4 });
+        }
+        
+        // タンク
+        ctx.fillStyle = '#888';
+        ctx.beginPath();
+        ctx.rect(-18, -8, 7, 18);
+        ctx.fill();
+        
+        // ボディ（ウェットスーツ）
+        ctx.fillStyle = '#1a3a5c';
+        ctx.beginPath();
+        ctx.ellipse(-4, 0, 9, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 頭・マスク
+        ctx.fillStyle = '#1a3a5c';
+        ctx.beginPath();
+        ctx.arc(-4, -16, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(100,200,255,0.6)';
+        ctx.beginPath();
+        ctx.ellipse(-4, -16, 7, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // フィン（波打つ）
+        ctx.fillStyle = '#f5a623';
+        const finWave = Math.sin(time * 1.8) * 4;
+        ctx.beginPath();
+        ctx.ellipse(-4 + finWave, 18, 14, 4, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 腕
+        ctx.strokeStyle = '#1a3a5c';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-4, -4);
+        ctx.quadraticCurveTo(-20, 2 + Math.sin(time * 1.2) * 3, -22, 8);
+        ctx.stroke();
+        
+        ctx.restore();
+        ctx.globalAlpha = 1;
+      },
+      
+      update() {
+        const { H, W, time } = this;
+        const lv = this.LEVELS[this.currentLevel];
+        
+        // 泡を上へ
+        for (let i = this.bubbles.length - 1; i >= 0; i--) {
+          this.bubbles[i].y -= this.bubbles[i].speed;
+          this.bubbles[i].wobble += 0.03;
+          if (this.bubbles[i].y < -10) {
+            this.bubbles.splice(i, 1);
+            if (this.bubbles.length < 18) this.addBubble(false);
+          }
+        }
+        
+        // 浮遊塵をゆっくり下へ
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          this.particles[i].y += this.particles[i].vy;
+          this.particles[i].x += this.particles[i].vx;
+          if (this.particles[i].y > H + 5) {
+            this.particles.splice(i, 1);
+            if (this.particles.length < 30) this.addParticle(false);
+          }
+        }
+        
+        // 生き物を移動
+        const types = lv.creatures;
+        
+        // フェード処理（フェードアウト/フェードイン）
+        const FADE_SPEED = 0.02;  // 約50フレーム（≈1秒）でフェード完了
+        for (let i = this.creatures.length - 1; i >= 0; i--) {
+          const c = this.creatures[i];
+          if (c.fadingOut) {
+            c.opacity = (c.opacity || 1) - FADE_SPEED;
+            if (c.opacity <= 0) {
+              this.creatures.splice(i, 1);
+              continue;
+            }
+          } else if (c.fadingIn) {
+            c.opacity = (c.opacity || 0) + FADE_SPEED;
+            if (c.opacity >= 1) {
+              c.opacity = 1;
+              c.fadingIn = false;
+            }
+          }
+        }
+        
+        for (let i = this.creatures.length - 1; i >= 0; i--) {
+          const c = this.creatures[i];
+          if (c.fadingOut) continue;  // フェードアウト中は移動・補充対象外
+          // わかめは固定、貝類はほぼ固定なので画面外判定しない
+          if (c.type === 'seaweed' || c.type === 'clam' || c.type === 'mussel') continue;
+          // diver2は固定位置・横移動なし
+          if (c.type === 'diver2') continue;
+          c.x += c.vx;
+          if (c.x < -120 || c.x > W + 120) {
+            this.creatures.splice(i, 1);
+            const type = types[Math.floor(Math.random() * types.length)];
+            this.addCreature(type, false, false);  // 補充は単体（群れ生成しない）
+          }
+        }
+        // creatureMinCount が 0 の場合は補充なし（diver2等の固定配置ステージ）
+        const minCount = lv.creatureMinCount;
+        if (minCount > 0 && this.creatures.length < minCount) {
+          const type = types[Math.floor(Math.random() * types.length)];
+          this.addCreature(type, false, false);  // 補充は単体
+        }
+      },
+      
+      // 色補間（16進 or rgb）
+      lerpColor(a, b, t) {
+        const pa = this.hexToRgb(a), pb = this.hexToRgb(b);
+        const r = Math.round(pa.r + (pb.r - pa.r) * t);
+        const g = Math.round(pa.g + (pb.g - pa.g) * t);
+        const bl = Math.round(pa.b + (pb.b - pa.b) * t);
+        return `rgb(${r},${g},${bl})`;
+      },
+      
+      hexToRgb(hex) {
+        // rgb(...) 形式にも対応
+        if (hex.startsWith('rgb')) {
+          const m = hex.match(/\d+/g);
+          return { r: +m[0], g: +m[1], b: +m[2] };
+        }
+        const m = hex.replace('#','').match(/.{2}/g);
+        return { r: parseInt(m[0],16), g: parseInt(m[1],16), b: parseInt(m[2],16) };
+      },
+      
+      lerpVal(a, b, t) { return a + (b - a) * t; },
+      
+      stop() {
+        if (this.raf) cancelAnimationFrame(this.raf);
+        this.raf = null;
+      }
+    };
+    
+    // 起動
+    // スマホ判定 → 横向き促進オーバーレイ
+    (async function boot() {
+      const isMobile = window.innerWidth <= 640 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (isMobile) {
+        await showRotatePrompt();
+      }
+      SEA.init();
+      init();
+    })();
+
+    function showRotatePrompt() {
+      return new Promise(resolve => {
+        const overlay = document.getElementById('rotateOverlay');
+        overlay.classList.add('show');
+
+        document.getElementById('rotateTapBtn').addEventListener('click', () => {
+          overlay.classList.remove('show');
+          resolve();
+        }, { once: true });
+      });
+    }
+
+    // 中断botan
+    document.getElementById('abortBtn').addEventListener('click', () => {
+      if (confirm('ゲームを中断しますか？')) {
+        window.location.href = './index.html';
+      }
+    });
+  </script>
+</body>
+</html>

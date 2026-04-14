@@ -3569,35 +3569,11 @@
         if (bestProb > 0.01) return bestLabel; // 最低限の確率がある候補に補正
       }
 
-      // ── [2026-03-09] 小文字全般の引き検出補正を追加 ──
-      // テスターの手前引き動作が小さく、清音として認識される問題への対策
-      // 清音の形 + 手前に引く → 小文字・促音・を
-
-      // ゃ↔や / ゅ↔ゆ / ょ↔よ: 小文字は手前に引く(motion)、大文字は静止(static)
-      if (sign === 'ya' && hasPullBack) return 'xya';
-      if (sign === 'xya' && !hasPullBack) return 'ya';
-      if (sign === 'yu' && hasPullBack) return 'xyu';
-      if (sign === 'xyu' && !hasPullBack) return 'yu';
-      if (sign === 'yo' && hasPullBack) return 'xyo';
-      if (sign === 'xyo' && !hasPullBack) return 'yo';
-
-      // [2026-03-09] っ↔つ: 促音は手前に引く
-      if (sign === 'tsu' && hasPullBack) return 'xtsu';
-      if (sign === 'xtsu' && !hasPullBack) return 'tsu';
-
-      // [2026-03-09] 小文字母音: ぁ↔あ, ぃ↔い, ぅ↔う, ぇ↔え
-      if (sign === 'a' && hasPullBack) return 'xa';
-      if (sign === 'xa' && !hasPullBack) return 'a';
-      if (sign === 'i' && hasPullBack) return 'xi';
-      if (sign === 'xi' && !hasPullBack) return 'i';
-      if (sign === 'u' && hasPullBack) return 'xu';
-      if (sign === 'xu' && !hasPullBack) return 'u';
-      if (sign === 'e' && hasPullBack) return 'xe';
-      if (sign === 'xe' && !hasPullBack) return 'e';
-
-      // [2026-03-09] を↔お: 「を」は「お」の形で手前に引く
-      if (sign === 'o' && hasPullBack) return 'wo';
-      if (sign === 'wo' && !hasPullBack) return 'o';
+      // ── [2026-04-14] 小文字pullback補正を廃止 ──
+      // MediaPipeのZ座標が手前引き動作を検出できず（motionZ=常に0）、
+      // 清音→小文字の補正は一度も発動せず、小文字→清音の逆補正だけが
+      // 常に発動して小文字認識を邪魔していた。
+      // 清音を期待してモデルが小文字を出すケースはisMatchのkomojiToOmojiでカバーされる。
 
       // [2026-03-11] X（スキップジェスチャー）補正
       // Xは×ジェスチャー(静止型)。モデルがdu/ge等と誤認識することがある。

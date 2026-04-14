@@ -3636,34 +3636,10 @@
       const currentlyStatic = isStaticState();
       
       if (currentlyStatic) {
-        // ── 静止キャッシュ: 前回も静止で高確信度なら推論スキップ ──
-        if (staticCache.isStatic && staticCache.conf >= 0.90 && staticCache.sign !== null) {
-          skippedInferenceCount++;
-
-          // ── スキップ判定（静止キャッシュ内でも実行） ──
-          if (staticCache.sign === 'X' && staticCache.conf >= 0.80) {
-            const now2 = performance.now();
-            if (skipXStartTime === null) skipXStartTime = now2;
-            const held = now2 - skipXStartTime;
-            const progress = Math.min(held / SKIP_HOLD_MS, 1.0);
-            _elRecognizedChar.textContent = '✕';
-            _elConfidence.textContent = `SKIP ${Math.round(progress * 100)}%`;
-            _elStatusBox.textContent = `✕ を出し続けてスキップ（${(SKIP_HOLD_MS / 1000).toFixed(1)}秒）`;
-            if (held >= SKIP_HOLD_MS) {
-              skipXStartTime = null;
-              onWordSkip();
-            }
-            return;
-          }
-
-          // UI更新のみ（テンソル生成なし＝GC圧力ゼロ）
-          _elRecognizedChar.textContent = staticCache.displaySign;
-          _elConfidence.textContent = `${(staticCache.conf * 100).toFixed(1)}% ⚡⚡`;
-          if (staticCache.conf >= 0.80) {
-            onSignRecognized(staticCache.sign);
-          }
-          return;
-        }
+        // [2026-04-14] 静止キャッシュによる推論スキップを廃止
+        // タイピングゲームでは文字が次々変わるため、キャッシュは常にstaleになり
+        // 前の文字の結果を出し続ける原因になっていた
+        // Early Static Recognition（クリーンな入力で即推論）は維持
         
         // 静止状態: 直近フレームだけでクリーンな入力を作成
         const latestFeatures = frameBuffer[frameBuffer.length - 1].features;
@@ -3703,11 +3679,7 @@
       // 動き検出による混同ペア補正
       const sign = postProcessSign(rawSign, conf, probs);
       
-      // ── 静止キャッシュ更新 ──
-      if (currentlyStatic) {
-        const displaySign = convertToHiragana(sign);
-        staticCache = { sign, conf, probs: Array.from(probs), displaySign, isStatic: true };
-      }
+      // [2026-04-14] 静止キャッシュ更新を廃止（推論スキップ廃止に伴い不要）
       
       // ── スキップ判定（Xジェスチャー検知） ──
       if (sign === 'X' && conf >= 0.80) {
@@ -3737,7 +3709,7 @@
       
       // UI更新
       _elRecognizedChar.textContent = displaySign;
-      _elConfidence.textContent = `${(conf * 100).toFixed(1)}%${isEarlyStatic ? ' ⚡' : ''}`;
+      _elConfidence.textContent = `${(conf * 100).toFixed(1)}%`;
       
       // 判定
       if (conf >= 0.80) {
@@ -3850,6 +3822,10 @@
       const charTime = performance.now() - charStartTime;
       totalTime += charTime;
       totalChars++;
+      
+      // [2026-04-14] フレームバッファをクリア：前の文字のフレームが次の推論に混入するのを防止
+      // wristBufferは保持（動き検出の文脈情報として必要）
+      frameBuffer = [];
       
       currentIndex++;
       updateWordDisplay();

@@ -2565,7 +2565,7 @@
     
     // カウントダウン表示（seconds: カウント開始秒数、デフォルト3）
     // 初回ゲーム（5秒）時はカウントダウン前半でGPU性能計測→ティア判定→必要ならカメラ再起動
-    let tierDetermined = false; // 初回のみ判定
+    let tierDetermined = false;
     async function showCountdown(seconds = 3) {
       const overlay = document.getElementById('countdownOverlay');
       const video = _video || document.getElementById('video');
@@ -2580,8 +2580,9 @@
       for (let i = seconds; i >= 1; i--) counts.push(String(i));
       counts.push('Start!');
 
-      // 性能計測用（初回のみ）
-      const needsTierCheck = !tierDetermined && seconds >= 5;
+      // [v5] 性能計測: 毎ゲーム実行（バッテリー残量やバックグラウンド負荷の変動に対応）
+      // 旧コードは !tierDetermined && seconds >= 5 で2回目以降をスキップしていた
+      const needsTierCheck = true;
       const tierDetectTimes = [];
       
       for (let i = 0; i < counts.length; i++) {

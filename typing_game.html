@@ -1321,11 +1321,9 @@
     /* ═══ スマホ横向き全画面対応 ═══ */
     @media (max-width: 900px) and (max-height: 450px) {
 
-      /* --- 全体: スクロール禁止（dvhでアドレスバー考慮） --- */
+      /* --- 全体 --- */
       body {
-        overflow: hidden;
-        height: 100vh;
-        height: 100dvh;
+        overflow-y: auto;
       }
 
       /* --- カメラ選択モーダル --- */
@@ -1600,14 +1598,14 @@
     }
   </style></head>
 <body>
-  <!-- スマホ横向き促進オーバーレイ -->
+  <!-- スマホ横向きプレイ案内 -->
   <div class="rotate-overlay" id="rotateOverlay">
     <div class="rotate-overlay-icon">📱</div>
-    <div class="rotate-overlay-title">横向き推奨</div>
+    <div class="rotate-overlay-title">横向きプレイについて</div>
     <div class="rotate-overlay-text">
-      スマートフォンでは<strong>横向き</strong>にしてプレイが可能です。<br>
-      横向きモードにするためには<strong>自動回転をON</strong>にして横向きにしてください。<br>
-      縦のままでもプレイできます。
+      スマートフォンを<strong>横向き</strong>にしてプレイすることもできます。<br>
+      横向きにするには<strong>自動回転をON</strong>にしてください。<br>
+      そのまま縦向きでもプレイ可能です。
     </div>
     <button class="rotate-overlay-tap show" id="rotateTapBtn">OK</button>
   </div>

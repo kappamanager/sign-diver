@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign Diverの設定ページ。利き手・カメラ映像の表示有無など、プレイ環境をカスタマイズできます。">
+  <meta name="robots" content="noindex">
+  <title>設定 - Sign Diver</title>
+
+  <link rel="canonical" href="https://signdiver.com/settings.html">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="./asset/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./asset/favicon-16.png">
+  <link rel="apple-touch-icon" href="./asset/sign_diver_favicon_512.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Umami Analytics（Cookie不使用・プライバシーフレンドリー） -->
+  <script defer src="https://cloud.umami.is/script.js"
+    data-website-id="627936e6-b8fd-4d77-92f5-4f2f4f357b5b">
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --card-border: rgba(255, 255, 255, 0.6);
+      --card-hover-border: rgba(255, 255, 255, 0.8);
+      --card-shadow: rgba(10, 40, 80, 0.18);
+      --text-primary: #07233b;
+      --text-secondary: #234e6a;
+      --text-muted: #4a7896;
+      --ogp-blue: #6ab4e2;
+      --ogp-mint: #7ae0c4;
+      --ogp-lavender: #b09ddb;
+      --text-on-ocean: rgba(255, 255, 255, 0.85);
+      --text-on-ocean-bright: rgba(255, 255, 255, 1);
+
+      /* カテゴリカラー（案Dのカラーマーカー用） */
+      --cat-input:   #6ab4e2;
+      --cat-display: #7ae0c4;
+      --cat-game:    #b09ddb;
+      --cat-data:    #f2a978;
+      --cat-support: #8ca3b8;
+
+      /* カード全体にかける薄いティント（案4） */
+      --cat-tint-input:   rgba(106, 180, 226, 0.08);
+      --cat-tint-display: rgba(122, 224, 196, 0.09);
+      --cat-tint-game:    rgba(176, 157, 219, 0.09);
+      --cat-tint-data:    rgba(242, 169, 120, 0.09);
+      --cat-tint-support: rgba(140, 163, 184, 0.09);
+    }
+
+    body {
+      font-family: 'Zen Kaku Gothic New', 'Montserrat', sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text-primary);
+      background: #091428;
+    }
+
+    /* ===== Page wrapper（index.htmlと同じ海中テーマ） ===== */
+    .page-wrapper {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      overflow: hidden;
+      background: linear-gradient(
+        180deg,
+        #091428 0%,
+        #0c1e3a 8%,
+        #102a4e 16%,
+        #143862 22%,
+        #1a5278 26%,
+        #2e8ab8 29%,
+        #3498c8 31%,
+        #2d8dba 34%,
+        #2580a8 38%,
+        #1e7298 45%,
+        #1a6488 55%,
+        #165878 68%,
+        #134c68 80%,
+        #0f3d55 100%
+      );
+    }
+
+    /* ===== Stars / Caustics / Bubbles（index.htmlの抜粋を簡略化） ===== */
+    .caustics-layer {
+      position: absolute;
+      top: 0; left: -10%;
+      width: 120%; height: 100%;
+      background:
+        radial-gradient(ellipse 45% 30% at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 70%),
+        radial-gradient(ellipse 55% 25% at 65% 15%, rgba(255,255,255,0.06) 0%, transparent 65%),
+        radial-gradient(ellipse 35% 20% at 50% 60%, rgba(106,180,226,0.05) 0%, transparent 60%);
+      animation: caustics 15s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes caustics {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+      33% { transform: translate(15px, 5px) scale(1.02); opacity: 0.85; }
+      66% { transform: translate(-10px, 8px) scale(0.98); opacity: 0.95; }
+    }
+
+    .bubbles-layer {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image:
+        radial-gradient(circle at 18% 20%, rgba(255,255,255,0.25) 2px, transparent 2px),
+        radial-gradient(circle at 78% 15%, rgba(255,255,255,0.18) 3px, transparent 3px),
+        radial-gradient(circle at 42% 70%, rgba(255,255,255,0.15) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 88% 55%, rgba(255,255,255,0.22) 2.5px, transparent 2.5px),
+        radial-gradient(circle at 28% 80%, rgba(106,180,226,0.15) 2px, transparent 2px),
+        radial-gradient(circle at 65% 40%, rgba(176,157,219,0.12) 1.5px, transparent 1.5px);
+      background-size: 260px 260px, 340px 340px, 300px 300px, 380px 380px, 320px 320px, 280px 280px;
+      animation: bubbleDrift 28s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes bubbleDrift {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(6px, -12px); }
+      50% { transform: translate(-3px, -25px); }
+      75% { transform: translate(10px, -18px); }
+    }
+
+    /* ===== Layout ===== */
+    .container {
+      max-width: 1000px;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+      padding-top: 8px;
+    }
+
+    /* Header */
+    .settings-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 8px 4px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-on-ocean-bright);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 50px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.25s;
+      white-space: nowrap;
+    }
+    .back-link:hover {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.35);
+      transform: translateX(-2px);
+    }
+    .settings-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: 2px;
+      margin: 0;
+    }
+    .settings-title-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      font-weight: 500;
+      margin-top: 2px;
+      letter-spacing: 1px;
+    }
+
+    /* TOC (tab-like on mobile, sticky sidebar on desktop) */
+    .settings-body {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .settings-toc {
+      position: sticky;
+      top: 20px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 14px 10px;
+      box-shadow: 0 4px 20px var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .toc-item {
+      padding: 10px 12px 10px 14px;
+      border-radius: 12px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+    .toc-item:hover {
+      background: rgba(106,180,226,0.08);
+      color: var(--text-primary);
+    }
+    .toc-item.active {
+      background: rgba(255,255,255,0.55);
+      color: var(--text-primary);
+      border-color: rgba(106,180,226,0.28);
+    }
+    /* カラーマーカー（2文字アルファベット） */
+    .cat-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: white;
+      flex-shrink: 0;
+      background: var(--cat-color, var(--ogp-blue));
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    .toc-item[data-cat="input"]   { --cat-color: var(--cat-input); }
+    .toc-item[data-cat="display"] { --cat-color: var(--cat-display); }
+    .toc-item[data-cat="game"]    { --cat-color: var(--cat-game); }
+    .toc-item[data-cat="data"]    { --cat-color: var(--cat-data); }
+    .toc-item[data-cat="support"] { --cat-color: var(--cat-support); }
+
+    /* Sections */
+    .settings-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .settings-section {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 24px 26px;
+      box-shadow: 0 4px 24px var(--card-shadow);
+      scroll-margin-top: 20px;
+      position: relative;
+    }
+    /* カード全体にカテゴリ色を薄く重ねる（案4） */
+    .settings-section[data-cat="input"] {
+      --cat-color: var(--cat-input);
+      background:
+        linear-gradient(var(--cat-tint-input), var(--cat-tint-input)),
+        var(--card-bg);
+      border-color: rgba(106, 180, 226, 0.35);
+    }
+    .settings-section[data-cat="display"] {
+      --cat-color: var(--cat-display);
+      background:
+        linear-gradient(var(--cat-tint-display), var(--cat-tint-display)),
+        var(--card-bg);
+      border-color: rgba(122, 224, 196, 0.40);
+    }
+    .settings-section[data-cat="game"] {
+      --cat-color: var(--cat-game);
+      background:
+        linear-gradient(var(--cat-tint-game), var(--cat-tint-game)),
+        var(--card-bg);
+      border-color: rgba(176, 157, 219, 0.38);
+    }
+    .settings-section[data-cat="data"] {
+      --cat-color: var(--cat-data);
+      background:
+        linear-gradient(var(--cat-tint-data), var(--cat-tint-data)),
+        var(--card-bg);
+      border-color: rgba(242, 169, 120, 0.38);
+    }
+    .settings-section[data-cat="support"] {
+      --cat-color: var(--cat-support);
+      background:
+        linear-gradient(var(--cat-tint-support), var(--cat-tint-support)),
+        var(--card-bg);
+      border-color: rgba(140, 163, 184, 0.38);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-title-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 6px;
+      background: var(--cat-color, var(--ogp-blue));
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    .section-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 18px;
+      line-height: 1.7;
+    }
+
+    /* Rows */
+    .settings-row {
+      padding: 16px 0;
+      border-top: 1px dashed rgba(106,180,226,0.2);
+    }
+    .settings-row:first-of-type { border-top: none; padding-top: 4px; }
+    .settings-row-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .settings-row-hint {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 14px;
+      line-height: 1.7;
+    }
+
+    /* 設定項目の補足ノート（制限事項などの注意書き） */
+    .settings-row-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: rgba(242, 169, 120, 0.10);
+      border: 1px solid rgba(242, 169, 120, 0.35);
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .settings-row-note-icon {
+      flex-shrink: 0;
+      font-size: 14px;
+      font-weight: 800;
+      color: #d88c4c;
+      line-height: 1.5;
+    }
+
+    /* Segmented buttons（既存hand-btn風） */
+    .seg-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .seg-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 12px 16px;
+      border: 2px solid rgba(106,180,226,0.4);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.7);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-align: center;
+    }
+    .seg-btn:hover {
+      border-color: rgba(106,180,226,0.4);
+      background: rgba(106,180,226,0.1);
+    }
+    .seg-btn.selected {
+      background: linear-gradient(135deg, rgba(106,180,226,0.18), rgba(122,224,196,0.12));
+      border-color: var(--ogp-blue);
+      color: var(--text-primary);
+      box-shadow: 0 2px 12px rgba(106,180,226,0.15);
+    }
+    .seg-btn:focus-visible {
+      outline: 2px solid var(--ogp-blue);
+      outline-offset: 2px;
+    }
+
+    /* Action buttons（破壊的ではないもの） */
+    .action-btn {
+      padding: 11px 20px;
+      border: 1.5px solid rgba(106,180,226,0.45);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.8);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      background: white;
+      border-color: var(--ogp-blue);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+    .action-btn:focus-visible {
+      outline: 2px solid var(--ogp-blue);
+      outline-offset: 2px;
+    }
+
+    /* Support / Empty placeholder */
+    .empty-note {
+      padding: 18px 20px;
+      border: 1.5px dashed rgba(106,180,226,0.4);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.55);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.8;
+      text-align: center;
+    }
+
+    .support-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .support-link {
+      flex: 1;
+      min-width: 140px;
+      padding: 12px 16px;
+      border: 1.5px solid rgba(106,180,226,0.4);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.8);
+      color: var(--text-primary);
+      font-size: 13.5px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.25s;
+      text-align: center;
+    }
+    .support-link:hover {
+      background: white;
+      border-color: var(--ogp-blue);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+
+    .version-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(106,180,226,0.12);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      margin-top: 12px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(14, 30, 60, 0.92);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 13.5px;
+      font-weight: 700;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+      backdrop-filter: blur(12px);
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      border: 1px solid rgba(122,224,196,0.4);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Footer */
+    .site-footer {
+      text-align: center;
+      margin-top: 32px;
+      position: relative;
+      z-index: 2;
+      padding-bottom: 20px;
+    }
+    .site-footer a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 13.5px;
+      margin: 0 8px;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .site-footer a:hover { color: #fff; }
+    .footer-sep { color: rgba(255,255,255,0.35); }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .settings-body {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .settings-toc {
+        position: static;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+        gap: 6px;
+        scrollbar-width: thin;
+      }
+      .toc-item {
+        padding: 8px 14px;
+        font-size: 12.5px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .settings-title { font-size: 22px; }
+      .settings-section { padding: 20px 18px; }
+      .section-title { font-size: 16px; }
+      .seg-btn { padding: 14px 12px; font-size: 14px; min-width: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="caustics-layer"></div>
+    <div class="bubbles-layer"></div>
+
+    <div class="container">
+      <!-- Header -->
+      <header class="settings-header">
+        <a class="back-link" href="index.html" aria-label="トップへ戻る">
+          <span aria-hidden="true">←</span>
+          <span>トップへ</span>
+        </a>
+        <div>
+          <h1 class="settings-title">設定</h1>
+          <div class="settings-title-sub">SETTINGS</div>
+        </div>
+      </header>
+
+      <!-- Body: TOC + Sections -->
+      <div class="settings-body">
+        <!-- TOC -->
+        <nav class="settings-toc" aria-label="設定カテゴリ">
+          <a class="toc-item active" href="#sec-input"   data-target="sec-input"   data-cat="input"><span class="cat-mark" aria-hidden="true">01</span><span>入力</span></a>
+          <a class="toc-item"        href="#sec-display" data-target="sec-display" data-cat="display"><span class="cat-mark" aria-hidden="true">02</span><span>表示</span></a>
+          <a class="toc-item"        href="#sec-game"    data-target="sec-game"    data-cat="game"><span class="cat-mark" aria-hidden="true">03</span><span>ゲーム</span></a>
+          <a class="toc-item"        href="#sec-data"    data-target="sec-data"    data-cat="data"><span class="cat-mark" aria-hidden="true">04</span><span>データ</span></a>
+          <a class="toc-item"        href="#sec-support" data-target="sec-support" data-cat="support"><span class="cat-mark" aria-hidden="true">05</span><span>サポート</span></a>
+        </nav>
+
+        <!-- Sections -->
+        <div class="settings-sections">
+
+          <!-- 入力設定 -->
+          <section class="settings-section" id="sec-input" data-cat="input">
+            <h2 class="section-title"><span class="section-title-num" aria-hidden="true">01</span>入力設定</h2>
+            <p class="section-desc">指文字を表現する手や、カメラの入力に関する設定です。</p>
+
+            <div class="settings-row">
+              <div class="settings-row-label">利き手</div>
+              <div class="settings-row-hint">指文字を表現する手を選びます。ゲーム中の認識に影響します。</div>
+              <div class="seg-buttons" role="radiogroup" aria-label="利き手">
+                <button class="seg-btn" data-key="hand" data-value="right" role="radio">右手</button>
+                <button class="seg-btn" data-key="hand" data-value="left"  role="radio">左手</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- 表示設定 -->
+          <section class="settings-section" id="sec-display" data-cat="display">
+            <h2 class="section-title"><span class="section-title-num" aria-hidden="true">02</span>表示設定</h2>
+            <p class="section-desc">画面の表示方法に関する設定です。</p>
+
+            <div class="settings-row">
+              <div class="settings-row-label">カメラ映像</div>
+              <div class="settings-row-hint">プレイ画面に自分の姿を映すかどうかを選びます。</div>
+              <div class="seg-buttons" role="radiogroup" aria-label="カメラ映像の表示">
+                <button class="seg-btn" data-key="showCamera" data-value="true"  role="radio">表示する</button>
+                <button class="seg-btn" data-key="showCamera" data-value="false" role="radio">表示しない</button>
+              </div>
+              <div class="settings-row-note" role="note">
+                <span class="settings-row-note-icon" aria-hidden="true">ⓘ</span>
+                <span>スマートフォンなど画面が小さい端末では、レイアウトの都合で練習モード中のカメラ映像は表示されません（認識はバックグラウンドで動作します）。</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- ゲーム設定 -->
+          <section class="settings-section" id="sec-game" data-cat="game">
+            <h2 class="section-title"><span class="section-title-num" aria-hidden="true">03</span>ゲーム設定</h2>
+            <p class="section-desc">ゲームの表示やプレイ挙動に関する設定です。</p>
+
+            <div class="settings-row">
+              <div class="settings-row-label">問題テキストのサイズ</div>
+              <div class="settings-row-hint">ゲーム中に表示される単語・ひらがなの文字サイズを大きくできます。スマホで文字が小さいと感じる方におすすめ。</div>
+              <div class="seg-buttons" role="radiogroup" aria-label="問題テキストのサイズ">
+                <button class="seg-btn" data-key="fontScale" data-value="M"  role="radio">標準</button>
+                <button class="seg-btn" data-key="fontScale" data-value="L"  role="radio">大</button>
+                <button class="seg-btn" data-key="fontScale" data-value="XL" role="radio">特大</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- データ管理 -->
+          <section class="settings-section" id="sec-data" data-cat="data">
+            <h2 class="section-title"><span class="section-title-num" aria-hidden="true">04</span>データ管理</h2>
+            <p class="section-desc">保存されている情報やチュートリアルの再表示設定です。</p>
+
+            <div class="settings-row">
+              <div class="settings-row-label">初回セットアップウィザード</div>
+              <div class="settings-row-hint">Sign Diverに慣れるための案内をもう一度見ることができます。</div>
+              <button class="action-btn" id="btnReplayWizard" data-umami-event="settings-replay-wizard">
+                もう一度見る
+              </button>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-row-label">プレイ前チェック</div>
+              <div class="settings-row-hint">タイピングゲーム開始前の環境チェック案内を次回また表示します。</div>
+              <button class="action-btn" id="btnResetTutorial" data-umami-event="settings-reset-tutorial">
+                次回また表示する
+              </button>
+            </div>
+          </section>
+
+          <!-- サポート -->
+          <section class="settings-section" id="sec-support" data-cat="support">
+            <h2 class="section-title"><span class="section-title-num" aria-hidden="true">05</span>サポート</h2>
+            <p class="section-desc">Sign Diverに関する情報や利用規約です。</p>
+            <div class="support-links">
+              <a class="support-link" href="about_yubimoji.html">指文字とは？</a>
+              <a class="support-link" href="about_signdiver.html">Sign Diverとは？</a>
+              <a class="support-link" href="terms.html">利用規約</a>
+              <a class="support-link" href="privacy.html">プライバシーポリシー</a>
+            </div>
+            <div class="version-badge">Sign Diver Web</div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div style="margin-bottom: 8px; text-align: center;">
+        <a href="index.html">トップ</a>
+        <span class="footer-sep">|</span>
+        <a href="about_yubimoji.html">指文字とは？</a>
+        <span class="footer-sep">|</span>
+        <a href="about_signdiver.html">Sign Diverとは？</a>
+        <span class="footer-sep">|</span>
+        <a href="terms.html">利用規約</a>
+        <span class="footer-sep">|</span>
+        <a href="privacy.html">プライバシーポリシー</a>
+      </div>
+      <a href="index.html">Sign Diver</a>
+    </footer>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // ═══════════════════════════════════════════════
+    // localStorage セーフアクセサ（プライベートモード等で落ちない）
+    // ═══════════════════════════════════════════════
+    const memStore = {};
+    function lsGet(key) {
+      try { return localStorage.getItem(key); }
+      catch (e) { return (key in memStore) ? memStore[key] : null; }
+    }
+    function lsSet(key, val) {
+      try { localStorage.setItem(key, val); }
+      catch (e) { memStore[key] = val; }
+    }
+    function lsRemove(key) {
+      try { localStorage.removeItem(key); }
+      catch (e) { delete memStore[key]; }
+    }
+
+    // ═══════════════════════════════════════════════
+    // 設定キー定義
+    // ═══════════════════════════════════════════════
+    const SETTINGS = {
+      hand: {
+        key: 'signDiver_hand',
+        default: 'right',
+        parse: v => (v === 'left' ? 'left' : 'right'),
+        save: v => lsSet('signDiver_hand', v),
+      },
+      showCamera: {
+        key: 'signDiver_showCamera',
+        default: 'true',
+        parse: v => (v === 'false' ? 'false' : 'true'),
+        save: v => lsSet('signDiver_showCamera', v),
+      },
+      fontScale: {
+        key: 'signDiver_fontScale',
+        default: 'M',
+        parse: v => (['M', 'L', 'XL'].includes(v) ? v : 'M'),
+        save: v => lsSet('signDiver_fontScale', v),
+      },
+    };
+
+    // ═══════════════════════════════════════════════
+    // 初期化：localStorage から値を読み、ボタンの.selectedを復元
+    // ═══════════════════════════════════════════════
+    function initSegButtons() {
+      const current = {
+        hand: SETTINGS.hand.parse(lsGet(SETTINGS.hand.key)),
+        showCamera: SETTINGS.showCamera.parse(lsGet(SETTINGS.showCamera.key)),
+        fontScale: SETTINGS.fontScale.parse(lsGet(SETTINGS.fontScale.key)),
+      };
+      document.querySelectorAll('.seg-btn').forEach(btn => {
+        const key = btn.dataset.key;
+        const val = btn.dataset.value;
+        const isSelected = String(current[key]) === String(val);
+        btn.classList.toggle('selected', isSelected);
+        btn.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+      });
+    }
+
+    // ═══════════════════════════════════════════════
+    // ボタンクリックで即保存
+    // ═══════════════════════════════════════════════
+    document.querySelectorAll('.seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.key;
+        const val = btn.dataset.value;
+
+        // 同じグループの他ボタンをクリア
+        document.querySelectorAll(`.seg-btn[data-key="${key}"]`).forEach(b => {
+          b.classList.remove('selected');
+          b.setAttribute('aria-checked', 'false');
+        });
+        btn.classList.add('selected');
+        btn.setAttribute('aria-checked', 'true');
+
+        // 永続保存
+        SETTINGS[key].save(val);
+
+        // フィードバック
+        showToast('✓ 保存しました');
+
+        // Umami
+        if (typeof umami !== 'undefined') {
+          umami.track('setting-change', { key, value: val });
+        }
+      });
+    });
+
+    // ═══════════════════════════════════════════════
+    // TOC: スクロールスパイ + クリックスムーススクロール
+    // ═══════════════════════════════════════════════
+    const tocItems = document.querySelectorAll('.toc-item');
+    const sections = document.querySelectorAll('.settings-section');
+
+    tocItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.getElementById(item.dataset.target);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // 表示中セクションをTOCに反映
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          tocItems.forEach(item => {
+            item.classList.toggle('active', item.dataset.target === id);
+          });
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+    sections.forEach(sec => io.observe(sec));
+
+    // ═══════════════════════════════════════════════
+    // データ管理アクション
+    // ═══════════════════════════════════════════════
+    document.getElementById('btnReplayWizard').addEventListener('click', () => {
+      lsRemove('signDiver_seenSetupWizard');
+      location.href = 'index.html?wizard=1';
+    });
+
+    document.getElementById('btnResetTutorial').addEventListener('click', () => {
+      lsRemove('signDiver_seenTutorial');
+      showToast('✓ 次回またプレイ前チェックが表示されます');
+    });
+
+    // ═══════════════════════════════════════════════
+    // Toast
+    // ═══════════════════════════════════════════════
+    let toastTimer = null;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+    }
+
+    // ═══════════════════════════════════════════════
+    // 初期化実行
+    // ═══════════════════════════════════════════════
+    initSegButtons();
+  </script>
+</body>
+</html>

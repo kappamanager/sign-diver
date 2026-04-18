@@ -44,16 +44,16 @@
     }
 
     :root {
-      --card-bg: rgba(255, 255, 255, 0.82);
-      --card-border: rgba(255, 255, 255, 0.5);
-      --card-shadow: rgba(10, 40, 80, 0.15);
-      --text-primary: #0c2d48;
-      --text-secondary: #2e5a78;
-      --text-muted: #5a8aaa;
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --card-border: rgba(255, 255, 255, 0.6);
+      --card-shadow: rgba(10, 40, 80, 0.18);
+      --text-primary: #07233b;
+      --text-secondary: #234e6a;
+      --text-muted: #4a7896;
       --ogp-blue: #6ab4e2;
       --ogp-lavender: #b09ddb;
-      --text-on-ocean: rgba(255, 255, 255, 0.65);
-      --text-on-ocean-bright: rgba(255, 255, 255, 0.9);
+      --text-on-ocean: rgba(255, 255, 255, 0.85);
+      --text-on-ocean-bright: rgba(255, 255, 255, 1);
     }
     
     body {
@@ -261,13 +261,18 @@
     
     /* 問題表示エリア */
     .word-display {
-      padding: 40px 20px;
+      padding: 20px 20px;
       text-align: center;
       background: #000;
       position: relative;
       overflow: hidden;
       height: 200px;      /* min-heightからheightに変更して縦サイズを固定 */
       box-sizing: border-box;
+      /* 縦中央揃えで、フォントスケール変更時も中央を保つ */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
     
     /* 深海キャンバス */
@@ -384,65 +389,6 @@
     .tutorial-skip:hover { color: rgba(255,255,255,0.55); }
     /* ═══════════════════════════════════ */
 
-    /* ═══ スマホ横向き促進オーバーレイ ═══ */
-    .rotate-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(6, 14, 30, 0.96);
-      z-index: 99999;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 20px;
-      text-align: center;
-      padding: 24px;
-    }
-    .rotate-overlay.show { display: flex; }
-    .rotate-overlay-icon {
-      font-size: 64px;
-      animation: rotatePhone 2s ease-in-out infinite;
-    }
-    @keyframes rotatePhone {
-      0%, 100% { transform: rotate(0deg); }
-      25% { transform: rotate(-90deg); }
-      50%, 75% { transform: rotate(-90deg); }
-    }
-    .rotate-overlay-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 20px;
-      font-weight: 800;
-      color: #4facfe;
-      letter-spacing: 2px;
-    }
-    .rotate-overlay-text {
-      font-size: 14px;
-      color: rgba(255,255,255,0.7);
-      line-height: 1.8;
-      max-width: 320px;
-    }
-    .rotate-overlay-text strong {
-      color: #4facfe;
-    }
-    .rotate-overlay-tap {
-      display: none;
-      padding: 16px 48px;
-      background: linear-gradient(135deg, #4facfe 0%, #1976d2 100%);
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      font-size: 17px;
-      font-weight: 800;
-      cursor: pointer;
-      letter-spacing: 2px;
-      box-shadow: 0 6px 22px rgba(79,172,254,0.45);
-      animation: tapPulse 1.5s ease-in-out infinite;
-    }
-    .rotate-overlay-tap.show { display: block; }
-    @keyframes tapPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
     /* ═══════════════════════════════════ */
 
     /* ═══ カメラ調整画面（ゲーム画面の上にバナー） ═══ */
@@ -524,8 +470,18 @@
       100% { transform: scale(1)   translateY(0);    opacity: 1; }
     }
     
+    /* ═══ 問題テキストのフォントスケール
+       settings.html「ゲーム設定 > 問題テキストのサイズ」で切替
+       M(標準)=1.0 / L(大)=1.18 / XL(特大)=1.35
+       ═══ */
+    :root {
+      --word-scale: 1;
+    }
+    html[data-font-scale="L"]  { --word-scale: 1.18; }
+    html[data-font-scale="XL"] { --word-scale: 1.35; }
+
     .current-word {
-      font-size: 48px;
+      font-size: calc(48px * var(--word-scale));
       font-weight: bold;
       letter-spacing: 4px;
       min-height: 60px;
@@ -535,7 +491,7 @@
     }
     
     .hiragana-display {
-      font-size: 24px;
+      font-size: calc(24px * var(--word-scale));
       letter-spacing: 2px;
       color: rgba(255, 255, 255, 0.85);
       font-weight: normal;
@@ -931,7 +887,131 @@
       border-color: #aaa;
       color: #333;
     }
-    
+
+    /* 一時停止ボタン */
+    .pause-btn {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(100,181,246,0.15);
+      color: #0d47a1;
+      border: 1.5px solid rgba(100,181,246,0.5);
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      font-family: inherit;
+    }
+    .pause-btn:hover {
+      background: rgba(100,181,246,0.25);
+      border-color: rgba(100,181,246,0.8);
+    }
+    .pause-btn:focus-visible {
+      outline: 2px solid #1976d2;
+      outline-offset: 2px;
+    }
+
+    /* 一時停止オーバーレイ */
+    .pause-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 14, 30, 0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 9900;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: pauseFadeIn 0.25s ease;
+    }
+    .pause-overlay[style*="flex"],
+    .pause-overlay:not([style*="none"]) { display: flex; }
+    @keyframes pauseFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .pause-box {
+      background: linear-gradient(160deg, rgba(20,40,80,0.95), rgba(10,25,55,0.98));
+      border: 2px solid rgba(100,181,246,0.45);
+      border-radius: 28px;
+      padding: 36px 40px 28px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      animation: pauseBoxIn 0.35s cubic-bezier(0.22,1,0.36,1);
+    }
+    @keyframes pauseBoxIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .pause-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    .pause-title {
+      font-family: 'Montserrat', 'Zen Kaku Gothic New', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #64b5f6;
+      letter-spacing: 3px;
+      margin-bottom: 14px;
+    }
+    .pause-desc {
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.8;
+      margin-bottom: 22px;
+    }
+    .pause-resume-btn {
+      display: block;
+      width: 100%;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #4facfe 0%, #1976d2 100%);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 6px 22px rgba(79,172,254,0.45);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-bottom: 10px;
+    }
+    .pause-resume-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(79,172,254,0.5);
+    }
+    .pause-abort-btn {
+      display: block;
+      width: 100%;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pause-abort-btn:hover {
+      background: rgba(239,83,80,0.25);
+      border-color: rgba(239,83,80,0.5);
+      color: #fff;
+    }
+    .pause-resume-btn:focus-visible,
+    .pause-abort-btn:focus-visible {
+      outline: 2px solid #64b5f6;
+      outline-offset: 2px;
+    }
+
     .menu-btn:hover {
       background: #616161;
       transform: translateY(-2px);
@@ -1001,25 +1081,31 @@
     }
 
     .loading-bar-wrap {
-      width: 200px;
-      height: 3px;
+      width: 240px;
+      height: 4px;
       background: rgba(255,255,255,0.1);
       border-radius: 2px;
-      margin-top: 16px;
+      margin-top: 14px;
       overflow: hidden;
+      position: relative;
     }
 
     .loading-bar {
       height: 100%;
-      width: 30%;
+      width: 0%;
       background: linear-gradient(90deg, #4facfe, #00f2fe);
       border-radius: 2px;
-      animation: loadingPulse 1.8s ease-in-out infinite;
+      transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 0 8px rgba(79,172,254,0.55);
     }
 
-    @keyframes loadingPulse {
-      0%   { transform: translateX(-100%); }
-      100% { transform: translateX(400%); }
+    .loading-percent {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.55);
+      margin-top: 6px;
+      letter-spacing: 1px;
     }
 
     /* ═══════════════════════════════════════════════════════
@@ -1064,7 +1150,7 @@
       }
 
       .current-word {
-        font-size: 28px;
+        font-size: calc(28px * var(--word-scale));
         letter-spacing: 2px;
         margin-bottom: 8px;
         min-height: 36px;
@@ -1075,7 +1161,7 @@
       }
 
       .hiragana-display {
-        font-size: 16px;
+        font-size: calc(16px * var(--word-scale));
         letter-spacing: 1px;
         white-space: normal;
         word-break: break-all;
@@ -1150,7 +1236,8 @@
         line-height: 1.5;
       }
 
-      .abort-btn {
+      .abort-btn,
+      .pause-btn {
         flex: none;
         width: auto;
         padding: 10px 14px;
@@ -1432,12 +1519,12 @@
         justify-content: center;
       }
       .current-word {
-        font-size: 24px;
+        font-size: calc(24px * var(--word-scale));
         letter-spacing: 2px;
         min-height: 28px;
         margin-bottom: 4px;
       }
-      .hiragana-display { font-size: 14px; }
+      .hiragana-display { font-size: calc(14px * var(--word-scale)); }
       .depth-gauge { right: 6px; bottom: 4px; }
       .depth-gauge-value { font-size: 16px; }
       .depth-gauge-unit { font-size: 8px; }
@@ -1480,10 +1567,10 @@
         padding-bottom: 40px;
       }
       #gameScreen.no-camera .current-word {
-        font-size: 48px;
+        font-size: calc(48px * var(--word-scale));
       }
       #gameScreen.no-camera .hiragana-display {
-        font-size: 28px;
+        font-size: calc(28px * var(--word-scale));
       }
       .camera-area canvas:not(#seaCanvas),
       .camera-area video {
@@ -1535,6 +1622,18 @@
         writing-mode: horizontal-tb;
         border-radius: 8px;
         background: rgba(239,83,80,0.6);
+        color: white;
+        border-color: transparent;
+        text-align: center;
+        width: 100%;
+      }
+      .pause-btn {
+        padding: 3px 0;
+        margin-top: 2px;
+        font-size: 8px;
+        writing-mode: horizontal-tb;
+        border-radius: 8px;
+        background: rgba(100,181,246,0.6);
         color: white;
         border-color: transparent;
         text-align: center;
@@ -1596,20 +1695,20 @@
       background: rgba(233,30,99,0.12);
       border-color: rgba(233,30,99,0.9);
     }
-  </style></head>
+  </style>
+  <!-- 問題テキストのサイズ（settings.html > ゲーム設定）をCSS変数適用前に反映してFOUC防止 -->
+  <script>
+    (function applyFontScale() {
+      try {
+        var s = localStorage.getItem('signDiver_fontScale');
+        if (s === 'L' || s === 'XL') {
+          document.documentElement.setAttribute('data-font-scale', s);
+        }
+      } catch (e) { /* プライベートモード等では何もしない */ }
+    })();
+  </script>
+</head>
 <body>
-  <!-- スマホ横向きプレイ案内 -->
-  <div class="rotate-overlay" id="rotateOverlay">
-    <div class="rotate-overlay-icon">📱</div>
-    <div class="rotate-overlay-title">横向きプレイについて</div>
-    <div class="rotate-overlay-text">
-      スマートフォンを<strong>横向き</strong>にしてプレイすることもできます。<br>
-      横向きにするには<strong>自動回転をON</strong>にしてください。<br>
-      そのまま縦向きでもプレイ可能です。
-    </div>
-    <button class="rotate-overlay-tap show" id="rotateTapBtn">OK</button>
-  </div>
-
   <!-- カメラエラーモーダル -->
   <div id="cameraErrorModal">
     <div class="cam-modal-box">
@@ -1643,8 +1742,9 @@
       <p class="tips-counter" id="tipsCounter"></p>
       <p class="loading-progress" id="loadingProgress">準備しています...</p>
       <div class="loading-bar-wrap">
-        <div class="loading-bar"></div>
+        <div class="loading-bar" id="loadingBar"></div>
       </div>
+      <p class="loading-percent" id="loadingPercent">0%</p>
     </div>
     
     <!-- ゲーム画面 -->
@@ -1747,9 +1847,24 @@
           <div class="status-box" id="statusBox">
             手をカメラに映してください
           </div>
+          <button class="pause-btn" id="pauseBtn" type="button" aria-label="一時停止">⏸ 一時停止</button>
           <button class="abort-btn" id="abortBtn">⏹ 中断する</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- 一時停止オーバーレイ -->
+  <div id="pauseOverlay" class="pause-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <div class="pause-box">
+      <div class="pause-icon" aria-hidden="true">⏸</div>
+      <div class="pause-title" id="pauseTitle">一時停止中</div>
+      <p class="pause-desc">
+        タイマーと認識を止めています。<br>
+        準備ができたらプレイを再開してください。
+      </p>
+      <button class="pause-resume-btn" id="pauseResumeBtn" type="button">▶ 再開する</button>
+      <button class="pause-abort-btn" id="pauseAbortBtn" type="button">中断してメニューへ</button>
     </div>
   </div>
   
@@ -1819,6 +1934,8 @@
       <span style="color: rgba(2,136,209,0.3);">|</span>
       <a href="about_signdiver.html" style="margin: 0 12px; color: #0288d1; text-decoration: none; font-size: 13px; transition: color 0.2s;">Sign Diverとは？</a>
       <span style="color: rgba(2,136,209,0.3);">|</span>
+      <a href="settings.html" style="margin: 0 12px; color: #0288d1; text-decoration: none; font-size: 13px; transition: color 0.2s;">設定</a>
+      <span style="color: rgba(2,136,209,0.3);">|</span>
       <a href="terms.html" style="margin: 0 12px; color: #0288d1; text-decoration: none; font-size: 13px; transition: color 0.2s;">利用規約</a>
       <span style="color: rgba(2,136,209,0.3);">|</span>
       <a href="privacy.html" style="margin: 0 12px; color: #0288d1; text-decoration: none; font-size: 13px; transition: color 0.2s;">プライバシーポリシー</a>
@@ -1834,6 +1951,72 @@
     
     const WASM_BASE = "./mediapipe/wasm";
     const MODEL_URL = "./mediapipe/hand_landmarker.task";
+
+    // ═══════════════════════════════════════════════
+    // ローディング進捗管理（先頭で宣言して TDZ を回避）
+    //   setLoadingPhase で範囲切替、updatePhaseProgress で細かい進捗、
+    //   completePhase でフェーズ末尾、progress は巻き戻さない
+    // ═══════════════════════════════════════════════
+    let _currentPhase = { from: 0, to: 0 };
+    let _lastPercent = 0;
+    function _applyPercent(pct) {
+      _lastPercent = Math.max(_lastPercent, Math.min(100, pct));
+      const bar = document.getElementById('loadingBar');
+      const lbl = document.getElementById('loadingPercent');
+      if (bar) bar.style.width = _lastPercent + '%';
+      if (lbl) lbl.textContent = Math.round(_lastPercent) + '%';
+    }
+    function updateLoadingProgress(text, percent) {
+      if (text !== undefined && text !== null) {
+        const el = document.getElementById('loadingProgress');
+        if (el) el.textContent = text;
+      }
+      if (typeof percent === 'number') _applyPercent(percent);
+    }
+    function setLoadingPhase(from, to, text) {
+      _currentPhase = { from, to };
+      updateLoadingProgress(text, from);
+    }
+    function updatePhaseProgress(ratio) {
+      const { from, to } = _currentPhase;
+      const r = Math.max(0, Math.min(1, ratio));
+      _applyPercent(from + (to - from) * r);
+    }
+    function completePhase() {
+      _applyPercent(_currentPhase.to);
+    }
+
+    /**
+     * Content-Length ベースで進捗を報告しながら fetch
+     *   - streaming 非対応 or Content-Length 無しの時はフォールバック
+     *   - 戻り値: ArrayBuffer
+     */
+    async function fetchWithProgress(url, onProgress) {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`fetchWithProgress: ${url} → ${resp.status}`);
+      const total = Number(resp.headers.get('content-length')) || 0;
+      if (!total || !resp.body || !resp.body.getReader) {
+        if (onProgress) onProgress(1);
+        return resp.arrayBuffer();
+      }
+      const reader = resp.body.getReader();
+      const chunks = [];
+      let received = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        if (onProgress) onProgress(received / total);
+      }
+      const buffer = new Uint8Array(received);
+      let pos = 0;
+      for (const chunk of chunks) {
+        buffer.set(chunk, pos);
+        pos += chunk.length;
+      }
+      return buffer.buffer;
+    }
 
     // ═══════════════════════════════════════════════
     // パフォーマンス計測ユーティリティ
@@ -1942,7 +2125,7 @@
 
       // ── TFJS: モデル → ウォームアップ → ラベルマップ ──
       const tfPromise = (async () => {
-        updateLoadingProgress('AIモデルを読み込んでいます...');
+        setLoadingPhase(8, 45, 'AIモデルを読み込んでいます...');
         PERF.mark('tf_model_fetch_start');
         model = await tf.loadGraphModel('./tfjs_model_official/model.json');
         PERF.mark('tf_model_ready');
@@ -1964,7 +2147,7 @@
 
       // ── MediaPipe: TFJSと並列で開始 ──
       const mediapipePromise = (async () => {
-        updateLoadingProgress('手の認識エンジンを準備しています...');
+        setLoadingPhase(45, 88, '手の認識エンジンを準備しています...');
         PERF.mark('mediapipe_start');
         const fileset = await FilesetResolver.forVisionTasks(WASM_BASE);
         PERF.mark('wasm_compile_done');
@@ -1987,11 +2170,16 @@
           console.warn('[PERF] IndexedDB read failed:', e);
         }
 
-        // キャッシュなし → ネットワークから取得して保存
+        // キャッシュなし → ネットワークから取得して保存（進捗付き）
         if (!modelBuffer) {
           PERF.mark('task_model_download_start');
-          const modelResponse = await fetch(MODEL_URL);
-          modelBuffer = await modelResponse.arrayBuffer();
+          // taskモデルのDL進捗を MediaPipe フェーズ(45→88)の前半(45→80)で表現
+          // 残りの 80→88 は HandLandmarker.createFromOptions 等の初期化に使う
+          modelBuffer = await fetchWithProgress(MODEL_URL, ratio => {
+            // このフェーズは 45→88 の範囲。taskモデルDLで 0→0.81 程度を消費
+            const subRatio = Math.min(0.81, ratio * 0.81);
+            updatePhaseProgress(subRatio);
+          });
           PERF.mark('task_model_download_done');
           PERF.elapsed('task_model_download_start', 'task_model_download_done');
           console.log(`[PERF] IndexedDB cache MISS → fetched (${(modelBuffer.byteLength / 1024 / 1024).toFixed(1)}MB)`);
@@ -2000,6 +2188,9 @@
           idbSet(MODEL_CACHE_KEY, modelBuffer).catch(e =>
             console.warn('[PERF] IndexedDB write failed:', e)
           );
+        } else {
+          // キャッシュヒット時は一気に8割まで
+          updatePhaseProgress(0.81);
         }
 
         // ── modelAssetBuffer で初期化（二重DL修正済み） ──
@@ -2130,6 +2321,7 @@
     let skipXStartTime = null;        // X 検知開始時刻（null = 非検知中）
     let wordTimeLimit = 0;          // 現在の単語の制限時間
     let wordTimerInterval = null;   // 単語タイマーのインターバル
+    let gamePaused = false;          // 一時停止状態
     let missedWords = 0;            // タイムアウトした単語数
     
     // ── 画面スリープ防止（Wake Lock API） ──
@@ -2313,8 +2505,9 @@
     async function init() {
       try {
         // ① 単語データ読み込み（ロード画面のまま）
-        updateLoadingProgress('単語データを読み込んでいます...');
+        setLoadingPhase(0, 8, '単語データを読み込んでいます...');
         await loadWords();
+        completePhase();
 
         const isFirstLoad = !localStorage.getItem('signDiver_loaded');
         if (isFirstLoad) localStorage.setItem('signDiver_loaded', '1');
@@ -2327,9 +2520,12 @@
         await initHeavy();
         PERF.mark('parallel_done');
         PERF.elapsed('start_btn_pressed', 'parallel_done');
+        // MediaPipe/TFJS完了時点でフェーズ終端（88%）まで到達
+        _applyPercent(88);
 
         // ③ ロード完了 → gameScreenを表示すると同時にカウントダウンを即表示
         //    これでloadingScreen → カウントダウンがシームレスに見える
+        updateLoadingProgress('準備完了', 100);
         stopTipsRotation();
         document.getElementById('loadingScreen').style.display = 'none';
         // カメラ映像表示設定
@@ -2470,7 +2666,7 @@
 
       // カメラ起動をbgLoadPromiseと並列で開始
       // （bgLoadPromiseはすでにページ開時から走っているため実質的に並列）
-      updateLoadingProgress('カメラを起動しています...');
+      setLoadingPhase(88, 95, 'カメラを起動しています...');
       PERF.mark('camera_start');
       const video = document.getElementById('video');
       const canvas = document.getElementById('canvas');
@@ -2521,7 +2717,7 @@
       // 性能計測とティア判定はカウントダウン中に行う（GPUが十分温まった状態で計測するため）
       if (landmarker) {
         PERF.mark('mediapipe_warmup_start');
-        updateLoadingProgress('認識エンジンをウォームアップ中...');
+        setLoadingPhase(95, 100, '認識エンジンをウォームアップ中...');
         for (let i = 0; i < 3; i++) {
           try {
             landmarker.detectForVideo(video, performance.now());
@@ -2536,17 +2732,42 @@
       PERF.elapsed('init_heavy_start', 'bg_load_awaited');
     }
     
-    function updateLoadingProgress(text) {
-      document.getElementById('loadingProgress').textContent = text;
-    }
-    
     // 単語データ読み込み
+    //   端末種別（PC/モバイル）で data/pc/ or data/mobile/ を切替
+    //   モバイル版は動きのある指文字を避けた易しい問題集
+    //   読み込み失敗時は PC版 → ルート直下（旧配置）の順でフォールバック
     async function loadWords() {
       // キャッシュ無効化: タイムスタンプをURLに付加してブラウザキャッシュをバイパス
       const cacheBuster = `?v=${Date.now()}`;
-      const response = await fetch(`./data/words_${difficulty}.txt${cacheBuster}`);
-      const text = await response.text();
-      
+      const isMobileDevice = window.innerWidth <= 640
+        || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+      const candidates = isMobileDevice
+        ? [
+            `./data/mobile/words_${difficulty}.txt`,
+            `./data/pc/words_${difficulty}.txt`,    // mobile版未整備時のフォールバック
+            `./data/words_${difficulty}.txt`,        // 旧配置への最終フォールバック
+          ]
+        : [
+            `./data/pc/words_${difficulty}.txt`,
+            `./data/words_${difficulty}.txt`,        // 旧配置への最終フォールバック
+          ];
+
+      let text = null;
+      let loadedFrom = null;
+      for (const path of candidates) {
+        try {
+          const response = await fetch(path + cacheBuster);
+          if (response.ok) {
+            text = await response.text();
+            loadedFrom = path;
+            break;
+          }
+        } catch (e) { /* 次の候補へ */ }
+      }
+      if (!text) throw new Error(`単語データの読み込みに失敗: ${candidates.join(', ')}`);
+      console.log(`[Words] Loaded from: ${loadedFrom} (${isMobileDevice ? 'mobile' : 'pc'})`);
+
       wordList = text
         .split('\n')
         .map(line => line.trim())
@@ -2558,9 +2779,8 @@
             hiragana: hiragana.trim()
           };
         });
-      
-      remainingWords = [...wordList];
 
+      remainingWords = [...wordList];
     }
     
     // カウントダウン表示（seconds: カウント開始秒数、デフォルト3）
@@ -3357,6 +3577,11 @@
 
     async function loop() {
       if (!isPlaying) return;
+      // 一時停止中は認識・描画を行わず、フレームだけ回して再開に備える
+      if (gamePaused) {
+        rafId = requestAnimationFrame(loop);
+        return;
+      }
       
       const now = performance.now();
       const isRecognitionFrame = (loopFrameCount % detectInterval === 0);
@@ -5380,32 +5605,114 @@
     };
     
     // 起動
-    // スマホ判定 → 横向き促進オーバーレイ
-    (async function boot() {
-      const isMobile = window.innerWidth <= 640 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      if (isMobile) {
-        await showRotatePrompt();
-      }
+    (function boot() {
       SEA.init();
       init();
     })();
-
-    function showRotatePrompt() {
-      return new Promise(resolve => {
-        const overlay = document.getElementById('rotateOverlay');
-        overlay.classList.add('show');
-
-        document.getElementById('rotateTapBtn').addEventListener('click', () => {
-          overlay.classList.remove('show');
-          resolve();
-        }, { once: true });
-      });
-    }
 
     // 中断botan
     document.getElementById('abortBtn').addEventListener('click', () => {
       if (confirm('ゲームを中断しますか？')) {
         window.location.href = './index.html';
+      }
+    });
+
+    // ═══════════════════════════════════════════════
+    // 一時停止 / 再開
+    // ═══════════════════════════════════════════════
+    function pauseGame() {
+      if (!isPlaying || gamePaused) return;
+      gamePaused = true;
+
+      // タイマー停止（残り時間は変数に残っているので再開可能）
+      if (timerInterval)     { clearInterval(timerInterval);     timerInterval = null; }
+      if (wordTimerInterval) { clearInterval(wordTimerInterval); wordTimerInterval = null; }
+
+      // 認識結果表示をリセット（停止中の表示ゴミを消す）
+      const recChar = document.getElementById('recognizedChar');
+      const recConf = document.getElementById('confidenceDisplay');
+      if (recChar) recChar.textContent = '-';
+      if (recConf) recConf.textContent = '一時停止中';
+
+      // オーバーレイ表示
+      const overlay = document.getElementById('pauseOverlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => {
+          const btn = document.getElementById('pauseResumeBtn');
+          if (btn) btn.focus();
+        });
+      }
+
+      // Umami
+      if (typeof umami !== 'undefined') {
+        umami.track('game-pause', { wordRemaining: wordTimeRemaining, totalRemaining: timeRemaining });
+      }
+    }
+
+    function resumeGame() {
+      if (!gamePaused) return;
+      gamePaused = false;
+
+      // オーバーレイ非表示
+      const overlay = document.getElementById('pauseOverlay');
+      if (overlay) overlay.style.display = 'none';
+
+      // 全体タイマー再開（残り秒数から継続）
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        document.getElementById('timeRemaining').textContent = timeRemaining;
+        updateTotalTimerBar();
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          gameOver();
+        }
+      }, 1000);
+
+      // 単語タイマー再開（残り秒数から継続。完了前のみ）
+      if (wordTimeRemaining > 0) {
+        const timeoutWordId = currentWordId;
+        wordTimerInterval = setInterval(() => {
+          wordTimeRemaining--;
+          updateWordTimeDisplay();
+          if (wordTimeRemaining <= 0) {
+            clearInterval(wordTimerInterval);
+            wordTimerInterval = null;
+            setTimeout(() => {
+              if (currentWordId !== timeoutWordId) return;
+              onWordTimeout();
+            }, 200);
+          }
+        }, 1000);
+      }
+
+      if (typeof umami !== 'undefined') umami.track('game-resume');
+    }
+
+    // 一時停止ボタン
+    const _pauseBtn = document.getElementById('pauseBtn');
+    if (_pauseBtn) _pauseBtn.addEventListener('click', pauseGame);
+
+    // 再開ボタン
+    const _resumeBtn = document.getElementById('pauseResumeBtn');
+    if (_resumeBtn) _resumeBtn.addEventListener('click', resumeGame);
+
+    // オーバーレイからの中断ボタン
+    const _pauseAbortBtn = document.getElementById('pauseAbortBtn');
+    if (_pauseAbortBtn) _pauseAbortBtn.addEventListener('click', () => {
+      window.location.href = './index.html';
+    });
+
+    // Esc / Space キーで一時停止・再開
+    document.addEventListener('keydown', (e) => {
+      if (!isPlaying) return;
+      // Space: トグル（※INPUT要素フォーカス時は無視）
+      const tag = (document.activeElement && document.activeElement.tagName) || '';
+      if (e.code === 'Space' && tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        e.preventDefault();
+        gamePaused ? resumeGame() : pauseGame();
+      } else if (e.key === 'Escape' && gamePaused) {
+        resumeGame();
       }
     });
   </script>

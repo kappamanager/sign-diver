@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Sign Diverの練習モード。カメラに向かって指文字を作ると、AIがリアルタイムで認識。一文字ずつ丁寧に指文字を覚えられます。">
-  <meta name="keywords" content="指文字,練習,手話,カメラ認識,AI,Sign Diver">
-  <title>練習モード - Sign Diver｜カメラで指文字を一文字ずつ練習</title>
+  <meta name="description" content="練習モード（グリーンバック素材収録用・非公開）">
+  <meta name="robots" content="noindex, nofollow">
+  <title>練習モード（素材収録用） - Sign Diver</title>
 
 
   <meta name="author" content="Sign Diver Project">
-  <link rel="canonical" href="https://signdiver.com/practice.html">
 
   <!-- OGP -->
   <meta property="og:title" content="練習モード - Sign Diver">
@@ -110,7 +109,87 @@
       position: relative;
       z-index: 1;
     }
-    
+
+    /* ═══ 素材収録用レイアウト（instruction-layout）═══
+       3D表示エリアと文字選択を横2カラムに分割し、
+       文字選択は全文字フラット表示＋個別スクロール可能にする */
+    body.instruction-layout {
+      align-items: flex-start;
+      padding: 12px;
+    }
+    body.instruction-layout .container {
+      max-width: 1600px;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 14px;
+      align-items: start;
+    }
+    body.instruction-layout .page-header,
+    body.instruction-layout .mode-selector,
+    body.instruction-layout .main-content,
+    body.instruction-layout .random-mode-ui,
+    body.instruction-layout .reading-mode-ui,
+    body.instruction-layout .stats-display,
+    body.instruction-layout .navigation-buttons {
+      grid-column: 1;
+    }
+    body.instruction-layout .character-selector {
+      grid-column: 2;
+      grid-row: 1 / span 99;
+      position: sticky;
+      top: 12px;
+      max-height: calc(100vh - 24px);
+      overflow-y: auto;
+      margin-bottom: 0;
+      /* 独立スクロール＝スクロールバー常時 */
+      scrollbar-gutter: stable;
+    }
+    body.instruction-layout .current-char-display {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(6px);
+      padding: 6px 0 8px;
+      margin-top: -4px;
+    }
+    /* 全文字フラット表示時のボタングリッド */
+    body.instruction-layout .char-buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+    body.instruction-layout .char-buttons .char-btn {
+      width: auto;
+      min-width: 0;
+    }
+    body.instruction-layout .char-row-divider {
+      grid-column: 1 / -1;
+      font-size: 11px;
+      font-weight: 700;
+      color: #6a4a9e;
+      padding: 10px 2px 2px;
+      border-top: 1px dashed rgba(100,181,246,0.35);
+      margin-top: 4px;
+    }
+    body.instruction-layout .char-row-divider:first-child {
+      border-top: none;
+      margin-top: 0;
+      padding-top: 0;
+    }
+    /* スマホでは1カラムに戻す */
+    @media (max-width: 768px) {
+      body.instruction-layout .container {
+        grid-template-columns: 1fr;
+      }
+      body.instruction-layout .character-selector {
+        grid-column: 1;
+        grid-row: auto;
+        position: static;
+        max-height: none;
+      }
+    }
+
     /* ヘッダー */
     .page-header {
       text-align: center;
@@ -162,14 +241,11 @@
       display: flex;
       gap: 12px;
       margin-bottom: 12px;
-      justify-content: center;  /* カメラOFF時もsample-areaを中央に */
     }
-
-    /* 左側：サンプルエリア（全モードで読取モードと同サイズ） */
+    
+    /* 左側：サンプルエリア */
     .sample-area {
-      flex: none;
-      width: 50%;
-      max-width: 540px;
+      flex: 1;
       background: rgba(106,180,226,0.08);
       border: 1.5px solid rgba(106,180,226,0.25);
       border-radius: 16px;
@@ -186,14 +262,7 @@
       width: 100%;
       height: 200px;
       border-radius: 12px;
-      overflow: hidden;       /* リサイズ直前のcanvasが枠からはみ出さない保険 */
-      position: relative;     /* 中のabsolute canvasの基準になるように */
-      background: linear-gradient(180deg,
-        #1a9cc9 0%,
-        #0d5e8a 25%,
-        #062e55 55%,
-        #031525 80%,
-        #010d18 100%);
+      background: #00ff00; /* グリーンバック（クロマキー用） */
     }
     
     .placeholder {
@@ -250,8 +319,15 @@
       display: none !important;
     }
     
-    /* 読取モード専用のレイアウト調整は不要
-       （全モードで sample-area を固定サイズに統一済み） */
+    /* 読取モード時：3DCGエリアが全幅に広がらないようにする */
+    .practice-main.reading-layout {
+      justify-content: center;
+    }
+    .practice-main.reading-layout .sample-area {
+      flex: none;
+      width: 50%;
+      max-width: 540px;
+    }
     
     .camera-wrapper {
       position: relative;
@@ -608,7 +684,7 @@
       background: rgba(255,255,255,0.8);
       border: 2px solid rgba(100,181,246,0.3);
       border-radius: 16px;
-      padding: 10px 12px 12px;
+      padding: 16px 12px;
       margin-bottom: 12px;
     }
 
@@ -623,14 +699,14 @@
     .reading-description {
       text-align: center;
       color: #4a148c;
-      padding: 0 12px 8px;
+      padding: 4px 12px 12px;
     }
 
     .reading-description p {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
-      margin: 2px 0;
-      line-height: 1.5;
+      margin: 4px 0;
+      line-height: 1.6;
     }
 
     .reading-choices {
@@ -638,7 +714,7 @@
       gap: 10px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
 
     .reading-choice-btn {
@@ -691,8 +767,8 @@
 
     .reading-result {
       text-align: center;
-      padding: 6px 10px;
-      margin-bottom: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
       border-radius: 12px;
       animation: readingResultPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
@@ -703,13 +779,12 @@
     }
 
     .reading-result-icon {
-      font-size: 28px;
-      margin-bottom: 0;
-      line-height: 1.2;
+      font-size: 36px;
+      margin-bottom: 4px;
     }
 
     .reading-result-text {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 800;
     }
 
@@ -742,7 +817,7 @@
 
     .reading-next-wrapper {
       text-align: center;
-      margin-bottom: 0;
+      margin-bottom: 10px;
     }
 
     .reading-stats {
@@ -784,12 +859,7 @@
       width: 100%;
       height: 100%;
       min-height: 500px;
-      background: linear-gradient(180deg,
-        #1a9cc9 0%,
-        #0d5e8a 25%,
-        #062e55 55%,
-        #031525 80%,
-        #010d18 100%);
+      background: #00ff00; /* グリーンバック（クロマキー用） */
     }
     
     /* VRMローディングオーバーレイ */
@@ -797,7 +867,7 @@
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: linear-gradient(160deg, #0a1628 0%, #0d2244 100%);
+      background: #00ff00; /* グリーンバック（クロマキー用） */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -987,9 +1057,6 @@
       /* ── 全体 ── */
       body { padding: 8px 6px; }
 
-      /* スマホ時のみカメラ映像非表示の注記を表示 */
-      .practice-cam-mobile-note { display: block !important; }
-
       .container {
         padding: 12px 10px;
         border-radius: 16px;
@@ -1013,8 +1080,6 @@
 
       /* ── サンプルエリア（3Dモデル）── */
       .sample-area {
-        width: 100%;
-        max-width: none;
         min-height: 180px;
         padding: 8px;
         border-radius: 12px;
@@ -1124,24 +1189,22 @@
 
       /* ── 読取練習モード ── */
       .reading-mode-ui {
-        padding: 8px 8px 10px;
+        padding: 10px 8px;
         border-radius: 12px;
-        margin-bottom: 8px;
       }
-      .reading-description { padding: 0 8px 6px; }
-      .reading-description p { font-size: 12px; margin: 2px 0; line-height: 1.5; }
-      .reading-choices { gap: 8px; margin-bottom: 6px; }
       .reading-choice-btn {
-        min-width: 48px;
-        height: 48px;
-        font-size: 22px;
+        min-width: 50px;
+        height: 50px;
+        font-size: 24px;
       }
-      .reading-result { padding: 4px 8px; margin-bottom: 4px; }
-      .reading-result-icon { font-size: 22px; }
-      .reading-result-text { font-size: 13px; }
-      .reading-result-hint { font-size: 11px; padding: 3px 10px; }
-      /* スマホでは3Dキャンバスを縦コンパクトに */
-      #vrm-canvas { height: 220px; min-height: 0; }
+      .reading-stats {
+        font-size: 12px;
+        gap: 8px;
+      }
+      .practice-main.reading-layout .sample-area {
+        width: 100%;
+        max-width: none;
+      }
     }
 
     /* 正解演出オーバーレイ */
@@ -1283,7 +1346,7 @@
       border-color: rgba(233,30,99,0.9);
     }
   </style>  <script src="./camera_asset.js"></script>
-<body>
+<body class="instruction-layout">
   <!-- カメラエラーモーダル -->
   <div id="cameraErrorModal">
     <div class="cam-modal-box">
@@ -1323,19 +1386,10 @@
       <h2 style="font-size:19px; font-weight:800; color:#1a237e; margin-bottom:12px;">
         カメラを使用しますか？
       </h2>
-      <p style="font-size:13px; color:#37474f; line-height:1.8; margin-bottom:16px;">
+      <p style="font-size:13px; color:#37474f; line-height:1.8; margin-bottom:24px;">
         カメラを使うと手の動きをリアルタイムで認識し、
         指文字の正誤判定ができます。<br>
         <strong style="color:#1565c0;">カメラなしでも練習ページは利用できます。</strong>
-      </p>
-      <p class="practice-cam-mobile-note" style="
-        font-size:12px; line-height:1.6; color:#6a4a1a;
-        background:rgba(242,169,120,0.12); border:1px solid rgba(242,169,120,0.45);
-        border-radius:10px; padding:8px 12px; margin-bottom:20px;
-        display:none;
-      ">
-        <span style="color:#d88c4c; font-weight:800;">ⓘ</span>
-        スマートフォンではカメラ映像は画面に表示されませんが、認識はバックグラウンドで動作します。
       </p>
       <div style="display:flex; gap:12px; justify-content:center; margin-bottom:16px;">
         <button id="cameraYesBtn" style="
@@ -1430,23 +1484,21 @@
       </div>
     </div>
     
-    <!-- 文字選択 -->
+    <!-- 文字選択（素材収録用：全文字フラット表示サイドバー） -->
     <div class="character-selector" id="characterSelector">
       <div class="current-char-display" id="currentCharDisplay">あ</div>
-      
-      <!-- 行選択 -->
-      <div class="selector-section">
+
+      <!-- 行選択（素材収録用は非表示だが内部ロジック互換のため残す） -->
+      <div class="selector-section" hidden>
         <div class="selector-label">行を選択</div>
-        <div class="row-buttons" id="rowButtons">
-          <!-- JavaScriptで生成 -->
-        </div>
+        <div class="row-buttons" id="rowButtons"></div>
       </div>
-      
-      <!-- 文字選択 -->
+
+      <!-- 文字選択（全文字） -->
       <div class="selector-section">
-        <div class="selector-label">文字を選択 <span id="currentRowLabel">（「あ行」を選択中）</span></div>
+        <div class="selector-label">文字を選択 <span id="currentRowLabel"></span></div>
         <div class="char-buttons" id="charButtons">
-          <!-- JavaScriptで生成 -->
+          <!-- JavaScriptで全文字生成 -->
         </div>
       </div>
     </div>
@@ -1466,33 +1518,33 @@
     
     <!-- 読取練習モード用UI -->
     <div class="reading-mode-ui" id="readingModeUI" style="display: none;">
-      <!-- 問題番号（非表示・JS互換のためDOMは残す） -->
-      <div class="reading-question-counter" id="readingCounter" hidden>第 1 問</div>
-
+      <!-- 問題番号 -->
+      <div class="reading-question-counter" id="readingCounter">第 1 問</div>
+      
       <!-- 説明文 -->
       <div class="reading-description">
         <p>ガイドが表現している指文字を選択してください。</p>
       </div>
-
+      
       <!-- 選択肢ボタン -->
       <div class="reading-choices" id="readingChoices">
         <!-- JSで生成 -->
       </div>
-
+      
       <!-- 結果表示 -->
       <div class="reading-result" id="readingResult" style="display: none;">
         <div class="reading-result-icon" id="readingResultIcon"></div>
         <div class="reading-result-text" id="readingResultText"></div>
         <div class="reading-result-hint" id="readingResultHint" style="display: none;"></div>
       </div>
-
+      
       <!-- 次へボタン -->
       <div class="reading-next-wrapper" id="readingNextWrapper" style="display: none;">
         <button class="control-btn" id="readingNextBtn">次の問題へ →</button>
       </div>
-
-      <!-- 統計（非表示・JS互換のためDOMは残す） -->
-      <div class="reading-stats" id="readingStats" hidden>
+      
+      <!-- 統計 -->
+      <div class="reading-stats" id="readingStats">
         <span class="reading-stat-item" id="readingStatsCorrect">⭕ 0</span>
         <span class="reading-stat-item" id="readingStatsWrong">❌ 0</span>
         <span class="reading-stat-item" id="readingStatsTotal">全 0 問</span>
@@ -1512,8 +1564,6 @@
       <a href="about_yubimoji.html" style="margin: 0 12px;">指文字とは？</a>
       <span style="color: rgba(2,136,209,0.3);">|</span>
       <a href="about_signdiver.html" style="margin: 0 12px;">Sign Diverとは？</a>
-      <span style="color: rgba(2,136,209,0.3);">|</span>
-      <a href="settings.html" style="margin: 0 12px;">設定</a>
       <span style="color: rgba(2,136,209,0.3);">|</span>
       <a href="terms.html" style="margin: 0 12px;">利用規約</a>
       <span style="color: rgba(2,136,209,0.3);">|</span>
@@ -1944,7 +1994,7 @@
     let idlePlayTime=0;
     const IDLE_BLEND_IN_MS=500;
     const IDLE_BLEND_OUT_MS=800;
-    const IDLE_INTERVAL_S=15;
+    const IDLE_INTERVAL_S=86400; /* 素材収録用：24時間(実質発火させない) 本番は15 */
     function getBlendInMs(){
       // スペシャルアクションは指文字と同じ遷移時間（300ms）
       if(idleActiveAction&&idleActiveAction.name&&idleActiveAction.name.startsWith('special_'))return HAND_TRANSITION_MS;
@@ -2996,11 +3046,6 @@
         randomModeActive=false;
         await startReadingMode();
       }
-      // レイアウト変更でsample-area幅が変わった後に3D canvasをリサイズ
-      // （reflow完了を待つため2フレーム後に発火）
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        window.dispatchEvent(new Event('resize'));
-      }));
     }
 
     // ==========================================
@@ -3115,23 +3160,11 @@
       const container=document.getElementById('vrm-canvas');
       clock=new THREE.Clock();
       vrmScene=new THREE.Scene();
-      // 背景: 上が淡い空色→下が白のグラデーション（Canvas生成）
-      {
-        const bgC=document.createElement('canvas');bgC.width=2;bgC.height=256;
-        const ctx=bgC.getContext('2d');
-        const grad=ctx.createLinearGradient(0,0,0,256);
-        grad.addColorStop(0,'#1e88e5');  // 上: 濃い青
-        grad.addColorStop(0.5,'#42a5f5');// 中: 鮮やかな青
-        grad.addColorStop(1,'#64b5f6');  // 下: やや明るい青
-        ctx.fillStyle=grad;ctx.fillRect(0,0,2,256);
-        const bgTex=new THREE.CanvasTexture(bgC);
-        bgTex.magFilter=THREE.LinearFilter;
-        vrmScene.background=bgTex;
-      }
-      // 遠景フォグ（背景と馴染ませる）
-      vrmScene.fog=new THREE.Fog(0x42a5f5,8,25);
+      // 背景: グリーンバック（クロマキー用・#00ff00）
+      vrmScene.background=new THREE.Color(0x00ff00);
+      // フォグは撤去（グリーンに色被りするため）
       vrmCamera=new THREE.PerspectiveCamera(45,container.clientWidth/container.clientHeight,0.1,100);
-      vrmCamera.position.set(0,1.4,1.0);  /* キャラに寄せる（sample-area縮小対応） */
+      vrmCamera.position.set(0,1.4,1.4);
       vrmRenderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
       vrmRenderer.setSize(container.clientWidth,container.clientHeight);
       vrmRenderer.setPixelRatio(window.devicePixelRatio);
@@ -3157,40 +3190,7 @@
       // 正面からの補助光（顔や体の影を和らげ全体を明るく）
       const fl=new THREE.DirectionalLight(0xffffff,0.75);fl.position.set(0,2,3);vrmScene.add(fl);
 
-      // Ground: 円形グラデーション床（中心明るく→外周フェードアウト）
-      {
-        const gndC=document.createElement('canvas');gndC.width=512;gndC.height=512;
-        const gCtx=gndC.getContext('2d');
-        const gGrad=gCtx.createRadialGradient(256,256,0,256,256,256);
-        gGrad.addColorStop(0,'#64b5f6');   // 中心: 明るい青
-        gGrad.addColorStop(0.6,'#42a5f5'); // 中間: 鮮やかな青
-        gGrad.addColorStop(1,'#1e88e5');   // 外周: 濃い青
-        gCtx.fillStyle=gGrad;gCtx.fillRect(0,0,512,512);
-        const gndTex=new THREE.CanvasTexture(gndC);
-        const gnd=new THREE.Mesh(
-          new THREE.CircleGeometry(5,64),
-          new THREE.MeshStandardMaterial({map:gndTex,roughness:0.9,metalness:0})
-        );
-        gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;vrmScene.add(gnd);
-      }
-
-      // 浮遊パーティクル（ゆったり漂う光の粒）
-      {
-        const pCount=40;
-        const pGeo=new THREE.BufferGeometry();
-        const pPos=new Float32Array(pCount*3);
-        for(let i=0;i<pCount;i++){
-          pPos[i*3]=(Math.random()-0.5)*6;
-          pPos[i*3+1]=Math.random()*3.5+0.3;
-          pPos[i*3+2]=(Math.random()-0.5)*6;
-        }
-        pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
-        const pMat=new THREE.PointsMaterial({color:0xffffff,size:0.05,transparent:true,opacity:0.6,sizeAttenuation:true});
-        const particles=new THREE.Points(pGeo,pMat);
-        particles.userData.basePositions=pPos.slice();
-        vrmScene.add(particles);
-        vrmScene.userData.particles=particles;
-      }
+      // 床とパーティクルは撤去（グリーンバック素材収録時は不要）
 
       try{
         const vrmT0=performance.now();
@@ -3528,20 +3528,66 @@
     function selectRow(rowKey){
       currentRow=rowKey;currentCharIndex=0;
       document.querySelectorAll('.row-btn').forEach(btn=>{btn.classList.toggle('active',btn.textContent===rowKey);});
-      document.getElementById('currentRowLabel').textContent=`（「${CHARACTER_ROWS[rowKey].label}」を選択中）`;
-      initCharacterButtons();frameBuffer=[];wristBuffer=[];selectCharacter(0);
+      const lbl=document.getElementById('currentRowLabel');
+      if(lbl)lbl.textContent=`（「${CHARACTER_ROWS[rowKey].label}」を選択中）`;
+      // 素材収録用レイアウトは全文字フラット表示なので再生成しない
+      if(!document.body.classList.contains('instruction-layout')){
+        initCharacterButtons();
+      }
+      frameBuffer=[];wristBuffer=[];selectCharacter(0);
     }
     function initCharacterButtons(){
       const container=document.getElementById('charButtons');container.innerHTML='';
-      const chars=CHARACTER_ROWS[currentRow].chars;
-      chars.forEach((char,index)=>{
-        const btn=document.createElement('button');btn.className='char-btn';btn.textContent=char;
-        if(index===0)btn.classList.add('active');
-        if(currentRow==='S')btn.title=SPECIAL_STAGE_NAMES[char];
-        btn.addEventListener('click',()=>{selectCharacter(index);});
-        container.appendChild(btn);
-        if((index+1)%5===0&&index<chars.length-1){const lb=document.createElement('div');lb.style.width='100%';lb.style.height='0';container.appendChild(lb);}
-      });
+      const isInstruction=document.body.classList.contains('instruction-layout');
+
+      if(isInstruction){
+        // 素材収録用：全行×全文字をフラット表示（行ごとにラベル区切り）
+        ROW_ORDER.forEach(rowKey=>{
+          const rowInfo=CHARACTER_ROWS[rowKey];
+          const divider=document.createElement('div');
+          divider.className='char-row-divider';
+          divider.textContent=rowInfo.label;
+          container.appendChild(divider);
+          rowInfo.chars.forEach(char=>{
+            const btn=document.createElement('button');
+            btn.className='char-btn';
+            btn.textContent=char;
+            btn.dataset.row=rowKey;
+            btn.dataset.char=char;
+            if(rowKey==='S')btn.title=SPECIAL_STAGE_NAMES[char];
+            if(rowKey===currentRow && char===CHARACTER_ROWS[currentRow].chars[currentCharIndex]){
+              btn.classList.add('active');
+            }
+            btn.addEventListener('click',()=>{
+              const targetRow=btn.dataset.row;
+              const targetChar=btn.dataset.char;
+              const targetIndex=CHARACTER_ROWS[targetRow].chars.indexOf(targetChar);
+              if(targetRow!==currentRow){
+                // 行を切り替える（※instruction版はinitCharacterButtonsの再生成をしない）
+                currentRow=targetRow;
+                currentCharIndex=0;
+                document.querySelectorAll('.row-btn').forEach(b=>b.classList.toggle('active',b.textContent===targetRow));
+                const lbl=document.getElementById('currentRowLabel');
+                if(lbl)lbl.textContent=`（「${CHARACTER_ROWS[targetRow].label}」を選択中）`;
+                frameBuffer=[];wristBuffer=[];
+              }
+              selectCharacter(targetIndex);
+            });
+            container.appendChild(btn);
+          });
+        });
+      } else {
+        // 通常版：選択中の行の文字だけ表示
+        const chars=CHARACTER_ROWS[currentRow].chars;
+        chars.forEach((char,index)=>{
+          const btn=document.createElement('button');btn.className='char-btn';btn.textContent=char;
+          if(index===0)btn.classList.add('active');
+          if(currentRow==='S')btn.title=SPECIAL_STAGE_NAMES[char];
+          btn.addEventListener('click',()=>{selectCharacter(index);});
+          container.appendChild(btn);
+          if((index+1)%5===0&&index<chars.length-1){const lb=document.createElement('div');lb.style.width='100%';lb.style.height='0';container.appendChild(lb);}
+        });
+      }
     }
 
     function selectCharacter(index){
@@ -3549,7 +3595,16 @@
       currentCharIndex=index;currentChar=chars[index];
       hideBlackout();
       document.getElementById('currentCharDisplay').textContent=currentChar;
-      document.querySelectorAll('.char-btn').forEach((btn,i)=>{btn.classList.toggle('active',i===index);});
+      const isInstruction=document.body.classList.contains('instruction-layout');
+      if(isInstruction){
+        // 全文字フラット版：row+charが一致するボタンをactiveに
+        document.querySelectorAll('.char-btn').forEach(btn=>{
+          const match=(btn.dataset.row===currentRow && btn.dataset.char===currentChar);
+          btn.classList.toggle('active',match);
+        });
+      } else {
+        document.querySelectorAll('.char-btn').forEach((btn,i)=>{btn.classList.toggle('active',i===index);});
+      }
 
       // Special stages
       if(currentRow==='S'){

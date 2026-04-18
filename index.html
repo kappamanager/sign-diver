@@ -90,13 +90,13 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --card-bg: rgba(255, 255, 255, 0.82);
-      --card-border: rgba(255, 255, 255, 0.5);
-      --card-hover-border: rgba(255, 255, 255, 0.7);
-      --card-shadow: rgba(10, 40, 80, 0.15);
-      --text-primary: #0c2d48;
-      --text-secondary: #2e5a78;
-      --text-muted: #5a8aaa;
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --card-border: rgba(255, 255, 255, 0.6);
+      --card-hover-border: rgba(255, 255, 255, 0.8);
+      --card-shadow: rgba(10, 40, 80, 0.18);
+      --text-primary: #07233b;
+      --text-secondary: #234e6a;
+      --text-muted: #4a7896;
       --ogp-blue: #6ab4e2;
       --ogp-mint: #7ae0c4;
       --ogp-lavender: #b09ddb;
@@ -109,8 +109,8 @@
       --btn-practice-shadow: rgba(176, 157, 219, 0.3);
       --highlight-text: #0e7c86;
       --highlight-bg: linear-gradient(135deg, rgba(122,224,196,0.18), rgba(106,180,226,0.12));
-      --text-on-ocean: rgba(255, 255, 255, 0.65);
-      --text-on-ocean-bright: rgba(255, 255, 255, 0.9);
+      --text-on-ocean: rgba(255, 255, 255, 0.85);
+      --text-on-ocean-bright: rgba(255, 255, 255, 1);
     }
 
     body {
@@ -130,21 +130,22 @@
       align-items: center;
       padding: 20px;
       overflow: hidden;
+      /* 明るい帯（海面）が波SVG（top:310px）と重なるよう調整 */
       background: linear-gradient(
         180deg,
-        #091428 0%,
-        #0c1e3a 8%,
-        #102a4e 16%,
-        #143862 22%,
-        #1a5278 26%,
-        #2e8ab8 29%,
-        #3498c8 31%,
-        #2d8dba 34%,
-        #2580a8 38%,
-        #1e7298 45%,
-        #1a6488 55%,
-        #165878 68%,
-        #134c68 80%,
+        #091428 0px,
+        #0c1e3a 80px,
+        #102a4e 150px,
+        #143862 210px,
+        #1a5278 260px,
+        #2e8ab8 300px,
+        #3498c8 320px,
+        #2d8dba 350px,
+        #2580a8 380px,
+        #1e7298 440px,
+        #1a6488 560px,
+        #165878 700px,
+        #134c68 850px,
         #0f3d55 100%
       );
     }
@@ -216,10 +217,17 @@
 
     .surface-glow {
       position: absolute;
-      top: 360px;
+      top: 300px;
       left: 0; right: 0;
-      height: 60px;
-      background: linear-gradient(180deg, rgba(52,152,200,0.25) 0%, rgba(106,180,226,0.15) 30%, rgba(255,255,255,0.08) 60%, transparent 100%);
+      height: 140px;
+      background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(106,180,226,0.15) 20%,
+        rgba(255,255,255,0.12) 40%,
+        rgba(106,180,226,0.1)  65%,
+        transparent 100%
+      );
       z-index: 0;
       pointer-events: none;
       animation: glowPulse 5s ease-in-out infinite;
@@ -300,9 +308,9 @@
     /* Description card */
     .description-box {
       background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border); border-radius: 24px; padding: 24px 28px;
+      border: 1px solid var(--card-border); border-radius: 24px; padding: 26px 30px;
       margin-bottom: 20px; box-shadow: 0 4px 24px var(--card-shadow);
-      line-height: 1.9; font-size: 14.5px; color: var(--text-secondary);
+      line-height: 1.95; font-size: 16px; font-weight: 500; color: var(--text-primary);
     }
     .description-box p { margin-bottom: 12px; }
     .description-box p:last-child { margin-bottom: 0; }
@@ -316,36 +324,75 @@
     }
     .description-box a:hover { border-bottom-color: var(--ogp-blue); background: rgba(106,180,226,0.08); }
 
-    /* Options zone */
-    .options-zone {
-      border: 1.5px dashed rgba(255,255,255,0.35); border-radius: 24px;
-      padding: 24px 24px 12px; margin-bottom: 20px;
-      background: rgba(255,255,255,0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    /* Current settings preview card */
+    .settings-preview {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px var(--card-shadow);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
     }
-    .options-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-    .options-label { font-size: 14px; font-weight: 700; color: white; letter-spacing: 0.5px; }
-    .options-badge { font-size: 11px; color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.15); border-radius: 20px; padding: 3px 12px; }
-
-    /* Hand/camera option groups */
-    .hand-select, .camera-display-select {
-      background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.4); border-radius: 18px;
-      padding: 18px 22px; margin-bottom: 12px; box-shadow: 0 2px 12px var(--card-shadow);
+    .settings-preview-body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
     }
-    .hand-select h2, .camera-display-select h2 {
-      color: var(--text-primary); font-weight: 700; font-size: 16px;
-      letter-spacing: 0.5px; white-space: nowrap; margin: 0;
+    .settings-preview-heading {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2.5px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
     }
-    .hand-buttons, .camera-display-buttons { display: flex; gap: 10px; flex: 1; width: 100%; }
-    .hand-btn, .camera-display-btn {
-      flex: 1; padding: 12px 16px; border: 2px solid rgba(106,180,226,0.25); border-radius: 14px;
-      background: rgba(106,180,226,0.06); color: var(--text-secondary); font-family: inherit;
-      font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.25s; text-align: center;
+    .settings-preview-item {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 14.5px;
+      line-height: 1.5;
     }
-    .hand-btn:hover, .camera-display-btn:hover { border-color: rgba(106,180,226,0.4); background: rgba(106,180,226,0.1); }
-    .hand-btn.selected, .camera-display-btn.selected {
-      background: linear-gradient(135deg, rgba(106,180,226,0.18), rgba(122,224,196,0.12));
-      border-color: var(--ogp-blue); color: var(--text-primary); box-shadow: 0 2px 12px rgba(106,180,226,0.15);
+    .settings-preview-item-label {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .settings-preview-item-value {
+      color: var(--text-primary);
+      font-weight: 800;
+    }
+    .settings-preview-sep {
+      color: rgba(106,180,226,0.55);
+      font-weight: 400;
+    }
+    .settings-preview-link {
+      padding: 9px 20px;
+      border: 1.5px solid rgba(106,180,226,0.5);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.85);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s;
+      white-space: nowrap;
+    }
+    .settings-preview-link:hover {
+      background: white;
+      border-color: var(--ogp-blue);
+      color: var(--text-primary);
+      transform: translateY(-1px);
     }
 
     /* Mode cards */
@@ -360,13 +407,13 @@
     .mode-card.active { transform: translateY(-2px); }
     .mode-card--practice.active { border-color: var(--ogp-lavender); box-shadow: 0 6px 28px rgba(176,157,219,0.2); }
     .mode-card--game.active { border-color: var(--ogp-blue); box-shadow: 0 6px 28px rgba(106,180,226,0.2); }
-    .mode-card-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--text-muted); }
-    .mode-card-title { font-size: 19px; font-weight: 800; color: var(--text-primary); }
-    .mode-card-desc { font-size: 12px; color: var(--text-secondary); font-weight: 500; line-height: 1.7; flex: 1; }
+    .mode-card-label { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 2px; color: var(--text-secondary); }
+    .mode-card-title { font-size: 20px; font-weight: 800; color: var(--text-primary); }
+    .mode-card-desc { font-size: 13px; color: var(--text-primary); font-weight: 500; line-height: 1.8; flex: 1; }
     .mode-card-select-btn {
-      width: 100%; padding: 11px; border: 1.5px solid rgba(106,180,226,0.25); border-radius: 50px;
-      background: rgba(106,180,226,0.06); color: var(--text-secondary); font-family: inherit;
-      font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s;
+      width: 100%; padding: 12px; border: 1.5px solid rgba(106,180,226,0.45); border-radius: 50px;
+      background: rgba(255,255,255,0.7); color: var(--text-primary); font-family: inherit;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.25s;
     }
     .mode-card--practice.active .mode-card-select-btn { background: linear-gradient(135deg, rgba(176,157,219,0.2), rgba(176,157,219,0.1)); border-color: var(--ogp-lavender); color: #6b4ea0; }
     .mode-card--game.active .mode-card-select-btn { background: linear-gradient(135deg, rgba(106,180,226,0.2), rgba(122,224,196,0.1)); border-color: var(--ogp-blue); color: #1a6a9a; }
@@ -424,9 +471,9 @@
 
     /* Footer */
     .site-footer { text-align: center; margin-top: 32px; position: relative; z-index: 2; padding-bottom: 20px; }
-    .site-footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; margin: 0 8px; font-weight: 500; transition: color 0.2s; }
-    .site-footer a:hover { color: rgba(255,255,255,0.9); }
-    .footer-sep { color: rgba(255,255,255,0.2); }
+    .site-footer a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 13.5px; margin: 0 8px; font-weight: 600; transition: color 0.2s; }
+    .site-footer a:hover { color: #fff; }
+    .footer-sep { color: rgba(255,255,255,0.35); }
     .footer-icon { color: #ef5350; font-size: 12px; margin-right: 4px; }
 
     @media (max-width: 600px) {
@@ -434,8 +481,335 @@
       .mode-cards { grid-template-columns: 1fr; }
       .difficulty-buttons { flex-direction: column; }
       .action-buttons { flex-direction: column; }
-      .hand-select, .camera-display-select { padding: 16px; }
+      .settings-preview { padding: 12px 14px; gap: 10px; }
+      .settings-preview-link { width: 100%; text-align: center; }
       .container { padding-top: 10px; }
+    }
+
+    /* ═══════════════════════════════════════════════
+       初回セットアップウィザード
+       ═══════════════════════════════════════════════ */
+    .wizard-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 20, 40, 0.78);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9600;
+      padding: 20px;
+      animation: wizFadeIn 0.3s ease;
+    }
+    @keyframes wizFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .wizard-box {
+      position: relative;
+      background: linear-gradient(160deg, rgba(255,255,255,0.96), rgba(245,250,255,0.94));
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 28px;
+      padding: 28px 32px 24px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      animation: wizBoxIn 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+      color: var(--text-primary);
+    }
+    @keyframes wizBoxIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* 進行ドット */
+    .wizard-progress {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .wizard-progress-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(106,180,226,0.25);
+      transition: all 0.3s;
+    }
+    .wizard-progress-dot.active {
+      background: var(--ogp-blue);
+      width: 24px;
+      border-radius: 4px;
+    }
+    .wizard-progress-dot.done {
+      background: var(--ogp-mint);
+    }
+
+    /* ステップ本体 */
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; animation: wizStepIn 0.3s ease; }
+    @keyframes wizStepIn {
+      from { opacity: 0; transform: translateX(12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .wizard-step-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-align: center;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    .wizard-step-desc {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    /* デモ映像プレースホルダー */
+    .wizard-demo {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      max-height: 40vh;
+      width: 100%;
+      margin: 8px 0 18px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #3498c8 0%, #1e7298 50%, #165878 100%);
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wizard-demo::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 50% 40% at 30% 20%, rgba(255,255,255,0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 35% at 65% 15%, rgba(255,255,255,0.1)  0%, transparent 65%);
+      animation: caustics 15s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .wizard-demo-hand {
+      font-size: 72px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+      animation: demoHandWave 2.4s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+    }
+    @keyframes demoHandWave {
+      0%, 100% { transform: translateY(0) rotate(-6deg); }
+      50%      { transform: translateY(-8px) rotate(6deg); }
+    }
+    .wizard-demo-badge {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      padding: 4px 10px;
+      background: rgba(0,0,0,0.45);
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      border-radius: 20px;
+      z-index: 2;
+    }
+    .wizard-demo-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+      background: #000;
+    }
+
+    /* 選択肢ボタン（hand/camera） */
+    .wizard-choices {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .wizard-choice-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 16px 14px;
+      border: 2px solid rgba(106,180,226,0.3);
+      border-radius: 16px;
+      background: rgba(106,180,226,0.06);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .wizard-choice-btn:hover {
+      border-color: rgba(106,180,226,0.55);
+      background: rgba(106,180,226,0.1);
+      transform: translateY(-1px);
+    }
+    .wizard-choice-btn.selected {
+      background: linear-gradient(135deg, rgba(106,180,226,0.22), rgba(122,224,196,0.14));
+      border-color: var(--ogp-blue);
+      color: var(--text-primary);
+      box-shadow: 0 4px 14px rgba(106,180,226,0.22);
+    }
+    .wizard-choice-btn:focus-visible {
+      outline: 2px solid var(--ogp-blue);
+      outline-offset: 2px;
+    }
+
+    /* 完了ステップのサマリ */
+    .wizard-summary {
+      background: rgba(106,180,226,0.08);
+      border: 1px solid rgba(106,180,226,0.25);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.9;
+    }
+    .wizard-summary strong {
+      color: var(--text-primary);
+      font-weight: 800;
+    }
+
+    /* ナビボタン */
+    .wizard-nav {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+    .wizard-btn {
+      padding: 12px 22px;
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      border: none;
+    }
+    .wizard-btn-primary {
+      background: var(--btn-game);
+      color: white;
+      box-shadow: 0 4px 16px var(--btn-game-shadow);
+      flex: 1;
+    }
+    .wizard-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px var(--btn-game-shadow);
+    }
+    .wizard-btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .wizard-btn-secondary {
+      background: rgba(255,255,255,0.7);
+      color: var(--text-secondary);
+      border: 1.5px solid rgba(106,180,226,0.3);
+    }
+    .wizard-btn-secondary:hover {
+      background: white;
+      border-color: var(--ogp-blue);
+      color: var(--text-primary);
+    }
+    .wizard-btn:focus-visible {
+      outline: 2px solid var(--ogp-blue);
+      outline-offset: 2px;
+    }
+
+    /* スキップ */
+    .wizard-skip-row {
+      text-align: center;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(106,180,226,0.2);
+    }
+    .wizard-skip {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 8px;
+      text-decoration: underline;
+      font-family: inherit;
+    }
+    .wizard-skip:hover { color: var(--text-secondary); }
+    .wizard-skip-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 10px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .wizard-skip-check input {
+      accent-color: var(--ogp-blue);
+    }
+
+    /* Toast（保存フィードバック） */
+    .wizard-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(14, 30, 60, 0.92);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      border: 1px solid rgba(122,224,196,0.4);
+    }
+    .wizard-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 600px) {
+      .wizard-box { padding: 22px 20px 18px; border-radius: 24px; }
+      .wizard-step-title { font-size: 19px; }
+      .wizard-demo-hand { font-size: 56px; }
+      .wizard-choice-btn { min-width: 0; padding: 14px 10px; font-size: 14px; }
+      .wizard-btn { padding: 11px 16px; font-size: 13px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .wizard-overlay,
+      .wizard-box,
+      .wizard-step,
+      .wizard-demo::before,
+      .wizard-demo-hand {
+        animation: none !important;
+      }
     }
   </style>
 </head>
@@ -470,37 +844,21 @@
       <p>※スマホでも遊んでいただけます。環境によってプレイのしやすさ=速度が異なります。</p>
     </div>
     
-    <!-- オプションゾーン -->
-    <div class="options-zone">
-      <div class="options-header">
-        <span style="font-size: 18px;">⚙️</span>
-        <span class="options-label">オプション</span>
-        <span class="options-badge">プレイ前に確認してください</span>
+    <!-- 現在の設定プレビュー -->
+    <div class="settings-preview">
+      <div class="settings-preview-body">
+        <span class="settings-preview-heading">Current</span>
+        <span class="settings-preview-item">
+          <span class="settings-preview-item-label">利き手</span>
+          <span class="settings-preview-item-value" id="previewHand">右手</span>
+        </span>
+        <span class="settings-preview-sep" aria-hidden="true">|</span>
+        <span class="settings-preview-item">
+          <span class="settings-preview-item-label">カメラ</span>
+          <span class="settings-preview-item-value" id="previewCamera">表示する</span>
+        </span>
       </div>
-
-      <!-- 利き手設定 -->
-      <div class="hand-select">
-        <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-          <h2 style="margin:0;">🖐️ 利き手設定</h2>
-          <span style="font-size:11px; color:var(--text-muted); font-weight:500;">指文字を表現する手を選択します</span>
-        </div>
-        <div class="hand-buttons">
-          <button class="hand-btn" data-hand="right">右手</button>
-          <button class="hand-btn" data-hand="left">左手</button>
-        </div>
-      </div>
-
-      <!-- カメラ映像表示選択 -->
-      <div class="camera-display-select">
-        <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-          <h2 style="margin:0;">📷 カメラ映像</h2>
-          <span style="font-size:11px; color:var(--text-muted); font-weight:500;">画面に自分の姿を映すか選択します</span>
-        </div>
-        <div class="camera-display-buttons">
-          <button class="camera-display-btn" data-show="true">表示する</button>
-          <button class="camera-display-btn" data-show="false">表示しない</button>
-        </div>
-      </div>
+      <a class="settings-preview-link" href="settings.html" data-umami-event="settings-open">設定を変更</a>
     </div>
 
     <!-- 2大モード カード -->
@@ -530,7 +888,7 @@
       <!-- 練習モード詳細 -->
       <div id="detailPractice" style="display:none;">
         <div class="mode-detail-header mode-detail-header--practice">
-          🎓 練習モード
+          練習モード
         </div>
         <div class="action-buttons">
           <button
@@ -544,7 +902,7 @@
       <!-- タイピングゲーム詳細 -->
       <div id="detailGame" style="display:none;">
         <div class="mode-detail-header mode-detail-header--game">
-          🎮 タイピングモード
+          タイピングモード
         </div>
         <div class="difficulty-select">
           <h2>難易度を選択</h2>
@@ -578,6 +936,8 @@
       <span class="footer-sep">|</span>
       <a href="about_signdiver.html">Sign Diverとは？</a>
       <span class="footer-sep">|</span>
+      <a href="settings.html">設定</a>
+      <span class="footer-sep">|</span>
       <a href="terms.html">利用規約</a>
       <span class="footer-sep">|</span>
       <a href="privacy.html">プライバシーポリシー</a>
@@ -585,6 +945,139 @@
     <a href="index.html">Sign Diver</a>
   </footer>
   </div>
+
+  <!-- ═══════════════════════════════════════════════
+       初回セットアップウィザード
+       ═══════════════════════════════════════════════ -->
+  <div id="setupWizard" class="wizard-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="wizStepTitle" style="display:none;">
+    <div class="wizard-box">
+      <!-- 進行インジケータ -->
+      <div class="wizard-progress" aria-hidden="true">
+        <div class="wizard-progress-dot" data-dot="1"></div>
+        <div class="wizard-progress-dot" data-dot="2"></div>
+        <div class="wizard-progress-dot" data-dot="3"></div>
+        <div class="wizard-progress-dot" data-dot="4"></div>
+        <div class="wizard-progress-dot" data-dot="5"></div>
+        <div class="wizard-progress-dot" data-dot="6"></div>
+      </div>
+
+      <!-- ステップ1: ようこそ + タイピングデモ -->
+      <div class="wizard-step" data-step="1">
+        <h2 class="wizard-step-title" id="wizStepTitle">🤿 Sign Diver へようこそ</h2>
+        <p class="wizard-step-desc">
+          カメラで指文字を認識する、新しいタイピングゲーム。<br>
+          制限時間内にたくさんの単語を入力して深海を目指そう！
+        </p>
+        <div class="wizard-demo" aria-hidden="true">
+          <span class="wizard-demo-badge">TYPING</span>
+          <video class="wizard-demo-video" data-wiz-video
+                 muted loop playsinline preload="metadata"
+                 src="./instruction/001_typing.mp4"></video>
+        </div>
+        <div class="wizard-nav">
+          <button class="wizard-btn wizard-btn-primary" data-wiz-next>次へ</button>
+        </div>
+      </div>
+
+      <!-- ステップ2: スキップ方法 -->
+      <div class="wizard-step" data-step="2">
+        <h2 class="wizard-step-title">✋ スキップ方法</h2>
+        <p class="wizard-step-desc">
+          認識しづらい単語は「×」の形で1.5秒キープするとスキップできます。<br>
+          スコアは少し減りますが、テンポよくプレイできます。
+        </p>
+        <div class="wizard-demo" aria-hidden="true">
+          <span class="wizard-demo-badge">SKIP</span>
+          <video class="wizard-demo-video" data-wiz-video
+                 muted loop playsinline preload="metadata"
+                 src="./instruction/002_skip.mp4"></video>
+        </div>
+        <div class="wizard-nav">
+          <button class="wizard-btn wizard-btn-secondary" data-wiz-back>戻る</button>
+          <button class="wizard-btn wizard-btn-primary" data-wiz-next>次へ</button>
+        </div>
+      </div>
+
+      <!-- ステップ3: 練習モード -->
+      <div class="wizard-step" data-step="3">
+        <h2 class="wizard-step-title">🎓 練習モード</h2>
+        <p class="wizard-step-desc">
+          指文字がまだ分からなくても大丈夫。<br>
+          キャラクターと一緒に、一文字ずつじっくり覚えられます。
+        </p>
+        <div class="wizard-demo" aria-hidden="true">
+          <span class="wizard-demo-badge">PRACTICE</span>
+          <video class="wizard-demo-video" data-wiz-video
+                 muted loop playsinline preload="metadata"
+                 src="./instruction/003_practice.mp4"></video>
+        </div>
+        <div class="wizard-nav">
+          <button class="wizard-btn wizard-btn-secondary" data-wiz-back>戻る</button>
+          <button class="wizard-btn wizard-btn-primary" data-wiz-next>次へ</button>
+        </div>
+      </div>
+
+      <!-- ステップ4: 利き手 -->
+      <div class="wizard-step" data-step="4">
+        <h2 class="wizard-step-title">🖐️ 利き手を教えてください</h2>
+        <p class="wizard-step-desc">
+          指文字を表現する手を選びましょう。<br>
+          あとで「設定」からいつでも変更できます。
+        </p>
+        <div class="wizard-choices" role="radiogroup" aria-label="利き手">
+          <button class="wizard-choice-btn" data-wiz-choice="hand" data-value="right" role="radio">右手</button>
+          <button class="wizard-choice-btn" data-wiz-choice="hand" data-value="left"  role="radio">左手</button>
+        </div>
+        <div class="wizard-nav">
+          <button class="wizard-btn wizard-btn-secondary" data-wiz-back>戻る</button>
+          <button class="wizard-btn wizard-btn-primary" data-wiz-next disabled>次へ</button>
+        </div>
+      </div>
+
+      <!-- ステップ5: カメラ表示 -->
+      <div class="wizard-step" data-step="5">
+        <h2 class="wizard-step-title">📷 カメラ映像を表示しますか？</h2>
+        <p class="wizard-step-desc">
+          プレイ画面に自分の姿を映すか選びましょう。<br>
+          表示すると手の位置が確認しやすくなります。
+        </p>
+        <div class="wizard-choices" role="radiogroup" aria-label="カメラ映像の表示">
+          <button class="wizard-choice-btn" data-wiz-choice="showCamera" data-value="true"  role="radio">表示する</button>
+          <button class="wizard-choice-btn" data-wiz-choice="showCamera" data-value="false" role="radio">表示しない</button>
+        </div>
+        <div class="wizard-nav">
+          <button class="wizard-btn wizard-btn-secondary" data-wiz-back>戻る</button>
+          <button class="wizard-btn wizard-btn-primary" data-wiz-next disabled>次へ</button>
+        </div>
+      </div>
+
+      <!-- ステップ6: 完了 -->
+      <div class="wizard-step" data-step="6">
+        <h2 class="wizard-step-title">🎉 準備完了！</h2>
+        <p class="wizard-step-desc">
+          下記の設定で始めます。<br>
+          いつでも「設定」から変更できますよ。
+        </p>
+        <div class="wizard-summary" id="wizSummary" aria-live="polite"></div>
+        <div class="wizard-nav">
+          <button class="wizard-btn wizard-btn-secondary" data-wiz-back>戻る</button>
+          <button class="wizard-btn wizard-btn-primary" data-wiz-done>はじめる</button>
+        </div>
+      </div>
+
+      <!-- スキップ -->
+      <div class="wizard-skip-row">
+        <button class="wizard-skip" id="wizSkipBtn" type="button">スキップ</button>
+        <label class="wizard-skip-check">
+          <input type="checkbox" id="wizSkipRemember"> 次回から表示しない
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ウィザード完了トースト -->
+  <div class="wizard-toast" id="wizardToast" role="status" aria-live="polite"></div>
 
   <script>
     // ═══════════════════════════════════════════════
@@ -663,17 +1156,25 @@
     let selectedDifficulty = 'easy';
     let selectedTime = 60;
 
-    // localStorageから利き手を復元（なければ right）
+    // localStorageから利き手・カメラ設定を読む（なければデフォルト）
+    // 設定はsettings.html側で変更する。ここでは開始ボタン押下時のURL生成のみ
     let selectedHand = localStorage.getItem('signDiver_hand') || 'right';
     let selectedShowCamera = (localStorage.getItem('signDiver_showCamera') !== 'false');  // デフォルトtrue
 
-    // ページ読み込み時にボタン状態を復元
-    document.querySelectorAll('.hand-btn').forEach(btn => {
-      btn.classList.toggle('selected', btn.dataset.hand === selectedHand);
-    });
+    // 現在の設定プレビューを更新
+    function updateSettingsPreview() {
+      const handEl = document.getElementById('previewHand');
+      const camEl  = document.getElementById('previewCamera');
+      if (handEl) handEl.textContent = (selectedHand === 'left' ? '左手' : '右手');
+      if (camEl)  camEl.textContent  = (selectedShowCamera ? '表示する' : '表示しない');
+    }
+    updateSettingsPreview();
 
-    document.querySelectorAll('.camera-display-btn').forEach(btn => {
-      btn.classList.toggle('selected', btn.dataset.show === String(selectedShowCamera));
+    // settings.htmlから戻ってきたとき（戻るボタン経由のbfcache含む）に最新値を反映
+    window.addEventListener('pageshow', () => {
+      selectedHand = localStorage.getItem('signDiver_hand') || 'right';
+      selectedShowCamera = (localStorage.getItem('signDiver_showCamera') !== 'false');
+      updateSettingsPreview();
     });
 
     // モードカード選択インタラクション
@@ -716,24 +1217,6 @@
       });
     });
 
-    document.querySelectorAll('.hand-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.hand-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedHand = btn.dataset.hand;
-        localStorage.setItem('signDiver_hand', selectedHand); // 永続保存
-      });
-    });
-
-    document.querySelectorAll('.camera-display-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.camera-display-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedShowCamera = (btn.dataset.show === 'true');
-        localStorage.setItem('signDiver_showCamera', String(selectedShowCamera));
-      });
-    });
-
     document.getElementById('gameStartBtn').addEventListener('click', () => {
       // Umami: ゲーム開始イベント（難易度・利き手を記録）
       if (typeof umami !== 'undefined') {
@@ -745,6 +1228,266 @@
       }
       window.location.href = `typing_game.html?difficulty=${selectedDifficulty}&time=${selectedTime}&hand=${selectedHand}`;
     });
+
+    // ═══════════════════════════════════════════════
+    // 初回セットアップウィザード
+    // ═══════════════════════════════════════════════
+    (function initSetupWizard() {
+      // localStorageセーフアクセサ（プライベートモード等で落ちない）
+      const memStore = {};
+      const lsGet = (k) => {
+        try { return localStorage.getItem(k); }
+        catch (e) { return (k in memStore) ? memStore[k] : null; }
+      };
+      const lsSet = (k, v) => {
+        try { localStorage.setItem(k, v); }
+        catch (e) { memStore[k] = v; }
+      };
+      const lsRemove = (k) => {
+        try { localStorage.removeItem(k); }
+        catch (e) { delete memStore[k]; }
+      };
+
+      const WIZ_FLAG_KEY = 'signDiver_seenSetupWizard';
+      const params = new URLSearchParams(location.search);
+      const forced = params.has('wizard');
+      const seenBefore = lsGet(WIZ_FLAG_KEY) === '1';
+
+      // 表示判定
+      if (!forced && seenBefore) return;
+
+      // ─── 要素キャッシュ ───
+      const overlay   = document.getElementById('setupWizard');
+      const steps     = overlay.querySelectorAll('.wizard-step');
+      const dots      = overlay.querySelectorAll('.wizard-progress-dot');
+      const skipBtn   = document.getElementById('wizSkipBtn');
+      const skipRemember = document.getElementById('wizSkipRemember');
+      const summaryEl = document.getElementById('wizSummary');
+      const toastEl   = document.getElementById('wizardToast');
+      const totalSteps = steps.length;
+
+      // 選択値を内部保持（完了時に一括保存）
+      const draft = {
+        hand: selectedHand,
+        showCamera: selectedShowCamera,
+      };
+
+      let currentStep = 1;
+      let previouslyFocused = null;
+
+      // ─── Focus Trap ───
+      function getFocusables() {
+        const activeStep = overlay.querySelector(`.wizard-step[data-step="${currentStep}"]`);
+        const common = [
+          ...activeStep.querySelectorAll('button:not([disabled]), [role="radio"]:not([disabled])'),
+          skipBtn,
+          skipRemember,
+        ];
+        return common.filter(el => el && !el.hidden);
+      }
+
+      function trapFocus(e) {
+        if (e.key !== 'Tab') return;
+        const focusables = getFocusables();
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last  = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault(); last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault(); first.focus();
+        }
+      }
+
+      function onKeyDown(e) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          handleSkip();
+          return;
+        }
+        trapFocus(e);
+      }
+
+      // ─── ステップ表示切替 ───
+      function renderStep() {
+        steps.forEach(s => {
+          const isActive = Number(s.dataset.step) === currentStep;
+          s.classList.toggle('active', isActive);
+        });
+        dots.forEach((d, i) => {
+          const idx = i + 1;
+          d.classList.toggle('active', idx === currentStep);
+          d.classList.toggle('done', idx < currentStep);
+        });
+        // 次へボタンの活性制御（選択が必須のステップ）
+        const activeStepEl = overlay.querySelector(`.wizard-step[data-step="${currentStep}"]`);
+        const nextBtn = activeStepEl.querySelector('[data-wiz-next]');
+        if (nextBtn) {
+          if (currentStep === 4) nextBtn.disabled = !draft.hand;
+          else if (currentStep === 5) nextBtn.disabled = (typeof draft.showCamera === 'undefined');
+          else nextBtn.disabled = false;
+        }
+        // ステップ6（最終ステップ）のサマリ更新
+        if (currentStep === 6) {
+          const handLabel = draft.hand === 'left' ? '左手' : '右手';
+          const camLabel  = draft.showCamera ? '表示する' : '表示しない';
+          summaryEl.innerHTML = `
+            🖐️ 利き手: <strong>${handLabel}</strong><br>
+            📷 カメラ映像: <strong>${camLabel}</strong>
+          `;
+        }
+        // 動画制御: アクティブステップ内の動画のみ再生、それ以外は一時停止
+        overlay.querySelectorAll('[data-wiz-video]').forEach(v => {
+          const stepEl = v.closest('.wizard-step');
+          const stepNum = stepEl ? Number(stepEl.dataset.step) : -1;
+          if (stepNum === currentStep) {
+            try { v.currentTime = 0; v.play().catch(() => {}); } catch (e) {}
+          } else {
+            try { v.pause(); } catch (e) {}
+          }
+        });
+        // フォーカス移動
+        requestAnimationFrame(() => {
+          const focusables = getFocusables();
+          if (focusables.length) focusables[0].focus();
+        });
+      }
+
+      // ─── 選択ボタンの状態復元 ───
+      function refreshChoices() {
+        overlay.querySelectorAll('[data-wiz-choice]').forEach(btn => {
+          const key = btn.dataset.wizChoice;
+          const val = btn.dataset.value;
+          const current = String(draft[key]);
+          const matches =
+            (key === 'showCamera' && val === String(!!draft.showCamera)) ||
+            (key === 'hand' && val === current);
+          btn.classList.toggle('selected', matches);
+          btn.setAttribute('aria-checked', matches ? 'true' : 'false');
+        });
+      }
+
+      // ─── 選択操作 ───
+      overlay.querySelectorAll('[data-wiz-choice]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.wizChoice;
+          const val = btn.dataset.value;
+          if (key === 'hand') draft.hand = val;
+          else if (key === 'showCamera') draft.showCamera = (val === 'true');
+          refreshChoices();
+          // 選択したステップの「次へ」を活性化
+          const activeStepEl = overlay.querySelector(`.wizard-step[data-step="${currentStep}"]`);
+          const nextBtn = activeStepEl.querySelector('[data-wiz-next]');
+          if (nextBtn) nextBtn.disabled = false;
+        });
+      });
+
+      // ─── ナビ ───
+      overlay.querySelectorAll('[data-wiz-next]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (currentStep < totalSteps) {
+            currentStep += 1;
+            renderStep();
+          }
+        });
+      });
+      overlay.querySelectorAll('[data-wiz-back]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (currentStep > 1) {
+            currentStep -= 1;
+            renderStep();
+          }
+        });
+      });
+
+      // ─── 完了 ───
+      overlay.querySelector('[data-wiz-done]').addEventListener('click', () => {
+        // 一括保存
+        lsSet('signDiver_hand', draft.hand);
+        lsSet('signDiver_showCamera', String(!!draft.showCamera));
+        lsSet(WIZ_FLAG_KEY, '1');
+
+        // 外部変数も更新 → プレビュー即反映
+        selectedHand = draft.hand;
+        selectedShowCamera = !!draft.showCamera;
+        updateSettingsPreview();
+
+        // Umami
+        if (typeof umami !== 'undefined') {
+          umami.track('wizard-complete', {
+            hand: draft.hand,
+            showCamera: !!draft.showCamera
+          });
+        }
+
+        closeWizard();
+        showWizToast('✓ 設定を保存しました');
+      });
+
+      // ─── スキップ ───
+      function handleSkip() {
+        // 「次回から表示しない」にチェックがあればフラグを立てる
+        if (skipRemember && skipRemember.checked) {
+          lsSet(WIZ_FLAG_KEY, '1');
+        }
+        if (typeof umami !== 'undefined') {
+          umami.track('wizard-skip', {
+            step: currentStep,
+            remember: !!(skipRemember && skipRemember.checked)
+          });
+        }
+        closeWizard();
+      }
+      skipBtn.addEventListener('click', handleSkip);
+
+      // ─── 閉じる ───
+      function closeWizard() {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', onKeyDown);
+        window.removeEventListener('popstate', onPopState);
+        // 動画を全て停止（メモリとCPUを解放）
+        overlay.querySelectorAll('[data-wiz-video]').forEach(v => {
+          try { v.pause(); } catch (e) {}
+        });
+        // URLのクエリから ?wizard=1 を除去（履歴を汚さない）
+        if (forced && location.hash === '#wizard') {
+          try { history.replaceState(null, '', location.pathname); } catch (e) {}
+        }
+        if (previouslyFocused) {
+          try { previouslyFocused.focus(); } catch (e) {}
+        }
+      }
+
+      // ─── ブラウザバック対応 ───
+      function onPopState() { closeWizard(); }
+
+      // ─── 開く ───
+      function openWizard() {
+        previouslyFocused = document.activeElement;
+        refreshChoices();
+        renderStep();
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        document.addEventListener('keydown', onKeyDown);
+        try {
+          history.pushState({ wizardOpen: true }, '', '#wizard');
+          window.addEventListener('popstate', onPopState);
+        } catch (e) { /* SSR等で使えない場合は無視 */ }
+      }
+
+      // トースト
+      let wizToastTimer = null;
+      function showWizToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        if (wizToastTimer) clearTimeout(wizToastTimer);
+        wizToastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+      }
+
+      // 起動
+      openWizard();
+    })();
   </script>
 </body>
 </html>
